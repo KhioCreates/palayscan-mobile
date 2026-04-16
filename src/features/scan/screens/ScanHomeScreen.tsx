@@ -23,6 +23,7 @@ import {
   identifyRiceIssueFromBase64,
 } from '../services/kindwiseClient';
 import { mapKindwiseResponseToScanResult } from '../services/mapKindwiseResult';
+import { runRouterPrefilter } from '../services/routerPrefilter';
 import { saveScanResult } from '../services/scanStorage';
 import { buildPlaceholderScanResult } from '../utils/scanPlaceholder';
 import { ScanApiState, ScanResult, SelectedScanImage } from '../types';
@@ -205,6 +206,17 @@ export function ScanHomeScreen() {
     setGuardMessage(null);
 
     try {
+      const routerPrefilter = await runRouterPrefilter(selectedImage.uri);
+
+      if (routerPrefilter.verdict === 'block') {
+        setApiState('idle');
+        setGuardMessage(
+          routerPrefilter.reason ??
+            'This image was blocked by the local offline router pre-check.',
+        );
+        return;
+      }
+
       const mappedResult =
         scanMode === 'live'
           ? mapKindwiseResponseToScanResult({
@@ -384,17 +396,6 @@ export function ScanHomeScreen() {
         ) : null}
 
         {result ? <ScanResultCard result={result} /> : null}
-
-        {notes.trim() ? (
-          <SectionCard tone="muted">
-            <View className="gap-2">
-              <Text className="text-lg font-semibold text-ink-900">Result notes</Text>
-              <Text className="text-sm leading-6 text-ink-600">
-                Notes entered before analysis stay attached to the current result.
-              </Text>
-            </View>
-          </SectionCard>
-        ) : null}
       </View>
     </ScreenContainer>
   );

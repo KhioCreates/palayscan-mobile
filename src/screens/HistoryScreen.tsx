@@ -71,7 +71,7 @@ export function HistoryScreen({ navigation }: HistoryScreenProps) {
       <HeaderBlock
         eyebrow="History Module"
         title="Review your saved records"
-        description="This screen will later separate scan history and planner history in one simple module."
+        description="Review saved scan and planner records stored locally on this device."
       />
 
       <View className="gap-4">
@@ -95,7 +95,7 @@ export function HistoryScreen({ navigation }: HistoryScreenProps) {
           <SectionCard tone="muted">
             <Text className="text-base font-semibold text-ink-900">No saved scan history yet</Text>
             <Text className="mt-2 text-sm leading-6 text-ink-600">
-              Analyze a scan result and it will be saved locally here automatically.
+              Complete a scan in mock or live mode and it will be saved here automatically.
             </Text>
           </SectionCard>
         ) : (
