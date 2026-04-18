@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Text, View } from 'react-native';
+import { Image, Text, View } from 'react-native';
 
 import { HeaderBlock } from '../../../components/ui/HeaderBlock';
 import { ScreenContainer } from '../../../components/ui/ScreenContainer';
@@ -27,6 +27,20 @@ function DetailList({ items }: { items: string[] }) {
 function VarietyDetail({ entry }: { entry: RiceVariety }) {
   return (
     <View className="gap-4">
+      {entry.imageSource ? (
+        <SectionCard>
+          <View className="overflow-hidden rounded-[20px] border border-brand-100">
+            <Image
+              accessibilityIgnoresInvertColors
+              accessibilityLabel={entry.imageAlt ?? `${entry.name} guide image`}
+              className="h-52 w-full"
+              resizeMode="cover"
+              source={entry.imageSource}
+            />
+          </View>
+        </SectionCard>
+      ) : null}
+
       <SectionCard>
         <View className="gap-3">
           <Text className="text-lg font-semibold text-ink-900">Basic Information</Text>
@@ -71,6 +85,20 @@ function VarietyDetail({ entry }: { entry: RiceVariety }) {
 function GuideInfoDetail({ entry }: { entry: GuideInfoEntry }) {
   return (
     <View className="gap-4">
+      {entry.imageSource ? (
+        <SectionCard>
+          <View className="overflow-hidden rounded-[20px] border border-brand-100">
+            <Image
+              accessibilityIgnoresInvertColors
+              accessibilityLabel={entry.imageAlt ?? `${entry.name} guide image`}
+              className="h-52 w-full"
+              resizeMode="cover"
+              source={entry.imageSource}
+            />
+          </View>
+        </SectionCard>
+      ) : null}
+
       {entry.scientificName ? (
         <SectionCard tone="muted">
           <View className="gap-2">
@@ -82,7 +110,7 @@ function GuideInfoDetail({ entry }: { entry: GuideInfoEntry }) {
 
       <SectionCard>
         <View className="gap-3">
-          <Text className="text-lg font-semibold text-ink-900">Identification</Text>
+          <Text className="text-lg font-semibold text-ink-900">How to recognize it</Text>
           <DetailList items={entry.identification} />
         </View>
       </SectionCard>
@@ -96,14 +124,14 @@ function GuideInfoDetail({ entry }: { entry: GuideInfoEntry }) {
 
       <SectionCard>
         <View className="gap-3">
-          <Text className="text-lg font-semibold text-ink-900">Treatment Guidance</Text>
+          <Text className="text-lg font-semibold text-ink-900">What to do</Text>
           <DetailList items={entry.treatment} />
         </View>
       </SectionCard>
 
       <SectionCard>
         <View className="gap-3">
-          <Text className="text-lg font-semibold text-ink-900">Prevention</Text>
+          <Text className="text-lg font-semibold text-ink-900">How to prevent it</Text>
           <DetailList items={entry.prevention} />
         </View>
       </SectionCard>

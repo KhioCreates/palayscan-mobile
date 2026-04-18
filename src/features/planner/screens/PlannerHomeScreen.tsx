@@ -51,7 +51,7 @@ export function PlannerHomeScreen({ navigation }: PlannerHomeScreenProps) {
       <HeaderBlock
         eyebrow="Planner Module"
         title="Create a rice farming activity schedule"
-        description="Choose a planting method and planting date, then generate a local rule-based timeline."
+        description="Choose a planting method and planting date, then generate a local farming activity schedule."
       />
 
       <View className="gap-4">
@@ -103,20 +103,20 @@ export function PlannerHomeScreen({ navigation }: PlannerHomeScreenProps) {
         <SectionCard tone="muted">
           <View className="gap-2">
             <Text className="text-lg font-semibold text-ink-900">What gets generated</Text>
-          <Text className="text-sm leading-6 text-ink-600">
-            The local schedule includes land preparation, seed preparation, planting activity,
-            fertilizer, water management checks, pest monitoring, and harvest window. Nursery
-            preparation appears only for transplanting, based on local mock rules.
-          </Text>
-        </View>
-      </SectionCard>
+            <Text className="text-sm leading-6 text-ink-600">
+              The schedule includes land preparation, seed preparation, planting activity,
+              fertilizer, water management checks, pest monitoring, and harvest timing. Nursery
+              preparation appears only for transplanting.
+            </Text>
+          </View>
+        </SectionCard>
 
-      <PrimaryButton
-        hint="Generate and save a local rule-based schedule for Planner History."
-        icon={<Ionicons color="white" name="calendar-number-outline" size={22} />}
-        label="Generate schedule"
-        onPress={handleGenerateSchedule}
-      />
+        <PrimaryButton
+          hint="Generate and save a local farming schedule for Planner History."
+          icon={<Ionicons color="white" name="calendar-number-outline" size={22} />}
+          label="Generate schedule"
+          onPress={handleGenerateSchedule}
+        />
       </View>
     </ScreenContainer>
   );

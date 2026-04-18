@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AboutScreen } from '../screens/AboutScreen';
 import { GuideNavigator } from '../features/guide/navigation/GuideNavigator';
 import { PlannerNavigator } from '../features/planner/navigation/PlannerNavigator';
+import { PlannerHistoryDetailScreen } from '../features/planner/screens/PlannerHistoryDetailScreen';
 import { ScanHistoryDetailScreen } from '../features/scan/screens/ScanHistoryDetailScreen';
 import { ScanNavigator } from '../features/scan/navigation/ScanNavigator';
 import { HistoryScreen } from '../screens/HistoryScreen';
@@ -25,6 +26,7 @@ export type RootStackParamList = {
   History: undefined;
   About: undefined;
   ScanHistoryDetail: { recordId: string };
+  PlannerHistoryDetail: { recordId: string };
 };
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -56,6 +58,7 @@ export function RootNavigator() {
       <Stack.Navigator
         screenOptions={{
           contentStyle: { backgroundColor: '#f4f8f1' },
+          headerBackButtonDisplayMode: 'minimal',
           headerShadowVisible: false,
           headerStyle: { backgroundColor: '#f4f8f1' },
           headerTintColor: '#1b241c',
@@ -86,6 +89,13 @@ export function RootNavigator() {
           name="ScanHistoryDetail"
           options={{
             title: 'Scan History Detail',
+          }}
+        />
+        <Stack.Screen
+          component={PlannerHistoryDetailScreen}
+          name="PlannerHistoryDetail"
+          options={{
+            title: 'Planner History Detail',
           }}
         />
       </Stack.Navigator>

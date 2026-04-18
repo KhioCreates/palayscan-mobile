@@ -24,7 +24,7 @@ export const plannerRules: PlannerRule[] = [
     description: 'Prepare the field, clear residues, and ready the area before main planting activities.',
     offsetDays: -14,
     windowDays: 6,
-    notes: ['Adjust exact field preparation timing based on local field condition and water access.'],
+    notes: ['Adjust the timing based on field condition and water access in your area.'],
   },
   {
     id: 'seed-prep',
@@ -34,7 +34,7 @@ export const plannerRules: PlannerRule[] = [
     description: 'Prepare or pre-germinate seeds before planting-related activities.',
     offsetDays: -3,
     windowDays: 2,
-    notes: ['Use healthy seed stock and update details later once panel-approved references are finalized.'],
+    notes: ['Use healthy seeds and prepare them properly before planting.'],
   },
   {
     id: 'nursery-prep',
@@ -44,7 +44,7 @@ export const plannerRules: PlannerRule[] = [
     description: 'Prepare the seedbed or nursery area for transplanting workflow.',
     offsetDays: -10,
     windowDays: 5,
-    notes: ['This activity applies only to transplanting schedules.'],
+    notes: ['This step applies only when using transplanting.'],
   },
   {
     id: 'main-planting-transplant',
@@ -53,7 +53,7 @@ export const plannerRules: PlannerRule[] = [
     title: 'Transplanting',
     description: 'Move seedlings to the prepared field on the chosen planting date.',
     offsetDays: 0,
-    notes: ['This date acts as the schedule anchor for the rest of the activity timeline.'],
+    notes: ['This planting date is used as the starting point for the rest of the schedule.'],
   },
   {
     id: 'main-planting-direct',
@@ -62,7 +62,7 @@ export const plannerRules: PlannerRule[] = [
     title: 'Direct Seeding',
     description: 'Carry out direct seeding on the chosen planting date.',
     offsetDays: 0,
-    notes: ['This date acts as the schedule anchor for the rest of the activity timeline.'],
+    notes: ['This planting date is used as the starting point for the rest of the schedule.'],
   },
   {
     id: 'fertilizer-first',
@@ -72,7 +72,7 @@ export const plannerRules: PlannerRule[] = [
     description: 'Plan the first fertilizer application after crop establishment.',
     offsetDays: 14,
     windowDays: 3,
-    notes: ['Exact fertilizer timing and rate can be revised later using final panel-approved guidance.'],
+    notes: ['Adjust the exact timing and amount based on your field condition and local advice.'],
   },
   {
     id: 'water-check',
@@ -82,7 +82,7 @@ export const plannerRules: PlannerRule[] = [
     description: 'Check field water condition and adjust management based on crop stage.',
     offsetDays: 21,
     windowDays: 5,
-    notes: ['This is intentionally broad for version 1 and can later be split into multiple checkpoints.'],
+    notes: ['Check whether the field has the right water level for the current crop stage.'],
   },
   {
     id: 'pest-monitoring',
@@ -92,16 +92,16 @@ export const plannerRules: PlannerRule[] = [
     description: 'Inspect the field regularly for pests and disease signs.',
     offsetDays: 30,
     windowDays: 7,
-    notes: ['Later versions can add repeated monitoring milestones.'],
+    notes: ['Walk through the field and check early for pest or disease signs.'],
   },
   {
     id: 'harvest-window',
     method: 'all',
     type: 'harvest',
     title: 'Harvest Window',
-    description: 'Estimated harvest window based on the selected planting method and local mock rules.',
+    description: 'Estimated harvest period based on the selected planting method and current local schedule rules.',
     offsetDays: 105,
     windowDays: 10,
-    notes: ['This is a mock local rule-based estimate and should be refined later with approved references.'],
+    notes: ['Use this as a guide and adjust based on actual crop condition in the field.'],
   },
 ];

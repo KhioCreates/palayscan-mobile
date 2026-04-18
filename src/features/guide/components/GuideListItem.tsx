@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, Text, View } from 'react-native';
+import { Image, ImageSourcePropType, Pressable, Text, View } from 'react-native';
 
 import { SectionCard } from '../../../components/ui/SectionCard';
 
@@ -8,13 +8,33 @@ type GuideListItemProps = {
   summary: string;
   badge: string;
   onPress: () => void;
+  imageSource?: ImageSourcePropType;
+  imageAlt?: string;
 };
 
-export function GuideListItem({ title, summary, badge, onPress }: GuideListItemProps) {
+export function GuideListItem({
+  title,
+  summary,
+  badge,
+  onPress,
+  imageSource,
+  imageAlt,
+}: GuideListItemProps) {
   return (
     <Pressable accessibilityRole="button" className="active:opacity-90" onPress={onPress}>
       <SectionCard>
         <View className="gap-3">
+          {imageSource ? (
+            <View className="overflow-hidden rounded-[20px] border border-brand-100">
+              <Image
+                accessibilityIgnoresInvertColors
+                accessibilityLabel={imageAlt ?? `${title} guide image`}
+                className="h-32 w-full"
+                resizeMode="cover"
+                source={imageSource}
+              />
+            </View>
+          ) : null}
           <View className="flex-row items-center justify-between gap-3">
             <Text className="flex-1 text-lg font-semibold text-ink-900">{title}</Text>
             <View className="rounded-full bg-brand-50 px-3 py-1">

@@ -19,9 +19,22 @@ export async function getPlannerHistory(): Promise<SavedPlannerRecord[]> {
   }
 }
 
+export async function getPlannerById(recordId: string): Promise<SavedPlannerRecord | null> {
+  const history = await getPlannerHistory();
+  return history.find((record) => record.id === recordId) ?? null;
+}
+
 export async function savePlannerSchedule(schedule: PlannerSchedule): Promise<SavedPlannerRecord> {
   const history = await getPlannerHistory();
   const methodMeta = plantingMethodOptions.find((option) => option.id === schedule.method);
+  const existingRecord = history.find(
+    (record) => record.method === schedule.method && record.plantingDate === schedule.plantingDate,
+  );
+
+  if (existingRecord) {
+    return existingRecord;
+  }
+
   const timestamp = new Date().toISOString();
 
   const record: SavedPlannerRecord = {
@@ -38,4 +51,14 @@ export async function savePlannerSchedule(schedule: PlannerSchedule): Promise<Sa
   await AsyncStorage.setItem(storageKeys.plannerHistory, JSON.stringify(nextHistory));
 
   return record;
+}
+
+export async function deletePlannerById(recordId: string): Promise<void> {
+  const history = await getPlannerHistory();
+  const nextHistory = history.filter((record) => record.id !== recordId);
+  await AsyncStorage.setItem(storageKeys.plannerHistory, JSON.stringify(nextHistory));
+}
+
+export async function clearPlannerHistory(): Promise<void> {
+  await AsyncStorage.removeItem(storageKeys.plannerHistory);
 }

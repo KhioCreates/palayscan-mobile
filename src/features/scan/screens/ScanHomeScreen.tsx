@@ -25,6 +25,7 @@ import {
 import { mapKindwiseResponseToScanResult } from '../services/mapKindwiseResult';
 import { runRouterPrefilter } from '../services/routerPrefilter';
 import { saveScanResult } from '../services/scanStorage';
+import { getLocalScanGateResult, shouldAutoSaveScanResult } from '../services/scanValidation';
 import { buildPlaceholderScanResult } from '../utils/scanPlaceholder';
 import { ScanApiState, ScanResult, SelectedScanImage } from '../types';
 
@@ -51,6 +52,7 @@ export function ScanHomeScreen() {
   const [guardMessage, setGuardMessage] = useState<string | null>(null);
   const [confirmedRiceImage, setConfirmedRiceImage] = useState(false);
   const [lastAnalyzedImageUri, setLastAnalyzedImageUri] = useState<string | null>(null);
+  const [validatedImageUri, setValidatedImageUri] = useState<string | null>(null);
   const [cooldownUntil, setCooldownUntil] = useState<number | null>(null);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [liveScanCount, setLiveScanCount] = useState(0);
@@ -129,6 +131,7 @@ export function ScanHomeScreen() {
       setGuardMessage(null);
       setConfirmedRiceImage(false);
       setLastAnalyzedImageUri(null);
+      setValidatedImageUri(null);
     }
   };
 
@@ -162,8 +165,28 @@ export function ScanHomeScreen() {
       setGuardMessage(null);
       setConfirmedRiceImage(false);
       setLastAnalyzedImageUri(null);
+      setValidatedImageUri(null);
     }
   };
+
+  const requestLocalRiceConfirmation = () =>
+    new Promise<boolean>((resolve) => {
+      Alert.alert(
+        'Confirm rice image',
+        'Continue only if this is a clear rice leaf, stem, or field photo. Unrelated images should not be analyzed.',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => resolve(false),
+          },
+          {
+            text: 'Continue',
+            onPress: () => resolve(true),
+          },
+        ],
+      );
+    });
 
   const handleAnalyze = async () => {
     if (!selectedImage) {
@@ -176,11 +199,6 @@ export function ScanHomeScreen() {
 
     if (cooldownRemaining > 0) {
       setGuardMessage(`Please wait ${cooldownRemaining}s before analyzing again.`);
-      return;
-    }
-
-    if (!confirmedRiceImage) {
-      setGuardMessage('Please confirm that this is a clear rice leaf, stem, or field photo first.');
       return;
     }
 
@@ -198,6 +216,28 @@ export function ScanHomeScreen() {
         'Live scan limit reached for this session to protect API credits. Restart the app or switch to mock mode.',
       );
       return;
+    }
+
+    const localGate = getLocalScanGateResult({
+      confirmedRiceImage,
+      imageUri: selectedImage.uri,
+      validatedImageUri,
+    });
+
+    if (localGate.status === 'confirm-required') {
+      if (!confirmedRiceImage) {
+        setGuardMessage(localGate.message);
+        return;
+      }
+
+      const confirmed = await requestLocalRiceConfirmation();
+
+      if (!confirmed) {
+        setGuardMessage('Scan canceled. Please choose a clear rice leaf, stem, or field photo.');
+        return;
+      }
+
+      setValidatedImageUri(selectedImage.uri);
     }
 
     setApiState('loading');
@@ -241,7 +281,20 @@ export function ScanHomeScreen() {
       }
 
       setResult(mappedResult);
-      await saveScanResult(mappedResult, scanMode);
+      const saveDecision = shouldAutoSaveScanResult({
+        result: mappedResult,
+        mode: scanMode,
+        hasStrongLocalPass: false,
+      });
+
+      if (saveDecision.allowed) {
+        await saveScanResult(mappedResult, scanMode);
+      } else {
+        setGuardMessage(
+          saveDecision.reason ?? 'This scan result was not saved because it did not pass local validation.',
+        );
+      }
+
       setApiState('success');
     } catch (error) {
       const message =

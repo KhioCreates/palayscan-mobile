@@ -131,6 +131,7 @@ export function HistoryScreen({ navigation }: HistoryScreenProps) {
             <PlannerHistoryCard
               key={record.id}
               activityCount={record.activityCount}
+              onPress={() => navigation.navigate('PlannerHistoryDetail', { recordId: record.id })}
               plantingDateLabel={formatDate(fromIsoDate(record.plantingDate))}
               savedAtLabel={formatDate(fromIsoDate(record.createdAt.slice(0, 10)))}
               title={record.title}

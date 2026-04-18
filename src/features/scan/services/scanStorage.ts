@@ -25,6 +25,7 @@ export async function getScanHistory(): Promise<SavedScanRecord[]> {
 
 export async function saveScanResult(result: ScanResult, mode: ScanMode): Promise<SavedScanRecord> {
   const history = await getScanHistory();
+  const normalizedNotes = result.notes?.trim() || undefined;
   const record: SavedScanRecord = {
     id: buildScanRecordId(result),
     createdAt: new Date().toISOString(),
@@ -35,10 +36,13 @@ export async function saveScanResult(result: ScanResult, mode: ScanMode): Promis
     category: result.category,
     confidence: result.predictions[0]?.confidence ?? 0,
     predictions: result.predictions,
-    notes: result.notes,
+    notes: normalizedNotes,
     nonPlantWarning: result.nonPlantWarning,
     riceMismatchWarning: result.riceMismatchWarning,
-    result,
+    result: {
+      ...result,
+      notes: normalizedNotes,
+    },
   };
 
   const nextHistory = [record, ...history.filter((item) => item.id !== record.id)];

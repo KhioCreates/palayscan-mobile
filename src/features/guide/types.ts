@@ -1,3 +1,5 @@
+import { ImageSourcePropType } from 'react-native';
+
 export type GuideCategory = 'variety' | 'pest' | 'disease';
 
 export type GuideCollectionKey = 'varieties' | 'pests' | 'diseases';
@@ -7,6 +9,8 @@ export type GuideEntryBase = {
   category: GuideCategory;
   name: string;
   shortDescription: string;
+  imageSource?: ImageSourcePropType;
+  imageAlt?: string;
 };
 
 export type RiceVariety = GuideEntryBase & {

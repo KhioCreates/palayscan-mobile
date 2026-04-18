@@ -38,10 +38,10 @@ export function PlannerScheduleScreen({
 
       <SectionCard tone="muted">
         <View className="gap-2">
-          <Text className="text-lg font-semibold text-ink-900">Version 1 local schedule</Text>
+          <Text className="text-lg font-semibold text-ink-900">Generated local schedule</Text>
           <Text className="text-sm leading-6 text-ink-600">
-            This schedule is generated from local rule-based milestones. It is structured so
-            activity dates and notes can be made editable later without changing the rule system.
+            This schedule is based on local farming milestones using your selected method and
+            planting date.
           </Text>
         </View>
       </SectionCard>
