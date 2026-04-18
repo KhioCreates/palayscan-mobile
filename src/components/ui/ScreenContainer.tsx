@@ -6,16 +6,21 @@ type ScreenContainerProps = {
   children: ReactNode;
   scroll?: boolean;
   bottomSpacing?: 'default' | 'comfortable' | 'roomy';
+  topSpacing?: 'default' | 'comfortable';
 };
 
 export function ScreenContainer({
   children,
   scroll = true,
   bottomSpacing = 'default',
+  topSpacing = 'default',
 }: ScreenContainerProps) {
   const bottomPaddingClassName =
     bottomSpacing === 'roomy' ? 'pb-40' : bottomSpacing === 'comfortable' ? 'pb-32' : 'pb-8';
-  const content = <View className={`flex-1 px-5 pt-5 ${bottomPaddingClassName}`}>{children}</View>;
+  const topPaddingClassName = topSpacing === 'comfortable' ? 'pt-7' : 'pt-5';
+  const content = (
+    <View className={`flex-1 px-5 ${topPaddingClassName} ${bottomPaddingClassName}`}>{children}</View>
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-brand-50">

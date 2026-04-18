@@ -11,6 +11,7 @@ import { ScanResultCard } from '../components/ScanResultCard';
 import { deleteScanRecord, getScanRecordById } from '../services/scanStorage';
 import { SavedScanRecord } from '../types';
 import { formatDate, fromIsoDate } from '../../planner/utils/date';
+import { formatScanModeLabel } from '../utils/formatScanText';
 
 type ScanHistoryDetailScreenProps = NativeStackScreenProps<RootStackParamList, 'ScanHistoryDetail'>;
 
@@ -80,7 +81,7 @@ export function ScanHistoryDetailScreen({ navigation, route }: ScanHistoryDetail
             <View className="gap-2">
               <Text className="text-lg font-semibold text-ink-900">Saved scan summary</Text>
               <Text className="text-sm leading-6 text-ink-600">
-                Mode: {record.mode.toUpperCase()}
+                Mode: {formatScanModeLabel(record.mode)}
               </Text>
               <Text className="text-sm leading-6 text-ink-600">
                 Saved: {formatDate(fromIsoDate(record.createdAt.slice(0, 10)))}

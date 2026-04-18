@@ -115,7 +115,7 @@ export function HistoryScreen({ navigation }: HistoryScreenProps) {
         <SectionCard>
           <Text className="text-lg font-semibold text-ink-900">Planner History</Text>
           <Text className="mt-2 text-sm leading-6 text-ink-600">
-            Saved local rule-based schedules are listed here for offline review.
+            Saved local crop calendars are listed here for offline review.
           </Text>
         </SectionCard>
 
@@ -123,7 +123,7 @@ export function HistoryScreen({ navigation }: HistoryScreenProps) {
           <SectionCard tone="muted">
             <Text className="text-base font-semibold text-ink-900">No saved planner history yet</Text>
             <Text className="mt-2 text-sm leading-6 text-ink-600">
-              Generate a planner schedule and it will be saved locally here automatically.
+              Generate a crop calendar and it will be saved locally here automatically.
             </Text>
           </SectionCard>
         ) : (

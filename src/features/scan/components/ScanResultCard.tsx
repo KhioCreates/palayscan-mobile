@@ -3,13 +3,10 @@ import { Text, View } from 'react-native';
 import { SectionCard } from '../../../components/ui/SectionCard';
 import { formatDate, fromIsoDate } from '../../planner/utils/date';
 import { ScanPrediction, ScanResult } from '../types';
+import { toDiagnosisTitleCase } from '../utils/formatScanText';
 
 function formatConfidence(value: number) {
   return `${Math.round(value * 100)}%`;
-}
-
-function toTitleCase(value: string) {
-  return value.replace(/\w\S*/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
 }
 
 function getResultSummary(result: ScanResult) {
@@ -21,8 +18,8 @@ function getResultSummary(result: ScanResult) {
   }
 
   return {
-    title: toTitleCase(result.topResultName),
-    subtitle: `Category: ${toTitleCase(result.category)}`,
+    title: toDiagnosisTitleCase(result.topResultName),
+    subtitle: `Type: ${toDiagnosisTitleCase(result.category)}`,
   };
 }
 
@@ -49,10 +46,10 @@ function PredictionRow({
     <View className="flex-row items-center justify-between gap-3 rounded-[18px] bg-brand-50/70 px-4 py-3">
       <View className="flex-1">
         <Text className="text-sm font-semibold text-ink-900">
-          {index + 1}. {toTitleCase(prediction.name)}
+          {index + 1}. {toDiagnosisTitleCase(prediction.name)}
         </Text>
         <Text className="mt-1 text-xs uppercase tracking-[1.2px] text-ink-500">
-          {toTitleCase(formatPredictionLabel(prediction))}
+          {toDiagnosisTitleCase(formatPredictionLabel(prediction))}
         </Text>
       </View>
       <Text className="text-sm font-semibold text-brand-700">
@@ -79,7 +76,7 @@ export function ScanResultCard({ result }: { result: ScanResult }) {
 
         {!result.nonPlantWarning ? (
           <View className="rounded-[18px] bg-brand-50/70 px-4 py-3">
-            <Text className="text-xs uppercase tracking-[1.2px] text-ink-500">Top result</Text>
+            <Text className="text-xs uppercase tracking-[1.2px] text-ink-500">Best match</Text>
             <Text className="mt-1 text-lg font-semibold text-ink-900">{summary.title}</Text>
             <Text className="mt-1 text-sm text-ink-600">{summary.subtitle}</Text>
             <Text className="mt-1 text-sm text-ink-600">
@@ -87,7 +84,7 @@ export function ScanResultCard({ result }: { result: ScanResult }) {
             </Text>
             {result.category !== 'healthy' && result.cropLabel ? (
               <Text className="mt-1 text-sm text-ink-600">
-                Crop: {toTitleCase(result.cropLabel)}
+                Crop: {toDiagnosisTitleCase(result.cropLabel)}
                 {result.cropScientificName ? ` (${result.cropScientificName})` : ''}
               </Text>
             ) : null}
@@ -102,7 +99,7 @@ export function ScanResultCard({ result }: { result: ScanResult }) {
 
         {!result.nonPlantWarning && result.riceMismatchWarning ? (
           <View className="rounded-[18px] bg-earth-50 px-4 py-3">
-            <Text className="text-sm font-semibold text-ink-900">Rice-only caution</Text>
+            <Text className="text-sm font-semibold text-ink-900">Rice check warning</Text>
             <Text className="mt-1 text-sm leading-6 text-ink-600">{result.riceMismatchWarning}</Text>
           </View>
         ) : null}
@@ -110,7 +107,7 @@ export function ScanResultCard({ result }: { result: ScanResult }) {
         {!result.nonPlantWarning && shouldShowConfidenceHelper(result) ? (
           <View className="rounded-[18px] bg-brand-50/70 px-4 py-3">
             <Text className="text-sm leading-6 text-ink-600">
-              Use this as a guide only. Verify with field symptoms or local agricultural references.
+              Use this as a guide only. Check the field symptoms or ask your local agriculture office if needed.
             </Text>
           </View>
         ) : null}

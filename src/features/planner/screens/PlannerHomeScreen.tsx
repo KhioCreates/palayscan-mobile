@@ -50,8 +50,8 @@ export function PlannerHomeScreen({ navigation }: PlannerHomeScreenProps) {
     <ScreenContainer bottomSpacing="comfortable">
       <HeaderBlock
         eyebrow="Planner Module"
-        title="Create a rice farming activity schedule"
-        description="Choose a planting method and planting date, then generate a local farming activity schedule."
+        title="Create an estimated crop calendar"
+        description="Choose a planting method and planting date, then generate a local planting-to-harvest activity timeline."
       />
 
       <View className="gap-4">
@@ -102,19 +102,19 @@ export function PlannerHomeScreen({ navigation }: PlannerHomeScreenProps) {
 
         <SectionCard tone="muted">
           <View className="gap-2">
-            <Text className="text-lg font-semibold text-ink-900">What gets generated</Text>
+            <Text className="text-lg font-semibold text-ink-900">What this calendar includes</Text>
             <Text className="text-sm leading-6 text-ink-600">
               The schedule includes land preparation, seed preparation, planting activity,
-              fertilizer, water management checks, pest monitoring, and harvest timing. Nursery
-              preparation appears only for transplanting.
+              fertilizer timing, water management checks, pest monitoring windows, and harvest
+              timing. Nursery preparation appears only for transplanting.
             </Text>
           </View>
         </SectionCard>
 
         <PrimaryButton
-          hint="Generate and save a local farming schedule for Planner History."
+          hint="Generate and save an estimated local crop calendar."
           icon={<Ionicons color="white" name="calendar-number-outline" size={22} />}
-          label="Generate schedule"
+          label="Generate calendar"
           onPress={handleGenerateSchedule}
         />
       </View>

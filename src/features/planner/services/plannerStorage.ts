@@ -42,7 +42,7 @@ export async function savePlannerSchedule(schedule: PlannerSchedule): Promise<Sa
     createdAt: timestamp,
     method: schedule.method,
     plantingDate: schedule.plantingDate,
-    title: methodMeta ? methodMeta.title : 'Rice Planner Schedule',
+    title: methodMeta ? `${methodMeta.title} Calendar` : 'Rice Crop Calendar',
     activityCount: schedule.activities.length,
     activities: schedule.activities,
   };
@@ -61,4 +61,19 @@ export async function deletePlannerById(recordId: string): Promise<void> {
 
 export async function clearPlannerHistory(): Promise<void> {
   await AsyncStorage.removeItem(storageKeys.plannerHistory);
+}
+
+export async function updatePlannerRecord(updatedRecord: SavedPlannerRecord): Promise<SavedPlannerRecord> {
+  const history = await getPlannerHistory();
+  const nextHistory = history.map((record) =>
+    record.id === updatedRecord.id
+      ? {
+          ...updatedRecord,
+          activityCount: updatedRecord.activities.length,
+        }
+      : record,
+  );
+
+  await AsyncStorage.setItem(storageKeys.plannerHistory, JSON.stringify(nextHistory));
+  return updatedRecord;
 }

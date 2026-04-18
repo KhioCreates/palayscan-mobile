@@ -1,7 +1,11 @@
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from '@react-native-community/datetimepicker';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
-import { Alert, Text, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Alert, Platform, Pressable, Text, TextInput, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 import { PrimaryButton } from '../../../components/ui/PrimaryButton';
 import { ScreenContainer } from '../../../components/ui/ScreenContainer';
@@ -9,9 +13,10 @@ import { SectionCard } from '../../../components/ui/SectionCard';
 import { RootStackParamList } from '../../../navigation/RootNavigator';
 import { plantingMethodOptions } from '../data/plannerRules';
 import { PlannerActivityCard } from '../components/PlannerActivityCard';
-import { deletePlannerById, getPlannerById } from '../services/plannerStorage';
-import { SavedPlannerRecord } from '../types';
-import { formatDate, fromIsoDate } from '../utils/date';
+import { PlannerCalendarSummary } from '../components/PlannerCalendarSummary';
+import { deletePlannerById, getPlannerById, updatePlannerRecord } from '../services/plannerStorage';
+import { PlannedActivity, SavedPlannerRecord } from '../types';
+import { addDays, buildWindowLabel, formatDate, fromIsoDate, toIsoDate } from '../utils/date';
 
 type PlannerHistoryDetailScreenProps = NativeStackScreenProps<
   RootStackParamList,
@@ -24,6 +29,12 @@ export function PlannerHistoryDetailScreen({
 }: PlannerHistoryDetailScreenProps) {
   const [record, setRecord] = useState<SavedPlannerRecord | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
+  const [selectedDateActivityIds, setSelectedDateActivityIds] = useState<string[]>([]);
+  const [editorDate, setEditorDate] = useState<Date>(new Date());
+  const [editorNotesText, setEditorNotesText] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -40,6 +51,84 @@ export function PlannerHistoryDetailScreen({
       };
     }, [route.params.recordId]),
   );
+
+  const selectedActivity = useMemo(
+    () => record?.activities.find((activity) => activity.id === selectedActivityId) ?? null,
+    [record, selectedActivityId],
+  );
+
+  useEffect(() => {
+    if (!selectedActivity) {
+      return;
+    }
+
+    setEditorDate(fromIsoDate(selectedActivity.targetDate));
+    setEditorNotesText(selectedActivity.notes.join('\n'));
+  }, [selectedActivity]);
+
+  const handleEditDateChange = (event: DateTimePickerEvent, nextDate?: Date) => {
+    if (Platform.OS !== 'ios') {
+      setShowDatePicker(false);
+    }
+
+    if (event.type === 'set' && nextDate) {
+      setEditorDate(nextDate);
+    }
+  };
+
+  const handleSaveActivityEdit = async () => {
+    if (!record || !selectedActivity || isSavingEdit) {
+      return;
+    }
+
+    setIsSavingEdit(true);
+
+    try {
+      const previousTargetDate = fromIsoDate(selectedActivity.targetDate);
+      const nextTargetDate = editorDate;
+      const dayOffset = Math.round(
+        (fromIsoDate(toIsoDate(nextTargetDate)).getTime() - previousTargetDate.getTime()) /
+          (1000 * 60 * 60 * 24),
+      );
+      const nextNotes = editorNotesText
+        .split('\n')
+        .map((note) => note.trim())
+        .filter(Boolean);
+
+      const nextActivities = record.activities.map((activity) => {
+        if (activity.id !== selectedActivity.id) {
+          return activity;
+        }
+
+        const nextStartDate = addDays(fromIsoDate(activity.startDate), dayOffset);
+        const nextEndDate = addDays(fromIsoDate(activity.endDate), dayOffset);
+        const nextTarget = addDays(fromIsoDate(activity.targetDate), dayOffset);
+
+        const updatedActivity: PlannedActivity = {
+          ...activity,
+          targetDate: toIsoDate(nextTarget),
+          startDate: toIsoDate(nextStartDate),
+          endDate: toIsoDate(nextEndDate),
+          windowLabel: buildWindowLabel(nextStartDate, nextEndDate),
+          notes: nextNotes,
+        };
+
+        return updatedActivity;
+      });
+
+      const updatedRecord: SavedPlannerRecord = {
+        ...record,
+        activities: nextActivities,
+        activityCount: nextActivities.length,
+      };
+
+      await updatePlannerRecord(updatedRecord);
+      setRecord(updatedRecord);
+      Alert.alert('Activity updated', 'This saved crop calendar activity was updated locally.');
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
 
   const handleDelete = () => {
     if (!record || isDeleting) {
@@ -62,7 +151,7 @@ export function PlannerHistoryDetailScreen({
 
   if (!record) {
     return (
-      <ScreenContainer bottomSpacing="comfortable">
+      <ScreenContainer bottomSpacing="comfortable" topSpacing="comfortable">
         <SectionCard tone="muted">
           <Text className="text-lg font-semibold text-ink-900">Planner record not found</Text>
           <Text className="mt-2 text-sm leading-6 text-ink-600">
@@ -76,11 +165,11 @@ export function PlannerHistoryDetailScreen({
   const methodMeta = plantingMethodOptions.find((option) => option.id === record.method);
 
   return (
-    <ScreenContainer bottomSpacing="roomy">
+    <ScreenContainer bottomSpacing="roomy" topSpacing="comfortable">
       <View className="gap-4">
         <SectionCard>
           <View className="gap-2">
-            <Text className="text-lg font-semibold text-ink-900">Saved planner summary</Text>
+            <Text className="text-lg font-semibold text-ink-900">Saved crop calendar summary</Text>
             <Text className="text-sm leading-6 text-ink-600">
               Method: {methodMeta ? `${methodMeta.title} (${methodMeta.subtitle})` : record.title}
             </Text>
@@ -98,10 +187,90 @@ export function PlannerHistoryDetailScreen({
 
         <SectionCard tone="muted">
           <View className="gap-2">
-            <Text className="text-lg font-semibold text-ink-900">Saved local schedule</Text>
+            <Text className="text-lg font-semibold text-ink-900">Saved planting-to-harvest timeline</Text>
             <Text className="text-sm leading-6 text-ink-600">
-              This is the locally saved rule-based planner record for offline review.
+              This is the locally saved crop calendar for offline review.
             </Text>
+          </View>
+        </SectionCard>
+
+        <PlannerCalendarSummary
+          activities={record.activities}
+          initialFocusDate={record.plantingDate}
+          onSelectDate={() => setSelectedActivityId(null)}
+          onSelectDateActivityIds={setSelectedDateActivityIds}
+          onSelectActivity={setSelectedActivityId}
+          selectedActivityId={selectedActivityId}
+        />
+
+        <SectionCard tone="muted">
+          <View className="gap-3">
+            <Text className="text-lg font-semibold text-ink-900">Edit selected activity</Text>
+            {selectedActivity ? (
+              <>
+                <Text className="text-sm leading-6 text-ink-600">
+                  Update the date or notes for this saved activity. Changes stay on this device and
+                  refresh the crop calendar below.
+                </Text>
+
+                <View className="gap-2 rounded-[18px] bg-white p-4">
+                  <Text className="text-base font-semibold text-ink-900">{selectedActivity.title}</Text>
+                  <Text className="text-sm leading-6 text-ink-600">
+                    Current window: {selectedActivity.windowLabel}
+                  </Text>
+                </View>
+
+                <Pressable
+                  accessibilityRole="button"
+                  className="min-h-[58px] flex-row items-center justify-between rounded-[20px] bg-white px-4 py-4 active:bg-brand-50"
+                  onPress={() => setShowDatePicker(true)}
+                >
+                  <View className="flex-1 pr-3">
+                    <Text className="text-base font-semibold text-ink-900">
+                      {formatDate(editorDate)}
+                    </Text>
+                    <Text className="mt-1 text-sm text-ink-600">
+                      Tap to adjust this activity date. Multi-day windows move together.
+                    </Text>
+                  </View>
+                  <Ionicons color="#2d6033" name="calendar-outline" size={22} />
+                </Pressable>
+
+                {showDatePicker ? (
+                  <DateTimePicker
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    mode="date"
+                    onChange={handleEditDateChange}
+                    value={editorDate}
+                  />
+                ) : null}
+
+                <View className="rounded-[20px] bg-white p-4">
+                  <Text className="text-sm font-semibold text-ink-900">Activity notes</Text>
+                  <TextInput
+                    className="mt-3 min-h-[120px] rounded-[16px] bg-brand-50 px-4 py-3 text-sm leading-6 text-ink-900"
+                    multiline
+                    onChangeText={setEditorNotesText}
+                    placeholder="Add one note per line for this saved activity."
+                    placeholderTextColor="#6e7f73"
+                    textAlignVertical="top"
+                    value={editorNotesText}
+                  />
+                </View>
+
+                <PrimaryButton
+                  disabled={isSavingEdit}
+                  hint="Save this date and note update to local planner history."
+                  label={isSavingEdit ? 'Saving changes...' : 'Save activity changes'}
+                  onPress={handleSaveActivityEdit}
+                />
+              </>
+            ) : (
+              <Text className="text-sm leading-6 text-ink-600">
+                Tap an activity from the calendar or the list below to edit its saved date and
+                notes.
+              </Text>
+            )}
           </View>
         </SectionCard>
 
@@ -112,6 +281,11 @@ export function PlannerHistoryDetailScreen({
               dateLabel={activity.windowLabel}
               description={activity.description}
               notes={activity.notes}
+              onPress={() => setSelectedActivityId(activity.id)}
+              selected={
+                activity.id === selectedActivityId ||
+                (!selectedActivityId && selectedDateActivityIds.includes(activity.id))
+              }
               title={activity.title}
             />
           ))}

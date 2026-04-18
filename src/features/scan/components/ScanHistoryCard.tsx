@@ -1,6 +1,7 @@
 import { Image, Pressable, Text, View } from 'react-native';
 
 import { SectionCard } from '../../../components/ui/SectionCard';
+import { formatScanModeLabel, toDiagnosisTitleCase } from '../utils/formatScanText';
 
 type ScanHistoryCardProps = {
   imageUri: string;
@@ -31,16 +32,19 @@ export function ScanHistoryCard({
 
           <View className="flex-1 gap-2">
             <View className="flex-row items-center justify-between gap-3">
-              <Text className="flex-1 text-base font-semibold text-ink-900">{title}</Text>
+              <Text className="flex-1 text-base font-semibold text-ink-900">
+                {toDiagnosisTitleCase(title)}
+              </Text>
               <View className={`rounded-full px-3 py-1 ${mode === 'live' ? 'bg-earth-100' : 'bg-brand-50'}`}>
-                <Text className={`text-xs font-semibold uppercase ${mode === 'live' ? 'text-earth-500' : 'text-brand-700'}`}>
-                  {mode}
+                <Text className={`text-xs font-semibold ${mode === 'live' ? 'text-earth-500' : 'text-brand-700'}`}>
+                  {formatScanModeLabel(mode)}
                 </Text>
               </View>
             </View>
 
             <Text className="text-sm text-ink-600">Confidence: {confidenceLabel}</Text>
             <Text className="text-sm text-ink-600">Scanned: {scannedAtLabel}</Text>
+            <Text className="text-sm font-semibold text-brand-700">Tap card to view details</Text>
           </View>
         </View>
       </SectionCard>

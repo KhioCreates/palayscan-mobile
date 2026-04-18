@@ -33,7 +33,7 @@ export function PlannerHistoryCard({
           <Text className="text-sm leading-6 text-ink-600">Saved locally: {savedAtLabel}</Text>
 
           <View className="flex-row items-center justify-between">
-            <Text className="text-sm font-semibold text-brand-700">Tap card to view schedule</Text>
+            <Text className="text-sm font-semibold text-brand-700">Tap card to view calendar</Text>
             <Ionicons color="#2d6033" name="chevron-forward" size={18} />
           </View>
         </View>

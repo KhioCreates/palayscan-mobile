@@ -1,4 +1,5 @@
 import { ScanMode, ScanResult } from '../types';
+import { ScanGateResult } from './scanGateClient';
 
 export type LocalScanGateResult =
   | {
@@ -38,6 +39,51 @@ export function getLocalScanGateResult({
 
 export function hasStrongRiceMismatchWarning(result: Pick<ScanResult, 'riceMismatchWarning'>) {
   return Boolean(result.riceMismatchWarning?.trim());
+}
+
+export function shouldAllowLiveScanFromGate(
+  gateResult: ScanGateResult,
+  minimumConfidence = 0.7,
+) {
+  if (!gateResult.isPlant) {
+    return {
+      allowed: false,
+      reason:
+        gateResult.reason ??
+        'This image does not look like a plant. Please use a clear rice leaf, stem, or field photo.',
+    };
+  }
+
+  if (!gateResult.isRiceLikely) {
+    return {
+      allowed: false,
+      reason:
+        gateResult.reason ??
+        'This image does not clearly look like rice. Please choose a rice leaf, stem, or field photo.',
+    };
+  }
+
+  if (!gateResult.isUsable) {
+    return {
+      allowed: false,
+      reason:
+        gateResult.reason ??
+        'This image is not clear enough for live scan. Try a brighter, closer, and steadier photo.',
+    };
+  }
+
+  if (gateResult.confidence < minimumConfidence) {
+    return {
+      allowed: false,
+      reason:
+        gateResult.reason ??
+        'This image did not pass the live pre-check with enough confidence. Please try a clearer rice photo.',
+    };
+  }
+
+  return {
+    allowed: true,
+  };
 }
 
 export function shouldAutoSaveScanResult({

@@ -24,8 +24,17 @@ import {
 } from '../services/kindwiseClient';
 import { mapKindwiseResponseToScanResult } from '../services/mapKindwiseResult';
 import { runRouterPrefilter } from '../services/routerPrefilter';
+import {
+  runLiveScanGateFromBase64,
+  ScanGateConfigError,
+  ScanGateRequestError,
+} from '../services/scanGateClient';
 import { saveScanResult } from '../services/scanStorage';
-import { getLocalScanGateResult, shouldAutoSaveScanResult } from '../services/scanValidation';
+import {
+  getLocalScanGateResult,
+  shouldAllowLiveScanFromGate,
+  shouldAutoSaveScanResult,
+} from '../services/scanValidation';
 import { buildPlaceholderScanResult } from '../utils/scanPlaceholder';
 import { ScanApiState, ScanResult, SelectedScanImage } from '../types';
 
@@ -42,6 +51,7 @@ async function requestGalleryAccess() {
 const scanMode = process.env.EXPO_PUBLIC_SCAN_MODE === 'live' ? 'live' : 'mock';
 const LIVE_ANALYZE_COOLDOWN_MS = 12000;
 const LIVE_SCAN_SESSION_CAP = 4;
+const LIVE_SCAN_GATE_CONFIDENCE_THRESHOLD = 0.7;
 
 export function ScanHomeScreen() {
   const [selectedImage, setSelectedImage] = useState<SelectedScanImage | null>(null);
@@ -85,7 +95,7 @@ export function ScanHomeScreen() {
 
   const analyzeHint = useMemo(() => {
     if (apiState === 'loading') {
-      return 'Analysis is already in progress. Please wait for the current request to finish.';
+      return 'Analysis is already in progress. Please wait for it to finish.';
     }
 
     if (cooldownRemaining > 0) {
@@ -98,7 +108,7 @@ export function ScanHomeScreen() {
 
     return scanMode === 'live'
       ? 'Analyze this image using the configured Kindwise API.'
-      : 'Analyze this image using the local mock scan mode.';
+      : 'Analyze this image using local mock scan mode.';
   }, [apiState, cooldownRemaining, liveScanCount]);
 
   const handleCameraCapture = async () => {
@@ -173,7 +183,7 @@ export function ScanHomeScreen() {
     new Promise<boolean>((resolve) => {
       Alert.alert(
         'Confirm rice image',
-        'Continue only if this is a clear rice leaf, stem, or field photo. Unrelated images should not be analyzed.',
+        'Continue only if this is a clear rice leaf, stem, or field photo. Do not analyze unrelated images.',
         [
           {
             text: 'Cancel',
@@ -246,13 +256,30 @@ export function ScanHomeScreen() {
     setGuardMessage(null);
 
     try {
+      if (scanMode === 'live') {
+        const gateResult = await runLiveScanGateFromBase64(selectedImage.base64);
+        const gateDecision = shouldAllowLiveScanFromGate(
+          gateResult,
+          LIVE_SCAN_GATE_CONFIDENCE_THRESHOLD,
+        );
+
+        if (!gateDecision.allowed) {
+          setApiState('idle');
+          setGuardMessage(
+            gateDecision.reason ??
+              'This image did not pass the live pre-check. Please try another rice photo.',
+          );
+          return;
+        }
+      }
+
       const routerPrefilter = await runRouterPrefilter(selectedImage.uri);
 
       if (routerPrefilter.verdict === 'block') {
         setApiState('idle');
         setGuardMessage(
           routerPrefilter.reason ??
-            'This image was blocked by the local offline router pre-check.',
+            'This image was blocked by the local pre-check.',
         );
         return;
       }
@@ -298,7 +325,10 @@ export function ScanHomeScreen() {
       setApiState('success');
     } catch (error) {
       const message =
-        error instanceof KindwiseConfigError || error instanceof KindwiseRequestError
+        error instanceof KindwiseConfigError ||
+        error instanceof KindwiseRequestError ||
+        error instanceof ScanGateConfigError ||
+        error instanceof ScanGateRequestError
           ? error.message
           : 'The image could not be analyzed right now. Please try again.';
 
@@ -417,7 +447,7 @@ export function ScanHomeScreen() {
               <Text className="text-center text-sm leading-6 text-ink-600">
                 {scanMode === 'live'
                   ? 'The image is being checked through the configured Kindwise scan request.'
-                  : 'The image is being checked using the local mock scan mode.'}
+                  : 'The image is being checked using local mock scan mode.'}
               </Text>
             </View>
           </SectionCard>
@@ -430,7 +460,7 @@ export function ScanHomeScreen() {
               <Text className="text-sm leading-6 text-ink-600">
                 {__DEV__
                   ? errorMessage
-                  : 'The scan request failed. Please check your connection, API setup, and image, then try again.'}
+                  : 'The scan could not be completed. Check your connection and image, then try again.'}
               </Text>
             </View>
           </SectionCard>
@@ -441,8 +471,7 @@ export function ScanHomeScreen() {
             <View className="gap-2">
               <Text className="text-lg font-semibold text-ink-900">No usable matches found</Text>
               <Text className="text-sm leading-6 text-ink-600">
-                The request worked, but the response did not contain enough usable matches to show a
-                result. Try another image or check the API response shape.
+                The scan finished, but there were not enough usable matches to show a result. Try a clearer image.
               </Text>
             </View>
           </SectionCard>
