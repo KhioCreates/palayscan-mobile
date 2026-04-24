@@ -3,6 +3,10 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { AboutScreen } from '../screens/AboutScreen';
+import { DataPrivacyScreen } from '../screens/DataPrivacyScreen';
+import { PlannerDisclaimerScreen } from '../screens/PlannerDisclaimerScreen';
+import { ReferencesScreen } from '../screens/ReferencesScreen';
+import { ScanDisclaimerScreen } from '../screens/ScanDisclaimerScreen';
 import { GuideNavigator } from '../features/guide/navigation/GuideNavigator';
 import { PlannerNavigator } from '../features/planner/navigation/PlannerNavigator';
 import { PlannerHistoryDetailScreen } from '../features/planner/screens/PlannerHistoryDetailScreen';
@@ -25,6 +29,10 @@ export type RootStackParamList = {
   MainTabs: undefined;
   History: undefined;
   About: undefined;
+  DataPrivacy: undefined;
+  ScanDisclaimer: undefined;
+  PlannerDisclaimer: undefined;
+  References: undefined;
   ScanHistoryDetail: { recordId: string };
   PlannerHistoryDetail: { recordId: string };
 };
@@ -82,6 +90,34 @@ export function RootNavigator() {
           name="About"
           options={{
             title: 'About PALAYSCAN',
+          }}
+        />
+        <Stack.Screen
+          component={DataPrivacyScreen}
+          name="DataPrivacy"
+          options={{
+            title: 'Data Privacy',
+          }}
+        />
+        <Stack.Screen
+          component={ScanDisclaimerScreen}
+          name="ScanDisclaimer"
+          options={{
+            title: 'Scan Disclaimer',
+          }}
+        />
+        <Stack.Screen
+          component={PlannerDisclaimerScreen}
+          name="PlannerDisclaimer"
+          options={{
+            title: 'Planner Disclaimer',
+          }}
+        />
+        <Stack.Screen
+          component={ReferencesScreen}
+          name="References"
+          options={{
+            title: 'References and Basis',
           }}
         />
         <Stack.Screen

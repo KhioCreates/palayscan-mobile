@@ -1,5 +1,5 @@
 import { ScanMode, ScanResult } from '../types';
-import { ScanGateResult } from './scanGateClient';
+import { ScanPrecheckVerdict } from './scanPrecheckTypes';
 
 export type LocalScanGateResult =
   | {
@@ -42,7 +42,7 @@ export function hasStrongRiceMismatchWarning(result: Pick<ScanResult, 'riceMisma
 }
 
 export function shouldAllowLiveScanFromGate(
-  gateResult: ScanGateResult,
+  gateResult: ScanPrecheckVerdict,
   minimumConfidence = 0.7,
 ) {
   if (!gateResult.isPlant) {

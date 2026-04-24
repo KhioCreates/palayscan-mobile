@@ -1,0 +1,6 @@
+image_path,label,source,source_type,source_name,source_url,license_type,license_url,attribution_note,permission_note,notes,reviewed,reviewer,privacy_checked,split,near_duplicate_group
+datasets/raw/rice_clear_team_0001.jpg,rice_clear,team capture,original_photo,Project Team,,,,"Captured by project team",,clear rice leaf close-up,no,,yes,,group_001
+datasets/raw/rice_unclear_team_0002.jpg,rice_unclear,team capture,original_photo,Project Team,,,,"Captured by project team",,blurred rice field image,no,,yes,,group_002
+datasets/raw/plant_not_rice_team_0003.jpg,plant_not_rice,team capture,original_photo,Project Team,,,,"Captured by project team",,corn leaf photo,no,,yes,,group_003
+datasets/raw/non_plant_team_0004.jpg,non_plant,team capture,original_photo,Project Team,,,,"Captured by project team",,person image should be blocked,no,,yes,,group_004
+datasets/raw/unusable_image_team_0005.jpg,unusable_image,team capture,original_photo,Project Team,,,,"Captured by project team",,very dark image,no,,yes,,group_005

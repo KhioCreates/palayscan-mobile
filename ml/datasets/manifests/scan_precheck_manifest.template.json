@@ -1,0 +1,20 @@
+[
+  {
+    "image_path": "datasets/raw/rice_clear_team_0001.jpg",
+    "label": "rice_clear",
+    "source": "team capture",
+    "source_type": "original_photo",
+    "source_name": "Project Team",
+    "source_url": "",
+    "license_type": "",
+    "license_url": "",
+    "attribution_note": "Captured by project team",
+    "permission_note": "",
+    "notes": "clear rice leaf close-up",
+    "reviewed": false,
+    "reviewer": "",
+    "privacy_checked": true,
+    "split": "",
+    "near_duplicate_group": "group_001"
+  }
+]

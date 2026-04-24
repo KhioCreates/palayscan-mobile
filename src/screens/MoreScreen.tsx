@@ -24,8 +24,8 @@ export function MoreScreen() {
         <View className="gap-2">
           <Text className="text-lg font-semibold text-ink-900">Supporting pages</Text>
           <Text className="text-sm leading-6 text-ink-600">
-            History and About live here so the main tab bar can focus on the most important farmer
-            actions.
+            History, app information, privacy notes, and guide-only reminders live here so the
+            main tab bar can focus on the most important farmer actions.
           </Text>
         </View>
       </SectionCard>
@@ -42,6 +42,30 @@ export function MoreScreen() {
           icon={<Ionicons color="white" name="information-circle-outline" size={22} />}
           label="Open About"
           onPress={() => navigation.navigate('About')}
+        />
+        <PrimaryButton
+          hint="Review the app's local data and live scan privacy note."
+          icon={<Ionicons color="white" name="shield-checkmark-outline" size={22} />}
+          label="Open Data Privacy"
+          onPress={() => navigation.navigate('DataPrivacy')}
+        />
+        <PrimaryButton
+          hint="Read the guide-only reminder for image scan results."
+          icon={<Ionicons color="white" name="scan-outline" size={22} />}
+          label="Open Scan Disclaimer"
+          onPress={() => navigation.navigate('ScanDisclaimer')}
+        />
+        <PrimaryButton
+          hint="Review the estimated and adjustable crop calendar note."
+          icon={<Ionicons color="white" name="calendar-outline" size={22} />}
+          label="Open Planner Disclaimer"
+          onPress={() => navigation.navigate('PlannerDisclaimer')}
+        />
+        <PrimaryButton
+          hint="See the agriculture basis used for the guide and crop calendar wording."
+          icon={<Ionicons color="white" name="book-outline" size={22} />}
+          label="Open References and Basis"
+          onPress={() => navigation.navigate('References')}
         />
       </View>
     </ScreenContainer>

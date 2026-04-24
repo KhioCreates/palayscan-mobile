@@ -25,10 +25,10 @@ import {
 import { mapKindwiseResponseToScanResult } from '../services/mapKindwiseResult';
 import { runRouterPrefilter } from '../services/routerPrefilter';
 import {
-  runLiveScanGateFromBase64,
-  ScanGateConfigError,
-  ScanGateRequestError,
-} from '../services/scanGateClient';
+  runLiveScanPrecheckFromBase64,
+  ScanPrecheckConfigError,
+  ScanPrecheckRequestError,
+} from '../services/scanPrecheck';
 import { saveScanResult } from '../services/scanStorage';
 import {
   getLocalScanGateResult,
@@ -257,7 +257,7 @@ export function ScanHomeScreen() {
 
     try {
       if (scanMode === 'live') {
-        const gateResult = await runLiveScanGateFromBase64(selectedImage.base64);
+        const gateResult = await runLiveScanPrecheckFromBase64(selectedImage.base64);
         const gateDecision = shouldAllowLiveScanFromGate(
           gateResult,
           LIVE_SCAN_GATE_CONFIDENCE_THRESHOLD,
@@ -327,8 +327,8 @@ export function ScanHomeScreen() {
       const message =
         error instanceof KindwiseConfigError ||
         error instanceof KindwiseRequestError ||
-        error instanceof ScanGateConfigError ||
-        error instanceof ScanGateRequestError
+        error instanceof ScanPrecheckConfigError ||
+        error instanceof ScanPrecheckRequestError
           ? error.message
           : 'The image could not be analyzed right now. Please try again.';
 

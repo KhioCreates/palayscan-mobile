@@ -1,10 +1,4 @@
-export type ScanGateResult = {
-  isPlant: boolean;
-  isRiceLikely: boolean;
-  isUsable: boolean;
-  confidence: number;
-  reason?: string;
-};
+import { ScanPrecheckVerdict } from './scanPrecheckTypes';
 
 const scanGateConfig = {
   apiUrl: process.env.EXPO_PUBLIC_SCAN_GATE_URL,
@@ -40,7 +34,7 @@ function readBoolean(value: unknown) {
   return typeof value === 'boolean' ? value : null;
 }
 
-function mapGatePayload(payload: unknown): ScanGateResult | null {
+function mapGatePayload(payload: unknown): ScanPrecheckVerdict | null {
   if (!payload || typeof payload !== 'object') {
     return null;
   }
@@ -82,7 +76,7 @@ export function validateScanGateConfig() {
   };
 }
 
-export async function runLiveScanGateFromBase64(base64Image: string): Promise<ScanGateResult> {
+export async function runLiveScanGateFromBase64(base64Image: string): Promise<ScanPrecheckVerdict> {
   const { apiUrl, apiKey } = validateScanGateConfig();
 
   logScanGateDebug('request url', apiUrl);
