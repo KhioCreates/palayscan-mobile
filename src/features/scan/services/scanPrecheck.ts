@@ -22,7 +22,15 @@ export async function runLiveScanPrecheckFromBase64(
     return await runLiveScanGateFromBase64(base64Image);
   } catch (error) {
     if (error instanceof ScanGateConfigError) {
-      throw new ScanPrecheckConfigError(error.message);
+      logScanPrecheckDebug('provider skipped', error.message);
+      return {
+        isPlant: true,
+        isRiceLikely: true,
+        isUsable: true,
+        confidence: 1,
+        reason:
+          'Remote scan gate is not configured, so PALAYSCAN will rely on the crop.health response and local user confirmation.',
+      };
     }
 
     if (error instanceof ScanGateRequestError) {

@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
-import { Alert, Text, View } from 'react-native';
+import { Alert, Pressable, Text, View } from 'react-native';
 
 import { HeaderBlock } from '../components/ui/HeaderBlock';
 import { PrimaryButton } from '../components/ui/PrimaryButton';
@@ -17,29 +17,53 @@ import { SavedPlannerRecord } from '../features/planner/types';
 import { RootStackParamList } from '../navigation/RootNavigator';
 
 type HistoryScreenProps = NativeStackScreenProps<RootStackParamList, 'History'>;
+type HistoryTab = 'scans' | 'calendars';
 
 function formatConfidence(value: number) {
   return `${Math.round(value * 100)}%`;
 }
 
+function HistoryTabButton({
+  active,
+  label,
+  onPress,
+}: {
+  active: boolean;
+  label: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="tab"
+      accessibilityState={{ selected: active }}
+      className={`flex-1 rounded-[18px] px-3 py-3 ${active ? 'bg-brand-600' : 'bg-transparent'}`}
+      onPress={onPress}
+    >
+      <Text
+        className={`text-center text-sm font-semibold ${active ? 'text-white' : 'text-brand-700'}`}
+      >
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
 export function HistoryScreen({ navigation }: HistoryScreenProps) {
   const [scanHistory, setScanHistory] = useState<SavedScanRecord[]>([]);
   const [plannerHistory, setPlannerHistory] = useState<SavedPlannerRecord[]>([]);
+  const [activeTab, setActiveTab] = useState<HistoryTab>('scans');
 
   useFocusEffect(
     useCallback(() => {
       let active = true;
 
-      getScanHistory().then((records) => {
-        if (active) {
-          setScanHistory(records);
+      Promise.all([getScanHistory(), getPlannerHistory()]).then(([scanRecords, plannerRecords]) => {
+        if (!active) {
+          return;
         }
-      });
 
-      getPlannerHistory().then((records) => {
-        if (active) {
-          setPlannerHistory(records);
-        }
+        setScanHistory(scanRecords);
+        setPlannerHistory(plannerRecords);
       });
 
       return () => {
@@ -75,68 +99,96 @@ export function HistoryScreen({ navigation }: HistoryScreenProps) {
       />
 
       <View className="gap-4">
-        <SectionCard>
-          <View className="gap-3">
-            <Text className="text-lg font-semibold text-ink-900">Scan History</Text>
-            <Text className="text-sm leading-6 text-ink-600">
-              Saved image checks, top result, confidence scores, and optional farmer notes.
-            </Text>
-            {scanHistory.length > 0 ? (
-              <PrimaryButton
-                hint="Remove all saved scan records from local history."
-                label="Clear scan history"
-                onPress={handleClearScanHistory}
-              />
-            ) : null}
-          </View>
-        </SectionCard>
+        <View
+          accessibilityRole="tablist"
+          className="flex-row rounded-[22px] border border-brand-100 bg-brand-50 p-1"
+        >
+          <HistoryTabButton
+            active={activeTab === 'scans'}
+            label={`Scans (${scanHistory.length})`}
+            onPress={() => setActiveTab('scans')}
+          />
+          <HistoryTabButton
+            active={activeTab === 'calendars'}
+            label={`Calendars (${plannerHistory.length})`}
+            onPress={() => setActiveTab('calendars')}
+          />
+        </View>
 
-        {scanHistory.length === 0 ? (
-          <SectionCard tone="muted">
-            <Text className="text-base font-semibold text-ink-900">No saved scan history yet</Text>
-            <Text className="mt-2 text-sm leading-6 text-ink-600">
-              Complete a scan in mock or live mode and it will be saved here automatically.
-            </Text>
-          </SectionCard>
+        {activeTab === 'scans' ? (
+          <>
+            <SectionCard>
+              <View className="gap-3">
+                <Text className="text-lg font-semibold text-ink-900">Scan History</Text>
+                <Text className="text-sm leading-6 text-ink-700">
+                  Saved image checks, top result, confidence scores, and optional farmer notes.
+                </Text>
+                {scanHistory.length > 0 ? (
+                  <PrimaryButton
+                    hint="Remove all saved scan records from local history."
+                    label="Clear scan history"
+                    onPress={handleClearScanHistory}
+                  />
+                ) : null}
+              </View>
+            </SectionCard>
+
+            {scanHistory.length === 0 ? (
+              <SectionCard tone="muted">
+                <Text className="text-base font-semibold text-ink-900">
+                  No saved scan history yet
+                </Text>
+                <Text className="mt-2 text-sm leading-6 text-ink-700">
+                  Complete a scan in mock or live mode and it will be saved here automatically.
+                </Text>
+              </SectionCard>
+            ) : (
+              scanHistory.map((record) => (
+                <ScanHistoryCard
+                  key={record.id}
+                  confidenceLabel={formatConfidence(record.confidence)}
+                  imageUri={record.imageUri}
+                  mode={record.mode}
+                  onPress={() => navigation.navigate('ScanHistoryDetail', { recordId: record.id })}
+                  scannedAtLabel={formatDate(fromIsoDate(record.scannedAt.slice(0, 10)))}
+                  title={record.nonPlantWarning ? 'Non-Plant Image' : record.topResultName}
+                />
+              ))
+            )}
+          </>
         ) : (
-          scanHistory.map((record) => (
-            <ScanHistoryCard
-              key={record.id}
-              confidenceLabel={formatConfidence(record.confidence)}
-              imageUri={record.imageUri}
-              mode={record.mode}
-              onPress={() => navigation.navigate('ScanHistoryDetail', { recordId: record.id })}
-              scannedAtLabel={formatDate(fromIsoDate(record.scannedAt.slice(0, 10)))}
-              title={record.nonPlantWarning ? 'Non-Plant Image' : record.topResultName}
-            />
-          ))
-        )}
+          <>
+            <SectionCard>
+              <Text className="text-lg font-semibold text-ink-900">Planner History</Text>
+              <Text className="mt-2 text-sm leading-6 text-ink-700">
+                Saved local crop calendars are listed here for offline review.
+              </Text>
+            </SectionCard>
 
-        <SectionCard>
-          <Text className="text-lg font-semibold text-ink-900">Planner History</Text>
-          <Text className="mt-2 text-sm leading-6 text-ink-600">
-            Saved local crop calendars are listed here for offline review.
-          </Text>
-        </SectionCard>
-
-        {plannerHistory.length === 0 ? (
-          <SectionCard tone="muted">
-            <Text className="text-base font-semibold text-ink-900">No saved planner history yet</Text>
-            <Text className="mt-2 text-sm leading-6 text-ink-600">
-              Generate a crop calendar and it will be saved locally here automatically.
-            </Text>
-          </SectionCard>
-        ) : (
-          plannerHistory.map((record) => (
-            <PlannerHistoryCard
-              key={record.id}
-              activityCount={record.activityCount}
-              onPress={() => navigation.navigate('PlannerHistoryDetail', { recordId: record.id })}
-              plantingDateLabel={formatDate(fromIsoDate(record.plantingDate))}
-              savedAtLabel={formatDate(fromIsoDate(record.createdAt.slice(0, 10)))}
-              title={record.title}
-            />
-          ))
+            {plannerHistory.length === 0 ? (
+              <SectionCard tone="muted">
+                <Text className="text-base font-semibold text-ink-900">
+                  No saved planner history yet
+                </Text>
+                <Text className="mt-2 text-sm leading-6 text-ink-700">
+                  Generate a crop calendar and it will be saved locally here automatically.
+                </Text>
+              </SectionCard>
+            ) : (
+              plannerHistory.map((record) => (
+                <PlannerHistoryCard
+                  key={record.id}
+                  activityCount={record.activityCount}
+                  onPress={() =>
+                    navigation.navigate('PlannerHistoryDetail', { recordId: record.id })
+                  }
+                  plantingDateLabel={formatDate(fromIsoDate(record.plantingDate))}
+                  savedAtLabel={formatDate(fromIsoDate(record.createdAt.slice(0, 10)))}
+                  title={record.title}
+                />
+              ))
+            )}
+          </>
         )}
       </View>
     </ScreenContainer>

@@ -33,6 +33,16 @@ export function ScanDisclaimerScreen() {
           body="The app may block, warn, or avoid saving unrelated images to help protect scan quality and prevent misleading records."
           title="Built-in safeguards"
         />
+
+        <InfoSectionCard
+          body="When live scan mode is enabled, PALAYSCAN may send approved rice photos to the configured Kindwise crop.health service for image-based checking. This service credit belongs in About, but the scan result should still be treated as guide-only."
+          title="Live scan service"
+          bullets={[
+            'Use live scan results as a starting point for comparison, not a final diagnosis.',
+            'Keep photos focused on rice leaves, stems, panicles, or field patches.',
+            'Do not upload unrelated personal or sensitive images.',
+          ]}
+        />
       </View>
     </ScreenContainer>
   );

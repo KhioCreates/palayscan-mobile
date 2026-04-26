@@ -21,7 +21,7 @@ export function PrimaryButton({ label, hint, icon, onPress, disabled = false }: 
     >
       <View className="flex-1 pr-3">
         <Text className="text-base font-semibold text-white">{label}</Text>
-        {hint ? <Text className="mt-1 text-sm text-white/80">{hint}</Text> : null}
+        {hint ? <Text className="mt-1 text-sm text-white/90">{hint}</Text> : null}
       </View>
       {icon ? <View>{icon}</View> : null}
     </Pressable>

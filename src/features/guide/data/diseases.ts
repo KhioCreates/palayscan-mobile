@@ -1,4 +1,5 @@
 import { GuideInfoEntry } from '../types';
+import { guideImages } from './guideImages';
 
 export const diseases: GuideInfoEntry[] = [
   {
@@ -6,6 +7,8 @@ export const diseases: GuideInfoEntry[] = [
     category: 'disease',
     name: 'Rice Blast',
     shortDescription: 'A serious fungal disease that affects leaves, nodes, and panicles.',
+    imageSource: guideImages.riceBlast,
+    imageAlt: 'Rice blast symptoms on a rice leaf',
     scientificName: 'Magnaporthe oryzae',
     symptoms: [
       'Spindle-shaped leaf lesions with gray or whitish centers',
@@ -33,6 +36,8 @@ export const diseases: GuideInfoEntry[] = [
     category: 'disease',
     name: 'Bacterial Leaf Blight',
     shortDescription: 'A bacterial disease that causes leaf drying and yield reduction.',
+    imageSource: guideImages.bacterialLeafBlight,
+    imageAlt: 'Bacterial leaf blight symptoms on rice leaves',
     scientificName: 'Xanthomonas oryzae pv. oryzae',
     symptoms: [
       'Yellow to whitish lesions spreading from the leaf tip or margins',
@@ -60,6 +65,8 @@ export const diseases: GuideInfoEntry[] = [
     category: 'disease',
     name: 'Sheath Blight',
     shortDescription: 'A fungal disease that affects leaf sheaths and can spread upward in dense humid crops.',
+    imageSource: guideImages.sheathBlight,
+    imageAlt: 'Sheath blight symptoms on rice leaves',
     scientificName: 'Rhizoctonia solani',
     symptoms: [
       'Oval or irregular lesions on leaf sheaths near water or soil level',
@@ -87,6 +94,8 @@ export const diseases: GuideInfoEntry[] = [
     category: 'disease',
     name: 'Brown Spot',
     shortDescription: 'A fungal leaf disease that causes brown lesions and can weaken crop growth and grain filling.',
+    imageSource: guideImages.brownSpot,
+    imageAlt: 'Rice brown spot symptoms on a leaf',
     scientificName: 'Bipolaris oryzae',
     symptoms: [
       'Brown spots on leaves that may enlarge and join together',
@@ -114,6 +123,8 @@ export const diseases: GuideInfoEntry[] = [
     category: 'disease',
     name: 'False Smut',
     shortDescription: 'A grain disease that forms velvety spore balls on affected spikelets.',
+    imageSource: guideImages.falseSmut,
+    imageAlt: 'False smut symptoms on a rice panicle',
     scientificName: 'Ustilaginoidea virens',
     symptoms: [
       'Individual grains replaced by velvety smut balls',
@@ -141,6 +152,8 @@ export const diseases: GuideInfoEntry[] = [
     category: 'disease',
     name: 'Tungro',
     shortDescription: 'A destructive viral rice disease spread mainly by green leafhoppers.',
+    imageSource: guideImages.tungro,
+    imageAlt: 'Rice plants affected by tungro disease',
     scientificName: 'Rice tungro viruses',
     symptoms: [
       'Yellow to orange-yellow leaves',
@@ -168,6 +181,8 @@ export const diseases: GuideInfoEntry[] = [
     category: 'disease',
     name: 'Bacterial Leaf Streak',
     shortDescription: 'A bacterial disease that causes narrow streaks and drying on rice leaves.',
+    imageSource: guideImages.bacterialLeafStreak,
+    imageAlt: 'Bacterial leaf streak symptoms on rice leaves',
     scientificName: 'Xanthomonas oryzae pv. oryzicola',
     symptoms: [
       'Narrow translucent streaks appear between leaf veins',
@@ -195,6 +210,8 @@ export const diseases: GuideInfoEntry[] = [
     category: 'disease',
     name: 'Bakanae',
     shortDescription: 'A seedborne fungal disease that can make infected plants abnormally tall and weak.',
+    imageSource: guideImages.bakanae,
+    imageAlt: 'Bakanae disease sporulation on rice stem',
     scientificName: 'Fusarium fujikuroi',
     symptoms: [
       'Affected seedlings or tillers may become taller than normal',
@@ -222,6 +239,8 @@ export const diseases: GuideInfoEntry[] = [
     category: 'disease',
     name: 'Sheath Rot',
     shortDescription: 'A disease that affects the sheath around the panicle and can reduce grain filling.',
+    imageSource: guideImages.sheathRot,
+    imageAlt: 'Sheath rot symptoms on rice leaf sheath',
     scientificName: 'Sarocladium oryzae',
     symptoms: [
       'Panicles may not emerge fully from the sheath',
@@ -249,6 +268,8 @@ export const diseases: GuideInfoEntry[] = [
     category: 'disease',
     name: 'Stem Rot',
     shortDescription: 'A disease that affects the lower sheath and stem and can lead to chalky grains and unfilled panicles.',
+    imageSource: guideImages.stemRot,
+    imageAlt: 'Stem rot symptoms on rice leaf sheath',
     scientificName: 'Sclerotium oryzae',
     symptoms: [
       'Small dark lesions appear near water level on the outer sheath',
@@ -276,6 +297,8 @@ export const diseases: GuideInfoEntry[] = [
     category: 'disease',
     name: 'Narrow Brown Spot',
     shortDescription: 'A fungal disease that causes narrow brown lesions on leaves, sheaths, and sometimes panicles.',
+    imageSource: guideImages.narrowBrownSpot,
+    imageAlt: 'Narrow brown leaf spot symptoms on rice leaves',
     scientificName: 'Sphaerulina oryzina',
     symptoms: [
       'Long narrow brown lesions appear parallel to the veins',
@@ -303,6 +326,8 @@ export const diseases: GuideInfoEntry[] = [
     category: 'disease',
     name: 'Leaf Scald',
     shortDescription: 'A fungal disease that gives rice leaves a scorched or scalded appearance.',
+    imageSource: guideImages.leafScald,
+    imageAlt: 'Leaf scald symptoms on a rice leaf',
     scientificName: 'Microdochium oryzae',
     symptoms: [
       'Leaves show large lesions that look dried or scalded',
@@ -330,6 +355,8 @@ export const diseases: GuideInfoEntry[] = [
     category: 'disease',
     name: 'Rice Ragged Stunt',
     shortDescription: 'A viral disease spread by brown planthopper that can badly reduce grain formation.',
+    imageSource: guideImages.riceRaggedStunt,
+    imageAlt: 'Rice ragged stunt symptom reference illustration',
     scientificName: 'Rice ragged stunt virus',
     symptoms: [
       'Plants become stunted and may stay dark green',
@@ -357,6 +384,8 @@ export const diseases: GuideInfoEntry[] = [
     category: 'disease',
     name: 'Rice Grassy Stunt',
     shortDescription: 'A viral disease spread by planthoppers that causes grassy, stunted rice plants.',
+    imageSource: guideImages.riceGrassyStunt,
+    imageAlt: 'Rice grassy stunt symptom reference illustration',
     scientificName: 'Rice grassy stunt virus',
     symptoms: [
       'Plants become severely stunted',
@@ -384,6 +413,8 @@ export const diseases: GuideInfoEntry[] = [
     category: 'disease',
     name: 'Red Stripe',
     shortDescription: 'A rice disease that causes reddish linear lesions on leaves, often during later growth stages.',
+    imageSource: guideImages.redStripe,
+    imageAlt: 'Red stripe symptom reference illustration',
     scientificName: 'Acidovorax avenae subsp. avenae',
     symptoms: [
       'Reddish to brown narrow stripes appear on leaves',

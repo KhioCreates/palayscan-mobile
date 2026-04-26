@@ -1,9 +1,12 @@
-import { ScanCategory, ScanPrediction, ScanResult } from '../types';
+import { ScanCategory, ScanDiagnosisDetails, ScanPrediction, ScanResult } from '../types';
+import { findGuideEntryForPrediction } from '../utils/scanGuideMatch';
 
 type CandidatePrediction = {
   name: string;
   confidence: number;
   category: ScanCategory;
+  scientificName?: string;
+  details?: ScanDiagnosisDetails;
 };
 
 type CropSuggestion = {
@@ -35,6 +38,12 @@ const pestKeywords = [
   'flies',
   'locust',
   'thrips',
+  'midge',
+  'midges',
+  'maggot',
+  'maggots',
+  'larva',
+  'larvae',
 ];
 
 function asNumber(value: unknown) {
@@ -110,6 +119,144 @@ function readScientificName(entry: Record<string, unknown>) {
   return undefined;
 }
 
+function readDetailsRecord(entry: Record<string, unknown>) {
+  return entry.details && typeof entry.details === 'object'
+    ? (entry.details as Record<string, unknown>)
+    : {};
+}
+
+function toCleanString(value: unknown) {
+  if (typeof value === 'string') {
+    const cleaned = value.trim();
+    return cleaned || undefined;
+  }
+
+  if (typeof value === 'number') {
+    return String(value);
+  }
+
+  return undefined;
+}
+
+function collectTextValues(value: unknown, output: string[] = []): string[] {
+  const directValue = toCleanString(value);
+
+  if (directValue) {
+    output.push(directValue);
+    return output;
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      collectTextValues(item, output);
+    }
+    return output;
+  }
+
+  if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>;
+
+    for (const key of Object.keys(record)) {
+      collectTextValues(record[key], output);
+    }
+  }
+
+  return output;
+}
+
+function readTextList(value: unknown, limit = 5) {
+  const seen = new Set<string>();
+  const items: string[] = [];
+
+  for (const item of collectTextValues(value)) {
+    const cleaned = item.replace(/\s+/g, ' ').trim();
+
+    if (!cleaned || seen.has(cleaned)) {
+      continue;
+    }
+
+    seen.add(cleaned);
+    items.push(cleaned);
+
+    if (items.length >= limit) {
+      break;
+    }
+  }
+
+  return items.length > 0 ? items : undefined;
+}
+
+function collectImageUrls(value: unknown, output: string[] = []) {
+  if (typeof value === 'string') {
+    const cleaned = value.trim();
+    const looksLikeImage =
+      /^https?:\/\//i.test(cleaned) &&
+      /\.(avif|gif|jpe?g|png|webp|svg)(\?|#|$)/i.test(cleaned);
+
+    if (looksLikeImage) {
+      output.push(cleaned);
+    }
+
+    return output;
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      collectImageUrls(item, output);
+    }
+    return output;
+  }
+
+  if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>;
+
+    for (const key of Object.keys(record)) {
+      collectImageUrls(record[key], output);
+    }
+  }
+
+  return output;
+}
+
+function readDetails(entry: Record<string, unknown>): ScanDiagnosisDetails | undefined {
+  const details = readDetailsRecord(entry);
+  const commonNames = readTextList(
+    details.common_names ?? details.commonNames ?? entry.common_names ?? entry.commonNames,
+    6,
+  );
+  const scientificName = readScientificName(entry) ?? toCleanString(details.scientific_name);
+  const imageUrls = [
+    ...collectImageUrls(details.image),
+    ...collectImageUrls(details.images),
+    ...collectImageUrls(entry.image),
+    ...collectImageUrls(entry.images),
+  ].filter((url, index, urls) => urls.indexOf(url) === index);
+
+  const mapped: ScanDiagnosisDetails = {
+    commonNames,
+    scientificName,
+    description: toCleanString(details.description ?? details.wiki_description),
+    treatment: readTextList(details.treatment, 6),
+    symptoms: readTextList(details.symptoms, 6),
+    severity: toCleanString(details.severity),
+    spreading: toCleanString(details.spreading),
+    type: toCleanString(details.type),
+    imageUrl: imageUrls[0],
+    imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
+    wikiUrl: toCleanString(details.wiki_url ?? details.wikiUrl),
+    sourceUrl: toCleanString(details.url),
+    eppoCode: toCleanString(details.eppo_code ?? details.eppoCode),
+    gbifId: toCleanString(details.gbif_id ?? details.gbifId),
+    taxonomy: readTextList(details.taxonomy, 8),
+  };
+
+  const hasDetails = Object.values(mapped).some((value) =>
+    Array.isArray(value) ? value.length > 0 : Boolean(value),
+  );
+
+  return hasDetails ? mapped : undefined;
+}
+
 function inferCategory(entry: Record<string, unknown>, fallback: ScanCategory): ScanCategory {
   const name = readName(entry);
   const categoryValue = typeof entry.category === 'string' ? entry.category.toLowerCase() : null;
@@ -153,6 +300,8 @@ function toPrediction(
     name,
     confidence,
     category: isHealthyName(name) ? 'healthy' : inferCategory(record, fallbackCategory),
+    scientificName: readScientificName(record),
+    details: readDetails(record),
   };
 }
 
@@ -255,6 +404,34 @@ function isRiceCrop(suggestion: CropSuggestion | undefined) {
   return combined.includes('rice') || combined.includes('oryza sativa');
 }
 
+function buildRiceReliabilityWarning({
+  topCrop,
+  topPrediction,
+}: {
+  topCrop?: CropSuggestion;
+  topPrediction: ScanPrediction;
+}) {
+  if (!isRiceCrop(topCrop)) {
+    return 'The returned crop classification does not clearly look like rice. Use caution and verify the image before relying on this diagnosis.';
+  }
+
+  if (topPrediction.category === 'healthy') {
+    return undefined;
+  }
+
+  const guideEntry = findGuideEntryForPrediction(topPrediction);
+
+  if (topPrediction.confidence < 0.5 && !guideEntry) {
+    return 'The crop was classified as rice, but the top match is low confidence and is not confirmed in the PALAYSCAN rice guide. Retake closer rice symptom photos before acting.';
+  }
+
+  if (topPrediction.confidence < 0.35) {
+    return 'The top match is very weak. Retake a closer rice symptom photo before relying on this result.';
+  }
+
+  return undefined;
+}
+
 function readIsPlantBinary(response: Record<string, unknown>) {
   const result = response.result;
 
@@ -334,6 +511,10 @@ export function mapKindwiseResponseToScanResult({
   }
 
   const topPrediction: ScanPrediction = predictions[0];
+  const riceMismatchWarning = buildRiceReliabilityWarning({
+    topCrop,
+    topPrediction,
+  });
 
   return {
     imageUri,
@@ -344,8 +525,6 @@ export function mapKindwiseResponseToScanResult({
     notes,
     cropLabel: topCrop?.label,
     cropScientificName: topCrop?.scientificName,
-    riceMismatchWarning: isRiceCrop(topCrop)
-      ? undefined
-      : 'The returned crop classification does not clearly look like rice. Use caution and verify the image before relying on this diagnosis.',
+    riceMismatchWarning,
   };
 }

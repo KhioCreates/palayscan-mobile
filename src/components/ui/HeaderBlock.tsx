@@ -15,7 +15,7 @@ export function HeaderBlock({ eyebrow, title, description }: HeaderBlockProps) {
         </Text>
       ) : null}
       <Text className="text-[30px] font-bold leading-9 text-ink-900">{title}</Text>
-      <Text className="max-w-[340px] text-base leading-6 text-ink-600">{description}</Text>
+      <Text className="max-w-[340px] text-base leading-6 text-ink-700">{description}</Text>
     </View>
   );
 }

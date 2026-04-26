@@ -37,6 +37,7 @@ export async function saveScanResult(result: ScanResult, mode: ScanMode): Promis
     confidence: result.predictions[0]?.confidence ?? 0,
     predictions: result.predictions,
     notes: normalizedNotes,
+    scanPhotos: result.scanPhotos,
     nonPlantWarning: result.nonPlantWarning,
     riceMismatchWarning: result.riceMismatchWarning,
     result: {

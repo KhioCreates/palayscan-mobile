@@ -1,52 +1,59 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Image, ImageSourcePropType, Pressable, Text, View } from 'react-native';
+import { ImageSourcePropType, Pressable, Text, View } from 'react-native';
 
 import { SectionCard } from '../../../components/ui/SectionCard';
+import { GuideCategory } from '../types';
+import { GuideEntryVisual } from './GuideEntryVisual';
 
 type GuideListItemProps = {
   title: string;
   summary: string;
   badge: string;
+  category: GuideCategory;
   onPress: () => void;
   imageSource?: ImageSourcePropType;
   imageAlt?: string;
+  imageFit?: 'cover' | 'contain';
 };
 
 export function GuideListItem({
   title,
   summary,
   badge,
+  category,
   onPress,
   imageSource,
   imageAlt,
+  imageFit,
 }: GuideListItemProps) {
   return (
     <Pressable accessibilityRole="button" className="active:opacity-90" onPress={onPress}>
       <SectionCard>
-        <View className="gap-3">
-          {imageSource ? (
-            <View className="overflow-hidden rounded-[20px] border border-brand-100">
-              <Image
-                accessibilityIgnoresInvertColors
-                accessibilityLabel={imageAlt ?? `${title} guide image`}
-                className="h-32 w-full"
-                resizeMode="cover"
-                source={imageSource}
-              />
+        <View className="flex-row gap-3">
+          <GuideEntryVisual
+            badgeLabel={badge}
+            category={category}
+            imageAlt={imageAlt}
+            imageFit={imageFit}
+            imageSource={imageSource}
+            primaryDetail={summary}
+            title={title}
+          />
+
+          <View className="flex-1 gap-2">
+            <View className="gap-2">
+              <Text className="text-lg font-semibold text-ink-900">{title}</Text>
+              <View className="self-start rounded-full bg-brand-50 px-3 py-1">
+                <Text className="text-xs font-semibold uppercase tracking-[1.2px] text-brand-700">
+                  {badge}
+                </Text>
+              </View>
             </View>
-          ) : null}
-          <View className="flex-row items-center justify-between gap-3">
-            <Text className="flex-1 text-lg font-semibold text-ink-900">{title}</Text>
-            <View className="rounded-full bg-brand-50 px-3 py-1">
-              <Text className="text-xs font-semibold uppercase tracking-[1.2px] text-brand-700">
-                {badge}
-              </Text>
+            <Text className="text-sm leading-6 text-ink-700">{summary}</Text>
+            <View className="flex-row items-center justify-between pt-1">
+              <Text className="text-sm font-semibold text-brand-700">View guide details</Text>
+              <Ionicons color="#2d6033" name="chevron-forward" size={18} />
             </View>
-          </View>
-          <Text className="text-sm leading-6 text-ink-600">{summary}</Text>
-          <View className="flex-row items-center justify-between">
-            <Text className="text-sm font-semibold text-brand-700">Tap card to view details</Text>
-            <Ionicons color="#2d6033" name="chevron-forward" size={18} />
           </View>
         </View>
       </SectionCard>

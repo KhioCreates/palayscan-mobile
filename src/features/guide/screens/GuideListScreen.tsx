@@ -76,7 +76,7 @@ export function GuideListScreen({ navigation, route }: GuideListScreenProps) {
           placeholderTextColor="#708272"
           value={searchQuery}
         />
-        <Text className="mt-3 text-xs leading-5 text-ink-600">
+        <Text className="mt-3 text-xs leading-5 text-ink-700">
           Entries are shown in A-Z order. Use search to quickly find a name or topic.
         </Text>
       </View>
@@ -87,7 +87,9 @@ export function GuideListScreen({ navigation, route }: GuideListScreenProps) {
             <GuideListItem
               key={entry.id}
               badge={entry.category}
+              category={entry.category}
               imageAlt={entry.imageAlt}
+              imageFit={entry.imageFit}
               imageSource={entry.imageSource}
               onPress={() =>
                 navigation.navigate('GuideDetail', {

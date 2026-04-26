@@ -1,5 +1,7 @@
 export type PlantingMethod = 'transplanting' | 'direct-seeding';
 
+export type CropDurationOption = 'short' | 'medium' | 'long' | 'custom';
+
 export type PlannerActivityType =
   | 'land-preparation'
   | 'seed-preparation'
@@ -32,12 +34,15 @@ export type PlannedActivity = {
   endDate: string;
   windowLabel: string;
   notes: string[];
+  completedAt?: string;
   isEditableLater: true;
 };
 
 export type PlannerSchedule = {
   method: PlantingMethod;
   plantingDate: string;
+  cropDurationDays?: number;
+  cropDurationLabel?: string;
   activities: PlannedActivity[];
 };
 
@@ -46,6 +51,8 @@ export type SavedPlannerRecord = {
   createdAt: string;
   method: PlantingMethod;
   plantingDate: string;
+  cropDurationDays?: number;
+  cropDurationLabel?: string;
   title: string;
   activityCount: number;
   activities: PlannedActivity[];
@@ -55,5 +62,13 @@ export type PlantingMethodMeta = {
   id: PlantingMethod;
   title: string;
   subtitle: string;
+  shortLabel: string;
+};
+
+export type CropDurationMeta = {
+  id: Exclude<CropDurationOption, 'custom'>;
+  title: string;
+  subtitle: string;
+  days: number;
   shortLabel: string;
 };

@@ -14,9 +14,12 @@ import { RootStackParamList } from '../../../navigation/RootNavigator';
 import { plantingMethodOptions } from '../data/plannerRules';
 import { PlannerActivityCard } from '../components/PlannerActivityCard';
 import { PlannerCalendarSummary } from '../components/PlannerCalendarSummary';
+import { PlannerStageTimeline } from '../components/PlannerStageTimeline';
+import { PlannerWorkDashboard } from '../components/PlannerWorkDashboard';
 import { deletePlannerById, getPlannerById, updatePlannerRecord } from '../services/plannerStorage';
 import { PlannedActivity, SavedPlannerRecord } from '../types';
 import { addDays, buildWindowLabel, formatDate, fromIsoDate, toIsoDate } from '../utils/date';
+import { getPlannerActivityStatus } from '../utils/plannerPresentation';
 
 type PlannerHistoryDetailScreenProps = NativeStackScreenProps<
   RootStackParamList,
@@ -130,6 +133,29 @@ export function PlannerHistoryDetailScreen({
     }
   };
 
+  const handleToggleActivityComplete = async (activityId: string) => {
+    if (!record) {
+      return;
+    }
+
+    const nextActivities = record.activities.map((activity) =>
+      activity.id === activityId
+        ? {
+            ...activity,
+            completedAt: activity.completedAt ? undefined : new Date().toISOString(),
+          }
+        : activity,
+    );
+    const updatedRecord: SavedPlannerRecord = {
+      ...record,
+      activities: nextActivities,
+      activityCount: nextActivities.length,
+    };
+
+    await updatePlannerRecord(updatedRecord);
+    setRecord(updatedRecord);
+  };
+
   const handleDelete = () => {
     if (!record || isDeleting) {
       return;
@@ -154,7 +180,7 @@ export function PlannerHistoryDetailScreen({
       <ScreenContainer bottomSpacing="comfortable" topSpacing="comfortable">
         <SectionCard tone="muted">
           <Text className="text-lg font-semibold text-ink-900">Planner record not found</Text>
-          <Text className="mt-2 text-sm leading-6 text-ink-600">
+          <Text className="mt-2 text-sm leading-6 text-ink-700">
             This saved planner schedule could not be loaded from local history.
           </Text>
         </SectionCard>
@@ -167,30 +193,41 @@ export function PlannerHistoryDetailScreen({
   return (
     <ScreenContainer bottomSpacing="roomy" topSpacing="comfortable">
       <View className="gap-4">
-        <SectionCard>
-          <View className="gap-2">
-            <Text className="text-lg font-semibold text-ink-900">Saved crop calendar summary</Text>
-            <Text className="text-sm leading-6 text-ink-600">
-              Method: {methodMeta ? `${methodMeta.title} (${methodMeta.subtitle})` : record.title}
-            </Text>
-            <Text className="text-sm leading-6 text-ink-600">
-              Planting date: {formatDate(fromIsoDate(record.plantingDate))}
-            </Text>
-            <Text className="text-sm leading-6 text-ink-600">
-              Saved: {formatDate(fromIsoDate(record.createdAt.slice(0, 10)))}
-            </Text>
-            <Text className="text-sm leading-6 text-ink-600">
-              Activities: {record.activityCount}
-            </Text>
-          </View>
-        </SectionCard>
+        <PlannerWorkDashboard
+          activities={record.activities}
+          cropDurationDays={record.cropDurationDays}
+          cropDurationLabel={record.cropDurationLabel}
+          plantingDate={record.plantingDate}
+          title="Saved planner progress"
+        />
 
-        <SectionCard tone="muted">
-          <View className="gap-2">
-            <Text className="text-lg font-semibold text-ink-900">Saved planting-to-harvest timeline</Text>
-            <Text className="text-sm leading-6 text-ink-600">
-              This is the locally saved crop calendar for offline review.
-            </Text>
+        <SectionCard>
+          <View className="gap-4">
+            <View className="gap-2">
+              <Text className="text-sm font-semibold uppercase tracking-[2px] text-brand-700">
+                Saved Crop Calendar
+              </Text>
+              <Text className="text-2xl font-semibold text-ink-900">{record.title}</Text>
+              <Text className="text-sm leading-6 text-ink-700">
+                Method: {methodMeta ? `${methodMeta.title} (${methodMeta.subtitle})` : record.title}
+              </Text>
+              <Text className="text-sm leading-6 text-ink-700">
+                Planting date: {formatDate(fromIsoDate(record.plantingDate))}
+              </Text>
+              <Text className="text-sm leading-6 text-ink-700">
+                Saved: {formatDate(fromIsoDate(record.createdAt.slice(0, 10)))}
+              </Text>
+              {record.cropDurationLabel ? (
+                <Text className="text-sm leading-6 text-ink-700">
+                  Variety duration: {record.cropDurationLabel}
+                </Text>
+              ) : null}
+            </View>
+
+            <PlannerStageTimeline
+              cropDurationDays={record.cropDurationDays}
+              plantingDate={record.plantingDate}
+            />
           </View>
         </SectionCard>
 
@@ -208,14 +245,16 @@ export function PlannerHistoryDetailScreen({
             <Text className="text-lg font-semibold text-ink-900">Edit selected activity</Text>
             {selectedActivity ? (
               <>
-                <Text className="text-sm leading-6 text-ink-600">
+                <Text className="text-sm leading-6 text-ink-700">
                   Update the date or notes for this saved activity. Changes stay on this device and
                   refresh the crop calendar below.
                 </Text>
 
                 <View className="gap-2 rounded-[18px] bg-white p-4">
-                  <Text className="text-base font-semibold text-ink-900">{selectedActivity.title}</Text>
-                  <Text className="text-sm leading-6 text-ink-600">
+                  <Text className="text-base font-semibold text-ink-900">
+                    {selectedActivity.title}
+                  </Text>
+                  <Text className="text-sm leading-6 text-ink-700">
                     Current window: {selectedActivity.windowLabel}
                   </Text>
                 </View>
@@ -229,7 +268,7 @@ export function PlannerHistoryDetailScreen({
                     <Text className="text-base font-semibold text-ink-900">
                       {formatDate(editorDate)}
                     </Text>
-                    <Text className="mt-1 text-sm text-ink-600">
+                    <Text className="mt-1 text-sm text-ink-700">
                       Tap to adjust this activity date. Multi-day windows move together.
                     </Text>
                   </View>
@@ -266,7 +305,7 @@ export function PlannerHistoryDetailScreen({
                 />
               </>
             ) : (
-              <Text className="text-sm leading-6 text-ink-600">
+              <Text className="text-sm leading-6 text-ink-700">
                 Tap an activity from the calendar or the list below to edit its saved date and
                 notes.
               </Text>
@@ -278,15 +317,19 @@ export function PlannerHistoryDetailScreen({
           {record.activities.map((activity) => (
             <PlannerActivityCard
               key={activity.id}
+              completedAt={activity.completedAt}
               dateLabel={activity.windowLabel}
               description={activity.description}
               notes={activity.notes}
               onPress={() => setSelectedActivityId(activity.id)}
+              onToggleComplete={() => handleToggleActivityComplete(activity.id)}
               selected={
                 activity.id === selectedActivityId ||
                 (!selectedActivityId && selectedDateActivityIds.includes(activity.id))
               }
+              status={getPlannerActivityStatus(activity)}
               title={activity.title}
+              type={activity.type}
             />
           ))}
         </View>

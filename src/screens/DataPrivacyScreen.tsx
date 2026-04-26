@@ -25,8 +25,13 @@ export function DataPrivacyScreen() {
         />
 
         <InfoSectionCard
-          body="If live scan is enabled, a selected image may be sent to an external plant-health identification service after the app’s pre-check safeguards pass. This is different from mock mode, which does not use the live scan service."
+          body="If live scan is enabled, a selected image may be sent to the configured Kindwise crop.health plant-health identification service after the app's pre-check safeguards pass. This is different from mock mode, which does not use the live scan service."
           title="What may leave the device"
+          bullets={[
+            'Do not include faces, personal documents, or unrelated objects in scan photos.',
+            'Only clear rice field images should be submitted for live checking.',
+            'The API key is configuration data and should not be shown to regular app users.',
+          ]}
         />
 
         <InfoSectionCard

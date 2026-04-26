@@ -16,6 +16,10 @@ import {
   startOfWeek,
   toIsoDate,
 } from '../utils/date';
+import {
+  getPlannerActivityStyle,
+  plannerActivityTypeOrder,
+} from '../utils/plannerPresentation';
 
 const weekdayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -65,6 +69,11 @@ export function PlannerCalendarSummary({
     () => getActivitiesForDate(selectedDate, activities),
     [activities, selectedDate],
   );
+  const legendItems = useMemo(() => {
+    const activityTypes = new Set(activities.map((activity) => activity.type));
+
+    return plannerActivityTypeOrder.filter((activityType) => activityTypes.has(activityType));
+  }, [activities]);
 
   useEffect(() => {
     onSelectDateActivityIds?.(selectedDateActivities.map((activity) => activity.id));
@@ -82,7 +91,7 @@ export function PlannerCalendarSummary({
         <View className="flex-row items-center justify-between">
           <View>
             <Text className="text-lg font-semibold text-ink-900">Calendar Summary</Text>
-            <Text className="mt-1 text-sm leading-6 text-ink-600">
+            <Text className="mt-1 text-sm leading-6 text-ink-700">
               View the estimated crop timeline by month and tap a date to see planned activities.
             </Text>
           </View>
@@ -112,7 +121,7 @@ export function PlannerCalendarSummary({
           <View className="flex-row">
             {weekdayLabels.map((label) => (
               <View key={label} className="flex-1 items-center py-1">
-                <Text className="text-xs font-semibold uppercase tracking-[1px] text-ink-500">
+                <Text className="text-xs font-semibold uppercase tracking-[1px] text-ink-600">
                   {label}
                 </Text>
               </View>
@@ -131,6 +140,9 @@ export function PlannerCalendarSummary({
                     !!selectedActivityId &&
                     dateActivities.some((activity) => activity.id === selectedActivityId);
                   const activityCount = dateActivities.length;
+                  const firstActivityStyle = hasActivities
+                    ? getPlannerActivityStyle(dateActivities[0].type)
+                    : null;
 
                   const backgroundClassName = matchesSelectedActivity
                     ? 'bg-brand-600'
@@ -146,7 +158,7 @@ export function PlannerCalendarSummary({
                       ? 'text-brand-800'
                     : isCurrentMonth
                       ? 'text-ink-900'
-                      : 'text-ink-400';
+                      : 'text-ink-500';
 
                   return (
                     <Pressable
@@ -159,7 +171,7 @@ export function PlannerCalendarSummary({
                           : hasActivities
                             ? 'border-brand-100'
                             : 'border-transparent'
-                      } ${backgroundClassName} ${!isCurrentMonth && !matchesSelectedActivity ? 'opacity-60' : ''}`}
+                      } ${backgroundClassName}`}
                       key={toIsoDate(date)}
                       onPress={() => {
                         const nextDateIso = toIsoDate(date);
@@ -177,7 +189,9 @@ export function PlannerCalendarSummary({
                             <>
                               <View
                                 className={`h-1.5 w-1.5 rounded-full ${
-                                  matchesSelectedActivity ? 'bg-white' : 'bg-brand-600'
+                                  matchesSelectedActivity
+                                    ? 'bg-white'
+                                    : firstActivityStyle?.accentClassName ?? 'bg-brand-600'
                                 }`}
                               />
                               {activityCount > 1 ? (
@@ -207,12 +221,25 @@ export function PlannerCalendarSummary({
           </View>
         </View>
 
+        <View className="flex-row flex-wrap gap-2 rounded-[18px] bg-brand-50/45 p-3">
+          {legendItems.map((activityType) => {
+            const activityStyle = getPlannerActivityStyle(activityType);
+
+            return (
+              <View className="flex-row items-center gap-2 rounded-full bg-white px-3 py-2" key={activityType}>
+                <View className={`h-2.5 w-2.5 rounded-full ${activityStyle.accentClassName}`} />
+                <Text className="text-xs font-semibold text-ink-700">{activityStyle.label}</Text>
+              </View>
+            );
+          })}
+        </View>
+
         <View className="rounded-[20px] bg-brand-50/45 px-4 py-4">
           <Text className="text-sm font-semibold text-ink-900">
             Activities on {formatDate(selectedDate)}
           </Text>
           {selectedDateActivities.length > 1 ? (
-            <Text className="mt-1 text-xs leading-5 text-ink-600">
+            <Text className="mt-1 text-xs leading-5 text-ink-700">
               {selectedDateActivities.length} activities are scheduled on this date.
             </Text>
           ) : null}
@@ -240,7 +267,7 @@ export function PlannerCalendarSummary({
                     </Text>
                     <Text
                       className={`mt-1 text-xs ${
-                        isSelectedActivity ? 'text-brand-700' : 'text-ink-600'
+                        isSelectedActivity ? 'text-brand-800' : 'text-ink-700'
                       }`}
                     >
                       {activity.windowLabel}
@@ -250,7 +277,7 @@ export function PlannerCalendarSummary({
               })}
             </View>
           ) : (
-            <Text className="mt-2 text-sm leading-6 text-ink-600">
+            <Text className="mt-2 text-sm leading-6 text-ink-700">
               No scheduled activity falls on this date in the current crop calendar view.
             </Text>
           )}

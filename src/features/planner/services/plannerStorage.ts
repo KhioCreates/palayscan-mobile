@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { storageKeys } from '../../../lib/storage/keys';
-import { plantingMethodOptions } from '../data/plannerRules';
+import { DEFAULT_CROP_DURATION_DAYS, plantingMethodOptions } from '../data/plannerRules';
 import { PlannerSchedule, SavedPlannerRecord } from '../types';
 
 export async function getPlannerHistory(): Promise<SavedPlannerRecord[]> {
@@ -27,12 +27,40 @@ export async function getPlannerById(recordId: string): Promise<SavedPlannerReco
 export async function savePlannerSchedule(schedule: PlannerSchedule): Promise<SavedPlannerRecord> {
   const history = await getPlannerHistory();
   const methodMeta = plantingMethodOptions.find((option) => option.id === schedule.method);
+  const scheduleDurationDays = schedule.cropDurationDays ?? DEFAULT_CROP_DURATION_DAYS;
   const existingRecord = history.find(
-    (record) => record.method === schedule.method && record.plantingDate === schedule.plantingDate,
+    (record) =>
+      record.method === schedule.method &&
+      record.plantingDate === schedule.plantingDate &&
+      (record.cropDurationDays ?? DEFAULT_CROP_DURATION_DAYS) === scheduleDurationDays,
   );
 
   if (existingRecord) {
-    return existingRecord;
+    const activities = schedule.activities.map((activity) => {
+      const previousActivity = existingRecord.activities.find(
+        (savedActivity) => savedActivity.ruleId === activity.ruleId,
+      );
+
+      return previousActivity?.completedAt
+        ? {
+            ...activity,
+            completedAt: previousActivity.completedAt,
+          }
+        : activity;
+    });
+    const updatedRecord: SavedPlannerRecord = {
+      ...existingRecord,
+      cropDurationDays: scheduleDurationDays,
+      cropDurationLabel: schedule.cropDurationLabel ?? existingRecord.cropDurationLabel,
+      activityCount: activities.length,
+      activities,
+    };
+    const nextHistory = history.map((record) =>
+      record.id === existingRecord.id ? updatedRecord : record,
+    );
+
+    await AsyncStorage.setItem(storageKeys.plannerHistory, JSON.stringify(nextHistory));
+    return updatedRecord;
   }
 
   const timestamp = new Date().toISOString();
@@ -42,6 +70,8 @@ export async function savePlannerSchedule(schedule: PlannerSchedule): Promise<Sa
     createdAt: timestamp,
     method: schedule.method,
     plantingDate: schedule.plantingDate,
+    cropDurationDays: scheduleDurationDays,
+    cropDurationLabel: schedule.cropDurationLabel ?? 'Medium variety',
     title: methodMeta ? `${methodMeta.title} Calendar` : 'Rice Crop Calendar',
     activityCount: schedule.activities.length,
     activities: schedule.activities,

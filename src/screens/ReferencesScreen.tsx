@@ -35,7 +35,17 @@ export function ReferencesScreen() {
         />
 
         <InfoSectionCard
-          body="These references support the app’s local content structure and wording. Actual farm practice should still consider local season, variety, irrigation, soil condition, and advice from local agricultural personnel."
+          body="Some Guide visuals are local copies from reusable Wikimedia Commons, Bugwood, and open-access research pages. When exact reusable photos were not verified, PALAYSCAN uses local research-based reference illustrations instead of restricted or misleading images."
+          bullets={[
+            'Disease visuals added for Rice Blast, Bacterial Leaf Blight, Sheath Blight, Brown Spot, False Smut, Tungro, Bacterial Leaf Streak, Bakanae, Sheath Rot, Stem Rot, Narrow Brown Spot, Leaf Scald, Red Stripe, Rice Grassy Stunt, and Rice Ragged Stunt.',
+            'Pest visuals added for Brown Planthopper, Rice Black Bug, Stem Borer, Rice Leaffolder, Golden Apple Snail, Rice Bug, Green Leafhopper, Whitebacked Planthopper, Rice Whorl Maggot, Rice Caseworm, Rice Gall Midge, Rice Hispa, Rice Thrips, Armyworm, and Cutworm.',
+            'Rice variety entries still avoid generic field photos and use verified variety-data visual cards until exact reusable variety photos or team field photos are available.',
+          ]}
+          title="Guide image credits"
+        />
+
+        <InfoSectionCard
+          body="These references support the app's local content structure and wording. Actual farm practice should still consider local season, variety, irrigation, soil condition, and advice from local agricultural personnel."
           title="Important use note"
         />
       </View>

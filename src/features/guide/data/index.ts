@@ -9,14 +9,14 @@ export const guideCategoryMeta: GuideCategoryMeta[] = [
     category: 'variety',
     title: 'Rice Varieties',
     eyebrow: 'Varieties',
-    description: 'Basic local variety information that is ready to expand up to 15 entries and beyond.',
+    description: 'Compare maturity, grain type, field fit, and key traits for common rice varieties.',
   },
   {
     key: 'pests',
     category: 'pest',
     title: 'Pests',
     eyebrow: 'Pests',
-    description: 'Identification details plus treatment and prevention guidance for common rice pests.',
+    description: 'See common rice pests, visible damage signs, field actions, and prevention tips.',
   },
   {
     key: 'diseases',
@@ -24,7 +24,7 @@ export const guideCategoryMeta: GuideCategoryMeta[] = [
     title: 'Diseases',
     eyebrow: 'Diseases',
     description:
-      'Offline disease references with symptoms, identification cues, treatment notes, and prevention guidance.',
+      'Check rice disease signs, symptoms, field actions, and prevention tips in one local guide.',
   },
 ];
 

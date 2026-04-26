@@ -1,0 +1,36 @@
+import { ImageSourcePropType } from 'react-native';
+
+declare const require: (path: string) => ImageSourcePropType;
+
+export const guideImages = {
+  armyworm: require('../../../../assets/guide/armyworm.jpg'),
+  bacterialLeafStreak: require('../../../../assets/guide/bacterial-leaf-streak.jpg'),
+  bacterialLeafBlight: require('../../../../assets/guide/bacterial-leaf-blight.jpg'),
+  bakanae: require('../../../../assets/guide/bakanae.jpg'),
+  brownPlanthopper: require('../../../../assets/guide/brown-planthopper.jpg'),
+  brownSpot: require('../../../../assets/guide/brown-spot.jpg'),
+  cutworm: require('../../../../assets/guide/cutworm.jpg'),
+  falseSmut: require('../../../../assets/guide/false-smut.jpg'),
+  goldenAppleSnail: require('../../../../assets/guide/golden-apple-snail.jpg'),
+  greenLeafhopper: require('../../../../assets/guide/green-leafhopper.jpg'),
+  leafScald: require('../../../../assets/guide/leaf-scald.jpg'),
+  narrowBrownSpot: require('../../../../assets/guide/narrow-brown-spot.jpg'),
+  riceBlackBug: require('../../../../assets/guide/rice-black-bug.png'),
+  riceBug: require('../../../../assets/guide/rice-bug.jpg'),
+  riceCaseworm: require('../../../../assets/guide/rice-caseworm.jpg'),
+  riceGallMidge: require('../../../../assets/guide/rice-gall-midge.jpg'),
+  riceGrassyStunt: require('../../../../assets/guide/rice-grassy-stunt.png'),
+  riceHispa: require('../../../../assets/guide/rice-hispa.jpg'),
+  riceLeaffolder: require('../../../../assets/guide/rice-leaffolder.jpg'),
+  riceBlast: require('../../../../assets/guide/rice-blast.jpg'),
+  riceRaggedStunt: require('../../../../assets/guide/rice-ragged-stunt.png'),
+  riceThrips: require('../../../../assets/guide/rice-thrips.png'),
+  riceWhorlMaggot: require('../../../../assets/guide/rice-whorl-maggot.png'),
+  redStripe: require('../../../../assets/guide/red-stripe.png'),
+  sheathBlight: require('../../../../assets/guide/sheath-blight.jpg'),
+  sheathRot: require('../../../../assets/guide/sheath-rot.jpg'),
+  stemRot: require('../../../../assets/guide/stem-rot.jpg'),
+  stemBorer: require('../../../../assets/guide/stem-borer.jpg'),
+  tungro: require('../../../../assets/guide/tungro.jpg'),
+  whitebackedPlanthopper: require('../../../../assets/guide/whitebacked-planthopper.png'),
+};

@@ -29,7 +29,7 @@ export function ScanActionCard({
 
           <View className="gap-2">
             <Text className="text-lg font-semibold text-ink-900">{title}</Text>
-            <Text className="text-sm leading-6 text-ink-600">{description}</Text>
+            <Text className="text-sm leading-6 text-ink-700">{description}</Text>
           </View>
         </View>
       </SectionCard>

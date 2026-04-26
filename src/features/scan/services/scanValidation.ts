@@ -22,7 +22,7 @@ export function getLocalScanGateResult({
   if (!confirmedRiceImage) {
     return {
       status: 'confirm-required',
-      message: 'Please confirm that this is a clear rice leaf, stem, or field photo first.',
+      message: 'Please confirm that these are clear rice leaf, stem, panicle, or field photos first.',
     };
   }
 
@@ -30,7 +30,7 @@ export function getLocalScanGateResult({
     return {
       status: 'confirm-required',
       message:
-        'PALAYSCAN works best with clear rice leaf, stem, or field photos. Continue only if this image is really rice-related.',
+        'PALAYSCAN works best with clear rice leaf, stem, panicle, or field photos. Continue only if this photo set is really rice-related.',
     };
   }
 
@@ -106,7 +106,8 @@ export function shouldAutoSaveScanResult({
     return {
       allowed: false,
       reason:
-        'This result was not saved because the returned crop does not clearly look like rice.',
+        result.riceMismatchWarning ??
+        'This result was not saved because it was not reliable enough for rice scan history.',
     };
   }
 

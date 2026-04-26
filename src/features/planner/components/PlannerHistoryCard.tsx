@@ -29,8 +29,8 @@ export function PlannerHistoryCard({
             </View>
           </View>
 
-          <Text className="text-sm leading-6 text-ink-600">Planting date: {plantingDateLabel}</Text>
-          <Text className="text-sm leading-6 text-ink-600">Saved locally: {savedAtLabel}</Text>
+          <Text className="text-sm leading-6 text-ink-700">Planting date: {plantingDateLabel}</Text>
+          <Text className="text-sm leading-6 text-ink-700">Saved locally: {savedAtLabel}</Text>
 
           <View className="flex-row items-center justify-between">
             <Text className="text-sm font-semibold text-brand-700">Tap card to view calendar</Text>

@@ -15,14 +15,15 @@ export function GuideHomeScreen({ navigation }: GuideHomeScreenProps) {
     <ScreenContainer bottomSpacing="comfortable">
       <HeaderBlock
         eyebrow="Guide Module"
-        title="Offline rice learning guide"
-        description="Browse local guide sections for rice varieties, pests, and diseases even without internet."
+        title="Rice field guide"
+        description="Browse local rice variety, pest, and disease notes with photo-ready references for offline field use."
       />
 
       <View className="gap-4">
         {guideCategoryMeta.map((section) => (
           <GuideCategoryCard
             key={section.key}
+            category={section.category}
             count={guideData[section.key].length}
             description={section.description}
             onPress={() =>

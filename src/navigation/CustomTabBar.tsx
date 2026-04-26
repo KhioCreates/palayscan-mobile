@@ -89,7 +89,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
                   </Pressable>
                   <Text
                     className={`mt-1.5 text-[11px] font-semibold ${
-                      isFocused ? 'text-brand-700' : 'text-ink-500'
+                      isFocused ? 'text-brand-800' : 'text-ink-600'
                     }`}
                   >
                     {label}
@@ -113,13 +113,13 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
                   }`}
                 >
                   <Ionicons
-                    color={isFocused ? '#2d6033' : '#6c7d6c'}
+                    color={isFocused ? '#274d2c' : '#526552'}
                     name={iconName}
                     size={21}
                   />
                   <Text
                     className={`mt-1 text-[11px] font-semibold ${
-                      isFocused ? 'text-brand-700' : 'text-ink-500'
+                      isFocused ? 'text-brand-800' : 'text-ink-600'
                     }`}
                   >
                     {label}

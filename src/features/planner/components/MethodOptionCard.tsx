@@ -32,7 +32,7 @@ export function MethodOptionCard({
               </Text>
             </View>
           </View>
-          <Text className="text-sm leading-6 text-ink-600">{subtitle}</Text>
+          <Text className="text-sm leading-6 text-ink-700">{subtitle}</Text>
           <View className="flex-row items-center justify-between">
             <Text className="text-sm font-semibold text-brand-700">
               {selected ? 'This method is selected' : 'Tap card to select method'}

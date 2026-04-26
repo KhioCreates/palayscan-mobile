@@ -54,12 +54,24 @@ export function ScanHistoryDetailScreen({ navigation, route }: ScanHistoryDetail
     ]);
   };
 
+  const handleOpenDetail = (predictionIndex: number) => {
+    if (!record || record.result.nonPlantWarning) {
+      return;
+    }
+
+    navigation.navigate('ScanResultDetail', {
+      result: record.result,
+      mode: record.mode,
+      initialPredictionIndex: predictionIndex,
+    });
+  };
+
   if (!record) {
     return (
       <ScreenContainer bottomSpacing="comfortable">
         <SectionCard tone="muted">
           <Text className="text-lg font-semibold text-ink-900">Scan record not found</Text>
-          <Text className="mt-2 text-sm leading-6 text-ink-600">
+          <Text className="mt-2 text-sm leading-6 text-ink-700">
             This saved scan could not be loaded from local history.
           </Text>
         </SectionCard>
@@ -80,17 +92,21 @@ export function ScanHistoryDetailScreen({ navigation, route }: ScanHistoryDetail
 
             <View className="gap-2">
               <Text className="text-lg font-semibold text-ink-900">Saved scan summary</Text>
-              <Text className="text-sm leading-6 text-ink-600">
+              <Text className="text-sm leading-6 text-ink-700">
                 Mode: {formatScanModeLabel(record.mode)}
               </Text>
-              <Text className="text-sm leading-6 text-ink-600">
+              <Text className="text-sm leading-6 text-ink-700">
                 Saved: {formatDate(fromIsoDate(record.createdAt.slice(0, 10)))}
               </Text>
             </View>
           </View>
         </SectionCard>
 
-        <ScanResultCard result={record.result} />
+        <ScanResultCard
+          mode={record.mode}
+          onOpenDetail={record.result.nonPlantWarning ? undefined : handleOpenDetail}
+          result={record.result}
+        />
 
         <PrimaryButton
           disabled={isDeleting}

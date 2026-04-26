@@ -1,0 +1,387 @@
+import { Ionicons } from '@expo/vector-icons';
+import { useMemo, useState } from 'react';
+import { Image, Pressable, Text, View, type ImageSourcePropType } from 'react-native';
+
+import { HeaderBlock } from '../../../components/ui/HeaderBlock';
+import { ScreenContainer } from '../../../components/ui/ScreenContainer';
+import { SectionCard } from '../../../components/ui/SectionCard';
+import { GuideStackHeader } from '../../guide/components/GuideStackHeader';
+import { formatDate, fromIsoDate } from '../../planner/utils/date';
+import {
+  ScanDiagnosisDetails,
+  ScanMode,
+  ScanPhotoEvidence,
+  ScanPrediction,
+  ScanResult,
+} from '../types';
+import { toDiagnosisTitleCase } from '../utils/formatScanText';
+import { findGuideEntryForPrediction } from '../utils/scanGuideMatch';
+
+type ScanResultDetailScreenProps = {
+  navigation: {
+    goBack: () => void;
+  };
+  route: {
+    params: {
+      result: ScanResult;
+      mode: ScanMode;
+      initialPredictionIndex?: number;
+    };
+  };
+};
+
+function formatConfidence(value: number) {
+  return `${Math.round(value * 100)}%`;
+}
+
+function getConfidenceStatus(value: number) {
+  if (value >= 0.8) {
+    return 'High';
+  }
+
+  if (value >= 0.55) {
+    return 'Review';
+  }
+
+  return 'Low';
+}
+
+function shortenText(value: string | undefined, maxLength = 180) {
+  if (!value || value.length <= maxLength) {
+    return value;
+  }
+
+  const sentenceEnd = value.slice(0, maxLength).lastIndexOf('.');
+
+  if (sentenceEnd > 80) {
+    return value.slice(0, sentenceEnd + 1);
+  }
+
+  return `${value.slice(0, maxLength).trim()}...`;
+}
+
+function DetailList({ items }: { items: string[] }) {
+  if (items.length === 0) {
+    return (
+      <Text className="text-sm leading-6 text-ink-700">
+        No detail text is available for this match yet.
+      </Text>
+    );
+  }
+
+  return (
+    <View className="gap-2">
+      {items.map((item) => (
+        <View className="flex-row gap-3" key={item}>
+          <View className="mt-2 h-1.5 w-1.5 rounded-full bg-brand-600" />
+          <Text className="flex-1 text-sm leading-6 text-ink-700">{item}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function DetailPill({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <View className="min-h-16 flex-1 justify-center rounded-[16px] bg-brand-50 px-3 py-3">
+      <Text className="text-[11px] font-semibold uppercase tracking-[1px] text-brand-700">
+        {label}
+      </Text>
+      <Text className="mt-1 text-sm font-semibold text-ink-900">{value}</Text>
+    </View>
+  );
+}
+
+function ScanPhotoStrip({ photos }: { photos: ScanPhotoEvidence[] }) {
+  if (photos.length === 0) {
+    return null;
+  }
+
+  return (
+    <SectionCard>
+      <View className="gap-3">
+        <Text className="text-lg font-semibold text-ink-900">Scan photos</Text>
+        <View className="flex-row flex-wrap gap-2">
+          {photos.map((photo, index) => (
+            <View className="w-[96px] rounded-[16px] border border-brand-100 bg-brand-50 p-1.5" key={`${photo.imageUri}-${index}`}>
+              <Image
+                className="h-16 w-full rounded-[12px] bg-brand-100"
+                resizeMode="cover"
+                source={{ uri: photo.imageUri }}
+              />
+              <Text className="mt-1 text-[11px] font-semibold text-brand-800" numberOfLines={1}>
+                {index + 1}. {photo.focus}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </View>
+    </SectionCard>
+  );
+}
+
+function PredictionPicker({
+  predictions,
+  selectedIndex,
+  onSelect,
+}: {
+  predictions: ScanPrediction[];
+  selectedIndex: number;
+  onSelect: (index: number) => void;
+}) {
+  if (predictions.length <= 1) {
+    return null;
+  }
+
+  return (
+    <SectionCard>
+      <View className="gap-3">
+        <Text className="text-lg font-semibold text-ink-900">Compare matches</Text>
+        <View className="gap-2">
+          {predictions.map((prediction, index) => {
+            const selected = index === selectedIndex;
+
+            return (
+              <Pressable
+                accessibilityRole="button"
+                className={`min-h-14 flex-row items-center justify-between gap-3 rounded-[16px] border px-3 py-3 ${
+                  selected ? 'border-brand-600 bg-brand-50' : 'border-brand-100 bg-white'
+                }`}
+                key={`${prediction.name}-${index}`}
+                onPress={() => onSelect(index)}
+              >
+                <View className="flex-1">
+                  <Text className="text-sm font-semibold text-ink-900">
+                    {index + 1}. {toDiagnosisTitleCase(prediction.name)}
+                  </Text>
+                  <Text className="mt-1 text-xs uppercase tracking-[1px] text-ink-600">
+                    {toDiagnosisTitleCase(prediction.category)}
+                  </Text>
+                </View>
+                <Text className="text-sm font-semibold text-brand-700">
+                  {formatConfidence(prediction.confidence)}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+    </SectionCard>
+  );
+}
+
+function ReferenceImage({
+  details,
+  guideImageSource,
+  title,
+}: {
+  details?: ScanDiagnosisDetails;
+  guideImageSource?: ImageSourcePropType;
+  title: string;
+}) {
+  if (details?.imageUrl) {
+    return (
+      <Image
+        accessibilityIgnoresInvertColors
+        accessibilityLabel={`${title} reference image`}
+        className="h-48 w-full rounded-[22px] bg-brand-100"
+        resizeMode="cover"
+        source={{ uri: details.imageUrl }}
+      />
+    );
+  }
+
+  if (guideImageSource) {
+    return (
+      <Image
+        accessibilityIgnoresInvertColors
+        accessibilityLabel={`${title} guide image`}
+        className="h-48 w-full rounded-[22px] bg-brand-100"
+        resizeMode="cover"
+        source={guideImageSource}
+      />
+    );
+  }
+
+  return null;
+}
+
+export function ScanResultDetailScreen({ navigation, route }: ScanResultDetailScreenProps) {
+  const { mode, result } = route.params;
+  const [selectedIndex, setSelectedIndex] = useState(route.params.initialPredictionIndex ?? 0);
+  const prediction = result.predictions[selectedIndex] ?? result.predictions[0];
+  const guideEntry = useMemo(
+    () => (prediction ? findGuideEntryForPrediction(prediction) : undefined),
+    [prediction],
+  );
+  const details = prediction?.details;
+  const symptoms = details?.symptoms ?? guideEntry?.symptoms ?? [];
+  const treatment = details?.treatment ?? guideEntry?.treatment ?? [];
+  const identification = guideEntry?.identification ?? [];
+  const prevention = guideEntry?.prevention ?? [];
+  const description = details?.description ?? guideEntry?.shortDescription;
+  const severity = details?.severity ?? 'Review';
+  const typeLabel = details?.type ?? prediction?.category ?? result.category;
+  const headerDescription =
+    shortenText(description) ??
+    'Review the uploaded photos, compare visible signs, and use the result as a field guide.';
+  const scientificName =
+    details?.scientificName ?? prediction?.scientificName ?? guideEntry?.scientificName;
+
+  if (!prediction) {
+    return (
+      <ScreenContainer bottomSpacing="comfortable">
+        <GuideStackHeader onBack={() => navigation.goBack()} title="Scan result" />
+        <HeaderBlock
+          eyebrow="Scan Detail"
+          title="No match details"
+          description="This scan result did not include a usable diagnosis match."
+        />
+      </ScreenContainer>
+    );
+  }
+
+  return (
+    <ScreenContainer bottomSpacing="comfortable">
+      <GuideStackHeader
+        backLabel="Back to scan"
+        onBack={() => navigation.goBack()}
+        title={toDiagnosisTitleCase(prediction.name)}
+      />
+      <HeaderBlock
+        eyebrow={mode === 'mock' ? 'Demo Result Detail' : 'Live Result Detail'}
+        title={toDiagnosisTitleCase(prediction.name)}
+        description={headerDescription}
+      />
+
+      <View className="gap-4">
+        <SectionCard>
+          <View className="gap-4">
+            <ReferenceImage
+              details={details}
+              guideImageSource={guideEntry?.imageSource}
+              title={prediction.name}
+            />
+
+            <View className="flex-row gap-2">
+              <DetailPill label="Confidence" value={formatConfidence(prediction.confidence)} />
+              <DetailPill label="Type" value={toDiagnosisTitleCase(typeLabel)} />
+              <DetailPill label="Match" value={getConfidenceStatus(prediction.confidence)} />
+            </View>
+
+            <View className="gap-1">
+              <Text className="text-sm text-ink-700">
+                Scanned: {formatDate(fromIsoDate(result.scannedAt.slice(0, 10)))}
+              </Text>
+              {scientificName ? (
+                <Text className="text-sm text-ink-700">Scientific name: {scientificName}</Text>
+              ) : null}
+            </View>
+          </View>
+        </SectionCard>
+
+        <ScanPhotoStrip photos={result.scanPhotos ?? []} />
+
+        {description ? (
+          <SectionCard>
+            <View className="gap-3">
+              <Text className="text-lg font-semibold text-ink-900">About this match</Text>
+              <Text className="text-sm leading-6 text-ink-700">{description}</Text>
+            </View>
+          </SectionCard>
+        ) : null}
+
+        <SectionCard tone="muted">
+          <View className="gap-3">
+            <View className="flex-row items-center gap-3">
+              <View className="h-10 w-10 items-center justify-center rounded-2xl bg-white">
+                <Ionicons color="#2d6033" name="eye-outline" size={21} />
+              </View>
+              <Text className="flex-1 text-lg font-semibold text-ink-900">
+                Field signs to compare
+              </Text>
+            </View>
+            <DetailList items={identification.length > 0 ? identification : symptoms} />
+          </View>
+        </SectionCard>
+
+        <SectionCard>
+          <View className="gap-3">
+            <Text className="text-lg font-semibold text-ink-900">Symptoms</Text>
+            <DetailList items={symptoms} />
+          </View>
+        </SectionCard>
+
+        <SectionCard>
+          <View className="gap-3">
+            <Text className="text-lg font-semibold text-ink-900">What to do</Text>
+            <DetailList items={treatment} />
+          </View>
+        </SectionCard>
+
+        {prevention.length > 0 ? (
+          <SectionCard>
+            <View className="gap-3">
+              <Text className="text-lg font-semibold text-ink-900">How to prevent it</Text>
+              <DetailList items={prevention} />
+            </View>
+          </SectionCard>
+        ) : null}
+
+        {details?.severity ||
+        details?.spreading ||
+        details?.taxonomy?.length ||
+        details?.eppoCode ||
+        details?.gbifId ? (
+          <SectionCard tone="muted">
+            <View className="gap-2">
+              <Text className="text-lg font-semibold text-ink-900">Reference details</Text>
+              {details.severity ? (
+                <Text className="text-sm leading-6 text-ink-700">
+                  <Text className="font-semibold text-ink-900">Severity: </Text>
+                  {details.severity}
+                </Text>
+              ) : null}
+              {details.spreading ? (
+                <Text className="text-sm leading-6 text-ink-700">
+                  <Text className="font-semibold text-ink-900">Spreading: </Text>
+                  {details.spreading}
+                </Text>
+              ) : null}
+              {details.taxonomy?.length ? (
+                <Text className="text-sm leading-6 text-ink-700">
+                  <Text className="font-semibold text-ink-900">Taxonomy: </Text>
+                  {details.taxonomy.join(' > ')}
+                </Text>
+              ) : null}
+              {details.eppoCode ? (
+                <Text className="text-sm leading-6 text-ink-700">
+                  <Text className="font-semibold text-ink-900">EPPO: </Text>
+                  {details.eppoCode}
+                </Text>
+              ) : null}
+              {details.gbifId ? (
+                <Text className="text-sm leading-6 text-ink-700">
+                  <Text className="font-semibold text-ink-900">GBIF: </Text>
+                  {details.gbifId}
+                </Text>
+              ) : null}
+            </View>
+          </SectionCard>
+        ) : null}
+
+        <PredictionPicker
+          onSelect={setSelectedIndex}
+          predictions={result.predictions}
+          selectedIndex={selectedIndex}
+        />
+      </View>
+    </ScreenContainer>
+  );
+}

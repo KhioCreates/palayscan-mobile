@@ -5,6 +5,19 @@ import { InfoSectionCard } from '../components/ui/InfoSectionCard';
 import { ScreenContainer } from '../components/ui/ScreenContainer';
 import { SectionCard } from '../components/ui/SectionCard';
 
+const projectTeam = [
+  {
+    initials: 'PT',
+    name: 'Project proponents',
+    role: 'Use this area for the final proponent names and photos before presentation or release.',
+  },
+  {
+    initials: 'DEV',
+    name: 'Developer',
+    role: 'App design, mobile implementation, live scan integration, and field workflow testing.',
+  },
+];
+
 export function AboutScreen() {
   return (
     <ScreenContainer bottomSpacing="comfortable">
@@ -32,9 +45,48 @@ export function AboutScreen() {
         />
 
         <InfoSectionCard
+          body="Live image checking can use the configured Kindwise crop.health API when live scan mode is enabled. PALAYSCAN still presents those outputs as guide-only support and does not show or store the API key in the app interface."
+          bullets={[
+            'Live scan service credit: Kindwise crop.health.',
+            'Offline guide and planner content stay available without the live scan service.',
+            'Guide and planner wording are aligned with rice-focused agriculture references listed in References.',
+          ]}
+          title="Technology credits"
+        />
+
+        <InfoSectionCard
           body="PALAYSCAN is intended as a support tool for learning, initial checking, and local record review. It should not replace a field visit, official crop diagnosis, or site-specific advice from local agricultural technicians."
           title="How to use it responsibly"
         />
+
+        <SectionCard>
+          <View className="gap-4">
+            <View>
+              <Text className="text-lg font-semibold text-ink-900">Project team</Text>
+              <Text className="mt-2 text-sm leading-6 text-ink-700">
+                Add the final proponent names and photos here once the team details are ready.
+                Keeping this inside About avoids crowding the farmer workflow screens.
+              </Text>
+            </View>
+
+            <View className="gap-3">
+              {projectTeam.map((member) => (
+                <View
+                  className="flex-row items-center gap-3 rounded-[20px] bg-brand-50 p-3"
+                  key={member.name}
+                >
+                  <View className="h-12 w-12 items-center justify-center rounded-full bg-white">
+                    <Text className="text-xs font-semibold text-brand-700">{member.initials}</Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-base font-semibold text-ink-900">{member.name}</Text>
+                    <Text className="mt-1 text-xs leading-5 text-ink-700">{member.role}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+        </SectionCard>
 
         <SectionCard tone="muted">
           <View className="gap-3">

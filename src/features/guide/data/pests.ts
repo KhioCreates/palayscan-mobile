@@ -1,4 +1,5 @@
 import { GuideInfoEntry } from '../types';
+import { guideImages } from './guideImages';
 
 export const pests: GuideInfoEntry[] = [
   {
@@ -6,6 +7,9 @@ export const pests: GuideInfoEntry[] = [
     category: 'pest',
     name: 'Brown Planthopper',
     shortDescription: 'A major rice pest that sucks sap and can cause hopperburn in severe cases.',
+    imageSource: guideImages.brownPlanthopper,
+    imageAlt: 'Brown planthopper close-up',
+    imageFit: 'contain',
     scientificName: 'Nilaparvata lugens',
     symptoms: [
       'Leaves turn yellow, then brown and dry',
@@ -33,6 +37,9 @@ export const pests: GuideInfoEntry[] = [
     category: 'pest',
     name: 'Rice Black Bug',
     shortDescription: 'A pest that feeds on rice plants and may reduce vigor and grain formation.',
+    imageSource: guideImages.riceBlackBug,
+    imageAlt: 'Rice black bug specimen',
+    imageFit: 'contain',
     scientificName: 'Scotinophara coarctata',
     symptoms: [
       'Plants may turn yellow or reddish brown',
@@ -60,6 +67,8 @@ export const pests: GuideInfoEntry[] = [
     category: 'pest',
     name: 'Stem Borer',
     shortDescription: 'A major rice insect group that causes deadhearts and whiteheads.',
+    imageSource: guideImages.stemBorer,
+    imageAlt: 'Yellow rice stem borer moth',
     scientificName: 'Scirpophaga incertulas and related species',
     symptoms: [
       'Deadhearts or dead central tillers during vegetative stage',
@@ -87,6 +96,9 @@ export const pests: GuideInfoEntry[] = [
     category: 'pest',
     name: 'Rice Leaffolder',
     shortDescription: 'A caterpillar pest that folds leaves and feeds inside them.',
+    imageSource: guideImages.riceLeaffolder,
+    imageAlt: 'Rice leaffolder moth',
+    imageFit: 'contain',
     scientificName: 'Cnaphalocrocis medinalis',
     symptoms: [
       'Folded leaves with feeding damage inside',
@@ -114,6 +126,8 @@ export const pests: GuideInfoEntry[] = [
     category: 'pest',
     name: 'Golden Apple Snail',
     shortDescription: 'A major pest of young rice plants, especially during crop establishment.',
+    imageSource: guideImages.goldenAppleSnail,
+    imageAlt: 'Golden apple snail close-up',
     scientificName: 'Pomacea canaliculata / Pomacea maculata',
     symptoms: [
       'Missing hills and cut seedlings',
@@ -141,6 +155,8 @@ export const pests: GuideInfoEntry[] = [
     category: 'pest',
     name: 'Rice Bug',
     shortDescription: 'A grain-sucking pest that damages rice from flowering to soft dough stage.',
+    imageSource: guideImages.riceBug,
+    imageAlt: 'Rice bug specimen',
     scientificName: 'Leptocorisa oratorius / Leptocorisa acuta',
     symptoms: [
       'Unfilled or empty grains',
@@ -168,6 +184,9 @@ export const pests: GuideInfoEntry[] = [
     category: 'pest',
     name: 'Green Leafhopper',
     shortDescription: 'A common rice pest that is important mainly because it spreads tungro.',
+    imageSource: guideImages.greenLeafhopper,
+    imageAlt: 'Green leafhopper specimen',
+    imageFit: 'contain',
     scientificName: 'Nephotettix virescens / Nephotettix malayanus',
     symptoms: [
       'Plants may look weak, stunted, or yellow',
@@ -195,6 +214,9 @@ export const pests: GuideInfoEntry[] = [
     category: 'pest',
     name: 'Whitebacked Planthopper',
     shortDescription: 'A sap-sucking rice pest that can cause hopperburn when populations become high.',
+    imageSource: guideImages.whitebackedPlanthopper,
+    imageAlt: 'Long-winged whitebacked planthopper reference illustration',
+    imageFit: 'contain',
     scientificName: 'Sogatella furcifera',
     symptoms: [
       'Leaves may turn yellow, then brown and dry',
@@ -222,6 +244,8 @@ export const pests: GuideInfoEntry[] = [
     category: 'pest',
     name: 'Rice Whorl Maggot',
     shortDescription: 'A pest of young rice in standing water that damages the central whorl leaves.',
+    imageSource: guideImages.riceWhorlMaggot,
+    imageAlt: 'Rice whorl maggot damage reference illustration',
     scientificName: 'Hydrellia philippina',
     symptoms: [
       'White or transparent patches on emerging leaves',
@@ -249,6 +273,9 @@ export const pests: GuideInfoEntry[] = [
     category: 'pest',
     name: 'Rice Caseworm',
     shortDescription: 'A leaf-feeding caterpillar that cuts leaf tips and makes a case from the leaf.',
+    imageSource: guideImages.riceCaseworm,
+    imageAlt: 'Rice caseworm reference illustration',
+    imageFit: 'contain',
     scientificName: 'Nymphula depunctalis',
     symptoms: [
       'Leaf tips are cut and floating on water',
@@ -276,6 +303,8 @@ export const pests: GuideInfoEntry[] = [
     category: 'pest',
     name: 'Rice Gall Midge',
     shortDescription: 'A rice pest that causes silver shoots or onion leaf symptoms on tillers.',
+    imageSource: guideImages.riceGallMidge,
+    imageAlt: 'Rice gall midge silver shoot symptoms',
     scientificName: 'Orseolia oryzae',
     symptoms: [
       'Affected tillers do not produce normal panicles',
@@ -303,6 +332,8 @@ export const pests: GuideInfoEntry[] = [
     category: 'pest',
     name: 'Rice Hispa',
     shortDescription: 'A leaf-scraping beetle pest that damages the leaf surface of rice.',
+    imageSource: guideImages.riceHispa,
+    imageAlt: 'Rice hispa beetle close-up',
     scientificName: 'Dicladispa armigera',
     symptoms: [
       'White streaks and scraped patches on leaves',
@@ -330,6 +361,9 @@ export const pests: GuideInfoEntry[] = [
     category: 'pest',
     name: 'Rice Thrips',
     shortDescription: 'A small sucking pest that is more common during dry periods and on young rice.',
+    imageSource: guideImages.riceThrips,
+    imageAlt: 'Male and female adult rice thrips under microscope',
+    imageFit: 'contain',
     scientificName: 'Stenchaetothrips biformis',
     symptoms: [
       'Leaves curl and may look silvery or yellowish',
@@ -357,6 +391,8 @@ export const pests: GuideInfoEntry[] = [
     category: 'pest',
     name: 'Armyworm',
     shortDescription: 'A leaf-feeding caterpillar pest that can rapidly strip leaves when many larvae are present.',
+    imageSource: guideImages.armyworm,
+    imageAlt: 'Armyworm caterpillar',
     scientificName: 'Mythimna separata and related species',
     symptoms: [
       'Leaf tips and margins are eaten',
@@ -384,6 +420,8 @@ export const pests: GuideInfoEntry[] = [
     category: 'pest',
     name: 'Cutworm',
     shortDescription: 'A caterpillar pest that cuts seedlings or feeds on young rice plants near the base.',
+    imageSource: guideImages.cutworm,
+    imageAlt: 'Cutworm moth',
     scientificName: 'Spodoptera litura and related species',
     symptoms: [
       'Seedlings or young plants are cut near the base',

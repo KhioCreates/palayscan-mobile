@@ -42,8 +42,8 @@ export function ScanHistoryCard({
               </View>
             </View>
 
-            <Text className="text-sm text-ink-600">Confidence: {confidenceLabel}</Text>
-            <Text className="text-sm text-ink-600">Scanned: {scannedAtLabel}</Text>
+            <Text className="text-sm text-ink-700">Confidence: {confidenceLabel}</Text>
+            <Text className="text-sm text-ink-700">Scanned: {scannedAtLabel}</Text>
             <Text className="text-sm font-semibold text-brand-700">Tap card to view details</Text>
           </View>
         </View>

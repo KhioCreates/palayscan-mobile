@@ -31,7 +31,7 @@ export function ScanScreen() {
       <View className="mt-5 gap-4">
         <SectionCard>
           <Text className="text-lg font-semibold text-ink-900">Coming next</Text>
-          <Text className="mt-2 text-sm leading-6 text-ink-600">
+          <Text className="mt-2 text-sm leading-6 text-ink-700">
             API connection, top 3 prediction cards, confidence display, and local scan history.
           </Text>
         </SectionCard>

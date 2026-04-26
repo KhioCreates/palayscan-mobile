@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, RefObject } from 'react';
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -7,6 +7,7 @@ type ScreenContainerProps = {
   scroll?: boolean;
   bottomSpacing?: 'default' | 'comfortable' | 'roomy';
   topSpacing?: 'default' | 'comfortable';
+  scrollRef?: RefObject<ScrollView | null>;
 };
 
 export function ScreenContainer({
@@ -14,6 +15,7 @@ export function ScreenContainer({
   scroll = true,
   bottomSpacing = 'default',
   topSpacing = 'default',
+  scrollRef,
 }: ScreenContainerProps) {
   const bottomPaddingClassName =
     bottomSpacing === 'roomy' ? 'pb-40' : bottomSpacing === 'comfortable' ? 'pb-32' : 'pb-8';
@@ -27,6 +29,7 @@ export function ScreenContainer({
       {scroll ? (
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
+          ref={scrollRef}
           showsVerticalScrollIndicator={false}
           className="flex-1"
         >

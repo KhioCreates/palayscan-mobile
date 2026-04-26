@@ -11,6 +11,7 @@ export type GuideEntryBase = {
   shortDescription: string;
   imageSource?: ImageSourcePropType;
   imageAlt?: string;
+  imageFit?: 'cover' | 'contain';
 };
 
 export type RiceVariety = GuideEntryBase & {

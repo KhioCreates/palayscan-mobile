@@ -7,6 +7,7 @@ import { PlannerScheduleScreen } from '../screens/PlannerScheduleScreen';
 export type PlannerNavigatorParamList = {
   PlannerHome: undefined;
   PlannerSchedule: {
+    recordId?: string;
     schedule: PlannerSchedule;
   };
 };

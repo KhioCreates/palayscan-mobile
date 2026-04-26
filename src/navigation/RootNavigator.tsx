@@ -1,6 +1,7 @@
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { AboutScreen } from '../screens/AboutScreen';
 import { DataPrivacyScreen } from '../screens/DataPrivacyScreen';
@@ -11,7 +12,9 @@ import { GuideNavigator } from '../features/guide/navigation/GuideNavigator';
 import { PlannerNavigator } from '../features/planner/navigation/PlannerNavigator';
 import { PlannerHistoryDetailScreen } from '../features/planner/screens/PlannerHistoryDetailScreen';
 import { ScanHistoryDetailScreen } from '../features/scan/screens/ScanHistoryDetailScreen';
+import { ScanResultDetailScreen } from '../features/scan/screens/ScanResultDetailScreen';
 import { ScanNavigator } from '../features/scan/navigation/ScanNavigator';
+import { ScanMode, ScanResult } from '../features/scan/types';
 import { HistoryScreen } from '../screens/HistoryScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { MoreScreen } from '../screens/MoreScreen';
@@ -34,6 +37,11 @@ export type RootStackParamList = {
   PlannerDisclaimer: undefined;
   References: undefined;
   ScanHistoryDetail: { recordId: string };
+  ScanResultDetail: {
+    result: ScanResult;
+    mode: ScanMode;
+    initialPredictionIndex?: number;
+  };
   PlannerHistoryDetail: { recordId: string };
 };
 
@@ -41,6 +49,8 @@ const Tab = createBottomTabNavigator<RootTabParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function MainTabs() {
+  const rootNavigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   return (
     <Tab.Navigator
       initialRouteName="Home"
@@ -50,7 +60,13 @@ function MainTabs() {
       tabBar={(props) => <CustomTabBar {...props} />}
     >
       <Tab.Screen name="Home">
-        {({ navigation }) => <HomeScreen goToTab={(tabName) => navigation.navigate(tabName)} />}
+        {() => (
+          <HomeScreen
+            openPlannerRecord={(recordId) =>
+              rootNavigation.navigate('PlannerHistoryDetail', { recordId })
+            }
+          />
+        )}
       </Tab.Screen>
       <Tab.Screen component={GuideNavigator} name="Guide" />
       <Tab.Screen component={ScanNavigator} name="Scan" />
@@ -125,6 +141,13 @@ export function RootNavigator() {
           name="ScanHistoryDetail"
           options={{
             title: 'Scan History Detail',
+          }}
+        />
+        <Stack.Screen
+          component={ScanResultDetailScreen}
+          name="ScanResultDetail"
+          options={{
+            title: 'Scan Result Detail',
           }}
         />
         <Stack.Screen

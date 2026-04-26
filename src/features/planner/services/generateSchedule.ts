@@ -1,4 +1,4 @@
-import { plannerRules } from '../data/plannerRules';
+import { DEFAULT_CROP_DURATION_DAYS, plannerRules } from '../data/plannerRules';
 import { addDays, buildWindowLabel, fromIsoDate, toIsoDate } from '../utils/date';
 import { PlannedActivity, PlannerSchedule, PlannerRule, PlantingMethod } from '../types';
 
@@ -10,9 +10,19 @@ function sortRules(a: PlannerRule, b: PlannerRule) {
   return a.offsetDays - b.offsetDays;
 }
 
+function resolveRuleOffset(rule: PlannerRule, cropDurationDays: number) {
+  if (rule.id === 'harvest-window') {
+    return Math.max(80, cropDurationDays - 7);
+  }
+
+  return rule.offsetDays;
+}
+
 export function generatePlannerSchedule(
   plantingMethod: PlantingMethod,
   plantingDate: string,
+  cropDurationDays = DEFAULT_CROP_DURATION_DAYS,
+  cropDurationLabel = 'Medium variety',
 ): PlannerSchedule {
   const baseDate = fromIsoDate(plantingDate);
 
@@ -20,7 +30,8 @@ export function generatePlannerSchedule(
     .filter((rule) => rule.method === 'all' || rule.method === plantingMethod)
     .sort(sortRules)
     .map((rule) => {
-      const startDate = addDays(baseDate, rule.offsetDays);
+      const offsetDays = resolveRuleOffset(rule, cropDurationDays);
+      const startDate = addDays(baseDate, offsetDays);
       const endDate = addDays(startDate, rule.windowDays ?? 0);
 
       return {
@@ -41,6 +52,8 @@ export function generatePlannerSchedule(
   return {
     method: plantingMethod,
     plantingDate,
+    cropDurationDays,
+    cropDurationLabel,
     activities,
   };
 }

@@ -23,7 +23,7 @@ export function GuideStackHeader({
       </Pressable>
 
       <View className="flex-1">
-        <Text className="text-sm font-medium text-ink-500">{backLabel}</Text>
+        <Text className="text-sm font-medium text-ink-600">{backLabel}</Text>
         <Text className="text-lg font-semibold text-ink-900">{title}</Text>
       </View>
     </View>

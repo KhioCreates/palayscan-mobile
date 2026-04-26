@@ -1,4 +1,8 @@
-import { PlantingMethodMeta, PlannerRule } from '../types';
+import { CropDurationMeta, PlantingMethodMeta, PlannerRule } from '../types';
+
+export const DEFAULT_CROP_DURATION_DAYS = 120;
+export const MIN_CROP_DURATION_DAYS = 90;
+export const MAX_CROP_DURATION_DAYS = 180;
 
 export const plantingMethodOptions: PlantingMethodMeta[] = [
   {
@@ -12,6 +16,30 @@ export const plantingMethodOptions: PlantingMethodMeta[] = [
     title: 'Direct Seeding',
     subtitle: 'Sabog-Tanim / Salbag',
     shortLabel: 'Direct Seeding',
+  },
+];
+
+export const cropDurationOptions: CropDurationMeta[] = [
+  {
+    id: 'short',
+    title: 'Short',
+    subtitle: 'About 100-115 days',
+    days: 110,
+    shortLabel: 'Short variety',
+  },
+  {
+    id: 'medium',
+    title: 'Medium',
+    subtitle: 'About 116-130 days',
+    days: DEFAULT_CROP_DURATION_DAYS,
+    shortLabel: 'Medium variety',
+  },
+  {
+    id: 'long',
+    title: 'Long',
+    subtitle: 'About 131-150 days',
+    days: 140,
+    shortLabel: 'Long variety',
   },
 ];
 
@@ -129,9 +157,9 @@ export const plannerRules: PlannerRule[] = [
     method: 'all',
     type: 'harvest',
     title: 'Estimated Harvest Window',
-    description: 'Estimated harvest period based on the selected planting method and the current crop calendar rules.',
-    offsetDays: 105,
+    description: 'Estimated harvest period based on the selected planting method and variety duration.',
+    offsetDays: 113,
     windowDays: 10,
-    notes: ['Use this as a guide and adjust based on grain maturity and actual field condition.'],
+    notes: ['Use this as a guide and adjust based on crop maturity, variety duration, and actual field condition.'],
   },
 ];
