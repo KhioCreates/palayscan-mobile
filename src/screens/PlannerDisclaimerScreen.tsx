@@ -30,7 +30,7 @@ export function PlannerDisclaimerScreen() {
         />
 
         <InfoSectionCard
-          body="The current planner stays fully offline and uses local schedule rules only. It is meant to support planning and discussion, especially for demo, learning, and field organization use."
+          body="The planner stays fully offline and uses local schedule rules only. It is meant to support planning, learning, and field organization use."
           title="Current scope"
         />
       </View>

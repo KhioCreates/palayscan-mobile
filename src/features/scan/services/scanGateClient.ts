@@ -66,7 +66,7 @@ function mapGatePayload(payload: unknown): ScanPrecheckVerdict | null {
 export function validateScanGateConfig() {
   if (!scanGateConfig.apiUrl) {
     throw new ScanGateConfigError(
-      'Live scan gate is not configured. Add EXPO_PUBLIC_SCAN_GATE_URL before using live scan.',
+      'Scan pre-check is not configured. Add EXPO_PUBLIC_SCAN_GATE_URL before using online scan support.',
     );
   }
 
@@ -125,7 +125,7 @@ export async function runLiveScanGateFromBase64(base64Image: string): Promise<Sc
 
   if (!mapped) {
     throw new ScanGateRequestError(
-      'Live scan gate returned an invalid response shape. Expected isPlant, isRiceLikely, isUsable, and confidence.',
+      'Scan pre-check returned an invalid response shape. Expected isPlant, isRiceLikely, isUsable, and confidence.',
     );
   }
 

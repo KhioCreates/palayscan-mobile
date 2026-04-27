@@ -14,7 +14,7 @@ const projectTeam = [
   {
     initials: 'DEV',
     name: 'Developer',
-    role: 'App design, mobile implementation, live scan integration, and field workflow testing.',
+    role: 'App design, mobile implementation, scan workflow integration, and field workflow testing.',
   },
 ];
 
@@ -24,7 +24,7 @@ export function AboutScreen() {
       <HeaderBlock
         eyebrow="About PALAYSCAN"
         title="Farmer support for scan, guide, and crop calendar use"
-        description="PALAYSCAN is a rice-focused mobile app prototype that combines image-based crop issue guidance, an offline guide module, and an estimated crop calendar for local field planning."
+        description="PALAYSCAN is a rice-focused mobile app that combines image-based crop issue guidance, an offline guide module, and an estimated crop calendar for local field planning."
       />
 
       <View className="gap-4">
@@ -34,9 +34,9 @@ export function AboutScreen() {
         />
 
         <InfoSectionCard
-          body="The current build is organized around the main tasks that a farmer or student-demo user is most likely to open first."
+          body="The app is organized around the main tasks that a farmer or field user is most likely to open first."
           bullets={[
-            'Guide: local rice varieties, pests, and diseases for offline browsing.',
+            'Guide: local palay varieties, pests, and diseases for offline browsing.',
             'Scan: image-based checking flow with guide-only result messaging and history.',
             'Planner: an estimated crop calendar based on planting method and planting date.',
             'History: local review of saved scan and planner records.',
@@ -45,10 +45,10 @@ export function AboutScreen() {
         />
 
         <InfoSectionCard
-          body="Live image checking can use the configured Kindwise crop.health API when live scan mode is enabled. PALAYSCAN still presents those outputs as guide-only support and does not show or store the API key in the app interface."
+          body="Image checking can use the configured Kindwise crop.health service when online scan support is enabled. PALAYSCAN still presents those outputs as guide-only support and does not show or store the service key in the app interface."
           bullets={[
-            'Live scan service credit: Kindwise crop.health.',
-            'Offline guide and planner content stay available without the live scan service.',
+            'Scan service credit: Kindwise crop.health.',
+            'Offline guide and planner content stay available without online scan support.',
             'Guide and planner wording are aligned with rice-focused agriculture references listed in References.',
           ]}
           title="Technology credits"
@@ -90,11 +90,10 @@ export function AboutScreen() {
 
         <SectionCard tone="muted">
           <View className="gap-3">
-            <Text className="text-lg font-semibold text-ink-900">Demo-ready note</Text>
+            <Text className="text-lg font-semibold text-ink-900">App note</Text>
             <Text className="text-sm leading-6 text-ink-700">
-              This app build is kept simple, readable, and farmer-friendly for demonstration and
-              practical mobile use. It combines offline local content with optional live scan
-              capability when configured.
+              This app is kept simple, readable, and farmer-friendly for practical mobile use. It
+              combines offline local content with optional online scan support when configured.
             </Text>
           </View>
         </SectionCard>

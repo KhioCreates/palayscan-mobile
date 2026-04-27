@@ -68,7 +68,7 @@ export function shouldAllowLiveScanFromGate(
       allowed: false,
       reason:
         gateResult.reason ??
-        'This image is not clear enough for live scan. Try a brighter, closer, and steadier photo.',
+        'This image is not clear enough for scanning. Try a brighter, closer, and steadier photo.',
     };
   }
 
@@ -77,7 +77,7 @@ export function shouldAllowLiveScanFromGate(
       allowed: false,
       reason:
         gateResult.reason ??
-        'This image did not pass the live pre-check with enough confidence. Please try a clearer rice photo.',
+        'This image did not pass the pre-check with enough confidence. Please try a clearer rice photo.',
     };
   }
 
@@ -115,7 +115,7 @@ export function shouldAutoSaveScanResult({
     return {
       allowed: false,
       reason:
-        'This mock result was not saved because manual confirmation alone is not enough to verify that the image is really rice-related.',
+        'This result was not saved because manual confirmation alone is not enough to verify that the image is really rice-related.',
     };
   }
 

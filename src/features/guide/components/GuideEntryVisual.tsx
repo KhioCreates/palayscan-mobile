@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Image, ImageSourcePropType, View, Text } from 'react-native';
+import { Image, ImageSourcePropType, Pressable, View, Text } from 'react-native';
 
 import { GuideCategory } from '../types';
 
@@ -16,6 +16,8 @@ type GuideEntryVisualProps = {
   secondaryDetail?: string;
   tertiaryDetail?: string;
   visualHint?: string;
+  onOpenImage?: () => void;
+  showZoomHint?: boolean;
 };
 
 const visualConfig: Record<
@@ -30,7 +32,7 @@ const visualConfig: Record<
   variety: {
     icon: 'leaf-outline',
     label: 'Variety profile',
-    helper: 'Verified rice variety data',
+    helper: 'Rice variety facts for field comparison',
     stamp: 'RICE',
   },
   pest: {
@@ -60,6 +62,8 @@ export function GuideEntryVisual({
   secondaryDetail,
   tertiaryDetail,
   visualHint,
+  onOpenImage,
+  showZoomHint = false,
 }: GuideEntryVisualProps) {
   const config = visualConfig[category];
   const isDetail = size === 'detail';
@@ -70,12 +74,8 @@ export function GuideEntryVisual({
   const resolvedBadge = badgeLabel ?? config.stamp;
 
   if (imageSource) {
-    return (
-      <View
-        className={`overflow-hidden border border-brand-100 bg-brand-50 ${
-          isDetail ? 'h-56 rounded-[24px]' : 'h-28 w-28 rounded-[22px]'
-        }`}
-      >
+    const imageView = (
+      <>
         <Image
           accessibilityIgnoresInvertColors
           accessibilityLabel={imageAlt ?? `${title} guide image`}
@@ -83,6 +83,34 @@ export function GuideEntryVisual({
           resizeMode={imageFit}
           source={imageSource}
         />
+        {showZoomHint ? (
+          <View className="absolute bottom-3 right-3 flex-row items-center gap-1.5 rounded-full bg-ink-900/80 px-3 py-2">
+            <Ionicons color="#ffffff" name="expand-outline" size={14} />
+            <Text className="text-xs font-semibold text-white">Tap to zoom</Text>
+          </View>
+        ) : null}
+      </>
+    );
+
+    return (
+      <View
+        className={`overflow-hidden border border-brand-100 bg-brand-50 ${
+          isDetail ? 'h-56 rounded-[24px]' : 'h-28 w-28 rounded-[22px]'
+        }`}
+      >
+        {onOpenImage ? (
+          <Pressable
+            accessibilityHint="Opens this guide image in a larger viewer"
+            accessibilityLabel={`Open ${title} image`}
+            accessibilityRole="imagebutton"
+            className="h-full w-full active:opacity-90"
+            onPress={onOpenImage}
+          >
+            {imageView}
+          </Pressable>
+        ) : (
+          imageView
+        )}
       </View>
     );
   }

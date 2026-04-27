@@ -19,7 +19,7 @@ const categoryIcons: Record<GuideCategory, keyof typeof Ionicons.glyphMap> = {
 };
 
 const categoryActionLabels: Record<GuideCategory, string> = {
-  variety: 'Browse rice varieties',
+  variety: 'Browse palay varieties',
   pest: 'Browse pests',
   disease: 'Browse diseases',
 };

@@ -139,7 +139,7 @@ export function HistoryScreen({ navigation }: HistoryScreenProps) {
                   No saved scan history yet
                 </Text>
                 <Text className="mt-2 text-sm leading-6 text-ink-700">
-                  Complete a scan in mock or live mode and it will be saved here automatically.
+                  Complete a scan and saved results will appear here automatically.
                 </Text>
               </SectionCard>
             ) : (
@@ -148,7 +148,6 @@ export function HistoryScreen({ navigation }: HistoryScreenProps) {
                   key={record.id}
                   confidenceLabel={formatConfidence(record.confidence)}
                   imageUri={record.imageUri}
-                  mode={record.mode}
                   onPress={() => navigation.navigate('ScanHistoryDetail', { recordId: record.id })}
                   scannedAtLabel={formatDate(fromIsoDate(record.scannedAt.slice(0, 10)))}
                   title={record.nonPlantWarning ? 'Non-Plant Image' : record.topResultName}

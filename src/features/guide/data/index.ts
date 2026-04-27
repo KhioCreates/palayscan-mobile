@@ -7,9 +7,9 @@ export const guideCategoryMeta: GuideCategoryMeta[] = [
   {
     key: 'varieties',
     category: 'variety',
-    title: 'Rice Varieties',
+    title: 'Palay Varieties',
     eyebrow: 'Varieties',
-    description: 'Compare maturity, grain type, field fit, and key traits for common rice varieties.',
+    description: 'Compare days to harvest, possible yield, grain type, and best field condition.',
   },
   {
     key: 'pests',

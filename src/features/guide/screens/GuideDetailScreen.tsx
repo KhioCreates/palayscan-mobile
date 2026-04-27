@@ -129,7 +129,7 @@ export function GuideDetailScreen({ route }: GuideDetailScreenProps) {
   return (
     <ScreenContainer>
       <HeaderBlock
-        eyebrow={entry.category === 'variety' ? 'Rice Variety' : entry.category === 'pest' ? 'Pest' : 'Disease'}
+        eyebrow={entry.category === 'variety' ? 'Palay Variety' : entry.category === 'pest' ? 'Pest' : 'Disease'}
         title={entry.name}
         description={entry.shortDescription}
       />

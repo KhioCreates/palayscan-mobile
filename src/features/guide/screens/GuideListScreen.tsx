@@ -16,6 +16,7 @@ export function GuideListScreen({ navigation, route }: GuideListScreenProps) {
   const category = getGuideCategory(categoryKey);
   const entries = getGuideEntries(categoryKey);
   const [searchQuery, setSearchQuery] = useState('');
+  const isVarietyList = categoryKey === 'varieties';
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const filteredEntries = [...entries]
@@ -59,7 +60,9 @@ export function GuideListScreen({ navigation, route }: GuideListScreenProps) {
 
       <View className="mb-4 rounded-full bg-brand-100/70 px-4 py-3">
         <Text className="text-sm font-medium text-ink-700">
-          {entries.length} local entries available in this section
+          {isVarietyList
+            ? `${entries.length} palay varieties saved in this guide`
+            : `${entries.length} guide topics saved in this section`}
         </Text>
       </View>
 
@@ -77,7 +80,9 @@ export function GuideListScreen({ navigation, route }: GuideListScreenProps) {
           value={searchQuery}
         />
         <Text className="mt-3 text-xs leading-5 text-ink-700">
-          Entries are shown in A-Z order. Use search to quickly find a name or topic.
+          {isVarietyList
+            ? 'Search by variety name, for example Rc 222.'
+            : 'Search by name or visible field sign.'}
         </Text>
       </View>
 

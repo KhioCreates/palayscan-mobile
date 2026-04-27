@@ -3,7 +3,7 @@ import { Pressable, Text, View, type DimensionValue } from 'react-native';
 
 import { SectionCard } from '../../../components/ui/SectionCard';
 import { formatDate, fromIsoDate } from '../../planner/utils/date';
-import { ScanMode, ScanPrediction, ScanResult } from '../types';
+import { ScanPrediction, ScanResult } from '../types';
 import { toDiagnosisTitleCase } from '../utils/formatScanText';
 
 function formatConfidence(value: number) {
@@ -41,22 +41,11 @@ function shouldShowConfidenceHelper(result: ScanResult) {
   return (result.predictions[0]?.confidence ?? 0) < 0.75;
 }
 
-function getConfidenceMeta(value: number, mode: ScanMode) {
-  if (mode === 'mock') {
-    return {
-      label: 'Demo confidence',
-      helper: 'Mock mode is for UI testing only. Real users should use live scan mode.',
-      badgeClassName: 'bg-earth-50',
-      textClassName: 'text-earth-500',
-      fillColor: '#c48a2c',
-      icon: 'flask-outline' as keyof typeof Ionicons.glyphMap,
-    };
-  }
-
+function getConfidenceMeta(value: number) {
   if (value >= 0.8) {
     return {
-      label: 'High confidence',
-      helper: 'The top match is strong. Still compare visible field signs before acting.',
+      label: 'Strong match',
+      helper: 'The photo match is strong. Still compare actual field signs before acting.',
       badgeClassName: 'bg-brand-100',
       textClassName: 'text-brand-700',
       fillColor: '#2d6033',
@@ -66,8 +55,8 @@ function getConfidenceMeta(value: number, mode: ScanMode) {
 
   if (value >= 0.55) {
     return {
-      label: 'Needs review',
-      helper: 'The result is useful, but the field signs should be checked closely.',
+      label: 'Check closely',
+      helper: 'The result may help, but the field signs should be checked carefully.',
       badgeClassName: 'bg-earth-50',
       textClassName: 'text-earth-500',
       fillColor: '#c48a2c',
@@ -76,7 +65,7 @@ function getConfidenceMeta(value: number, mode: ScanMode) {
   }
 
   return {
-    label: 'Low confidence',
+    label: 'Unclear match',
     helper: 'Retake a clearer photo or compare manually with the Guide.',
     badgeClassName: 'bg-earth-50',
     textClassName: 'text-earth-500',
@@ -146,45 +135,29 @@ function PredictionRow({
 export function ScanResultCard({
   onOpenDetail,
   result,
-  mode = 'live',
 }: {
   onOpenDetail?: (predictionIndex: number) => void;
   result: ScanResult;
-  mode?: ScanMode;
 }) {
   const summary = getResultSummary(result);
   const topConfidence = result.predictions[0]?.confidence ?? 0;
-  const confidenceMeta = getConfidenceMeta(topConfidence, mode);
+  const confidenceMeta = getConfidenceMeta(topConfidence);
   const topProgressWidth: DimensionValue = `${Math.round(topConfidence * 100)}%`;
-  const isMock = mode === 'mock';
 
   return (
     <SectionCard>
       <View className="gap-4">
         <View className="flex-row items-center justify-between gap-3">
           <View className="flex-1">
-            <Text className="text-lg font-semibold text-ink-900">
-              {isMock ? 'Demo scan result' : 'Scan result'}
-            </Text>
+            <Text className="text-lg font-semibold text-ink-900">Scan result</Text>
             <Text className="mt-1 text-sm leading-5 text-ink-700">
-              {isMock
-                ? 'This shows the result layout only. It is not a real crop diagnosis.'
-                : 'Review the best match and compare the field signs.'}
+              Review the possible issue and compare the field signs.
             </Text>
           </View>
           <View className="h-12 w-12 items-center justify-center rounded-full bg-brand-50">
-            <Ionicons color="#2d6033" name={isMock ? 'flask-outline' : 'sparkles-outline'} size={22} />
+            <Ionicons color="#2d6033" name="sparkles-outline" size={22} />
           </View>
         </View>
-
-        {isMock ? (
-          <View className="rounded-[18px] bg-earth-50 px-4 py-3">
-            <Text className="text-sm font-semibold text-ink-900">Mock mode only</Text>
-            <Text className="mt-1 text-sm leading-6 text-ink-700">
-              This demo output is fixed for development. Switch the scan mode to live before real users test diagnosis.
-            </Text>
-          </View>
-        ) : null}
 
         {result.nonPlantWarning ? (
           <View className="rounded-[18px] bg-earth-50 px-4 py-3">
@@ -202,7 +175,7 @@ export function ScanResultCard({
             <View className="flex-row items-start justify-between gap-3">
               <View className="flex-1">
                 <Text className="text-xs font-semibold uppercase tracking-[1.2px] text-ink-600">
-                  Best match
+                  Possible issue
                 </Text>
                 <Text className="mt-1 text-xl font-semibold text-ink-900">{summary.title}</Text>
                 <Text className="mt-1 text-sm text-ink-700">{summary.subtitle}</Text>
@@ -250,7 +223,7 @@ export function ScanResultCard({
               ) : null}
               {onOpenDetail ? (
                 <Text className="text-sm font-semibold text-brand-700">
-                  Tap to compare symptoms and actions
+                  Tap to check signs and next steps
                 </Text>
               ) : null}
             </View>
@@ -267,14 +240,14 @@ export function ScanResultCard({
         {!result.nonPlantWarning && shouldShowConfidenceHelper(result) ? (
           <View className="rounded-[18px] bg-brand-50/70 px-4 py-3">
             <Text className="text-sm leading-6 text-ink-700">
-              Use this as a guide only. Check the field symptoms or ask your local agriculture office if needed.
+              Use this as a guide only. Check the field signs or ask your local agriculture office if needed.
             </Text>
           </View>
         ) : null}
 
         {!result.nonPlantWarning && result.predictions.length > 0 ? (
           <View className="gap-3">
-            <Text className="text-sm font-semibold text-ink-900">Top 3 matches</Text>
+            <Text className="text-sm font-semibold text-ink-900">Other possible matches</Text>
             {result.predictions.map((prediction, index) => (
               <PredictionRow
                 index={index}

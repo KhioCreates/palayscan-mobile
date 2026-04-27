@@ -10,7 +10,7 @@ export function DataPrivacyScreen() {
       <HeaderBlock
         eyebrow="Data Privacy"
         title="Simple privacy guidance for local app use"
-        description="PALAYSCAN is designed to keep most records on the device, while clearly warning users when a live scan may involve an external image-check service."
+        description="PALAYSCAN is designed to keep most records on the device, while clearly warning users when image checking may involve an external service."
       />
 
       <View className="gap-4">
@@ -25,11 +25,11 @@ export function DataPrivacyScreen() {
         />
 
         <InfoSectionCard
-          body="If live scan is enabled, a selected image may be sent to the configured Kindwise crop.health plant-health identification service after the app's pre-check safeguards pass. This is different from mock mode, which does not use the live scan service."
+          body="If online image checking is enabled, a selected image may be sent to the configured Kindwise crop.health plant-health identification service after the app's pre-check safeguards pass."
           title="What may leave the device"
           bullets={[
             'Do not include faces, personal documents, or unrelated objects in scan photos.',
-            'Only clear rice field images should be submitted for live checking.',
+            'Only clear rice field images should be submitted for online checking.',
             'The API key is configuration data and should not be shown to regular app users.',
           ]}
         />

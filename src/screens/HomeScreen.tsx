@@ -39,7 +39,7 @@ type UpcomingActivitySummary = {
 };
 
 const guideStats = [
-  { label: 'Rice varieties', value: '15' },
+  { label: 'Palay varieties', value: '15' },
   { label: 'Pests', value: '15' },
   { label: 'Diseases', value: '15' },
 ];

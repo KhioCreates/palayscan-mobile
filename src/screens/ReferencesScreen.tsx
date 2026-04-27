@@ -35,11 +35,11 @@ export function ReferencesScreen() {
         />
 
         <InfoSectionCard
-          body="Some Guide visuals are local copies from reusable Wikimedia Commons, Bugwood, and open-access research pages. When exact reusable photos were not verified, PALAYSCAN uses local research-based reference illustrations instead of restricted or misleading images."
+          body="Some Guide visuals are local copies from reusable Wikimedia Commons, Bugwood, and open-access research pages. When exact reusable variety photos were not verified, PALAYSCAN uses real rice reference photos without claiming they show the exact NSIC variety."
           bullets={[
             'Disease visuals added for Rice Blast, Bacterial Leaf Blight, Sheath Blight, Brown Spot, False Smut, Tungro, Bacterial Leaf Streak, Bakanae, Sheath Rot, Stem Rot, Narrow Brown Spot, Leaf Scald, Red Stripe, Rice Grassy Stunt, and Rice Ragged Stunt.',
             'Pest visuals added for Brown Planthopper, Rice Black Bug, Stem Borer, Rice Leaffolder, Golden Apple Snail, Rice Bug, Green Leafhopper, Whitebacked Planthopper, Rice Whorl Maggot, Rice Caseworm, Rice Gall Midge, Rice Hispa, Rice Thrips, Armyworm, and Cutworm.',
-            'Rice variety entries still avoid generic field photos and use verified variety-data visual cards until exact reusable variety photos or team field photos are available.',
+            'Rice variety visuals use real rice reference photos from Wikimedia Commons and local crops of those photos. They are not exact NSIC variety photos and can be replaced later with team-owned or otherwise authorized variety photos.',
           ]}
           title="Guide image credits"
         />

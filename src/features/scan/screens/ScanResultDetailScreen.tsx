@@ -36,14 +36,14 @@ function formatConfidence(value: number) {
 
 function getConfidenceStatus(value: number) {
   if (value >= 0.8) {
-    return 'High';
+    return 'Strong';
   }
 
   if (value >= 0.55) {
-    return 'Review';
+    return 'Check';
   }
 
-  return 'Low';
+  return 'Unclear';
 }
 
 function shortenText(value: string | undefined, maxLength = 180) {
@@ -98,6 +98,40 @@ function DetailPill({
   );
 }
 
+function NextStepCard({ confidence }: { confidence: number }) {
+  const nextSteps =
+    confidence >= 0.8
+      ? [
+          'Compare the photo with the field signs below.',
+          'Check nearby plants to see if the same signs are spreading.',
+          'Ask a local agri technician before using chemical control.',
+        ]
+      : [
+          'Retake a clearer close photo if the field signs do not match.',
+          'Compare manually with the Guide before deciding what to do.',
+          'Ask a local agri technician when the problem is spreading fast.',
+        ];
+
+  return (
+    <SectionCard tone="muted">
+      <View className="gap-3">
+        <View className="flex-row items-center gap-3">
+          <View className="h-10 w-10 items-center justify-center rounded-2xl bg-white">
+            <Ionicons color="#2d6033" name="footsteps-outline" size={21} />
+          </View>
+          <View className="flex-1">
+            <Text className="text-lg font-semibold text-ink-900">Next steps</Text>
+            <Text className="mt-1 text-sm leading-5 text-ink-700">
+              Use the scan as a guide, then check the field.
+            </Text>
+          </View>
+        </View>
+        <DetailList items={nextSteps} />
+      </View>
+    </SectionCard>
+  );
+}
+
 function ScanPhotoStrip({ photos }: { photos: ScanPhotoEvidence[] }) {
   if (photos.length === 0) {
     return null;
@@ -106,7 +140,7 @@ function ScanPhotoStrip({ photos }: { photos: ScanPhotoEvidence[] }) {
   return (
     <SectionCard>
       <View className="gap-3">
-        <Text className="text-lg font-semibold text-ink-900">Scan photos</Text>
+        <Text className="text-lg font-semibold text-ink-900">Photos used for scan</Text>
         <View className="flex-row flex-wrap gap-2">
           {photos.map((photo, index) => (
             <View className="w-[96px] rounded-[16px] border border-brand-100 bg-brand-50 p-1.5" key={`${photo.imageUri}-${index}`}>
@@ -142,7 +176,10 @@ function PredictionPicker({
   return (
     <SectionCard>
       <View className="gap-3">
-        <Text className="text-lg font-semibold text-ink-900">Compare matches</Text>
+        <Text className="text-lg font-semibold text-ink-900">Other possible matches</Text>
+        <Text className="text-sm leading-6 text-ink-700">
+          Tap another match if the field signs look closer to it.
+        </Text>
         <View className="gap-2">
           {predictions.map((prediction, index) => {
             const selected = index === selectedIndex;
@@ -213,7 +250,7 @@ function ReferenceImage({
 }
 
 export function ScanResultDetailScreen({ navigation, route }: ScanResultDetailScreenProps) {
-  const { mode, result } = route.params;
+  const { result } = route.params;
   const [selectedIndex, setSelectedIndex] = useState(route.params.initialPredictionIndex ?? 0);
   const prediction = result.predictions[selectedIndex] ?? result.predictions[0];
   const guideEntry = useMemo(
@@ -255,7 +292,7 @@ export function ScanResultDetailScreen({ navigation, route }: ScanResultDetailSc
         title={toDiagnosisTitleCase(prediction.name)}
       />
       <HeaderBlock
-        eyebrow={mode === 'mock' ? 'Demo Result Detail' : 'Live Result Detail'}
+        eyebrow="Possible Scan Issue"
         title={toDiagnosisTitleCase(prediction.name)}
         description={headerDescription}
       />
@@ -271,8 +308,8 @@ export function ScanResultDetailScreen({ navigation, route }: ScanResultDetailSc
 
             <View className="flex-row gap-2">
               <DetailPill label="Confidence" value={formatConfidence(prediction.confidence)} />
-              <DetailPill label="Type" value={toDiagnosisTitleCase(typeLabel)} />
-              <DetailPill label="Match" value={getConfidenceStatus(prediction.confidence)} />
+              <DetailPill label="Issue type" value={toDiagnosisTitleCase(typeLabel)} />
+              <DetailPill label="Review" value={getConfidenceStatus(prediction.confidence)} />
             </View>
 
             <View className="gap-1">
@@ -280,18 +317,20 @@ export function ScanResultDetailScreen({ navigation, route }: ScanResultDetailSc
                 Scanned: {formatDate(fromIsoDate(result.scannedAt.slice(0, 10)))}
               </Text>
               {scientificName ? (
-                <Text className="text-sm text-ink-700">Scientific name: {scientificName}</Text>
+                <Text className="text-sm text-ink-700">Scientific Name: {scientificName}</Text>
               ) : null}
             </View>
           </View>
         </SectionCard>
+
+        <NextStepCard confidence={prediction.confidence} />
 
         <ScanPhotoStrip photos={result.scanPhotos ?? []} />
 
         {description ? (
           <SectionCard>
             <View className="gap-3">
-              <Text className="text-lg font-semibold text-ink-900">About this match</Text>
+              <Text className="text-lg font-semibold text-ink-900">About this possible issue</Text>
               <Text className="text-sm leading-6 text-ink-700">{description}</Text>
             </View>
           </SectionCard>
@@ -304,7 +343,7 @@ export function ScanResultDetailScreen({ navigation, route }: ScanResultDetailSc
                 <Ionicons color="#2d6033" name="eye-outline" size={21} />
               </View>
               <Text className="flex-1 text-lg font-semibold text-ink-900">
-                Field signs to compare
+                What you may see
               </Text>
             </View>
             <DetailList items={identification.length > 0 ? identification : symptoms} />
@@ -313,14 +352,14 @@ export function ScanResultDetailScreen({ navigation, route }: ScanResultDetailSc
 
         <SectionCard>
           <View className="gap-3">
-            <Text className="text-lg font-semibold text-ink-900">Symptoms</Text>
+            <Text className="text-lg font-semibold text-ink-900">Damage or signs</Text>
             <DetailList items={symptoms} />
           </View>
         </SectionCard>
 
         <SectionCard>
           <View className="gap-3">
-            <Text className="text-lg font-semibold text-ink-900">What to do</Text>
+            <Text className="text-lg font-semibold text-ink-900">What to do next</Text>
             <DetailList items={treatment} />
           </View>
         </SectionCard>
@@ -328,7 +367,7 @@ export function ScanResultDetailScreen({ navigation, route }: ScanResultDetailSc
         {prevention.length > 0 ? (
           <SectionCard>
             <View className="gap-3">
-              <Text className="text-lg font-semibold text-ink-900">How to prevent it</Text>
+              <Text className="text-lg font-semibold text-ink-900">How to avoid it</Text>
               <DetailList items={prevention} />
             </View>
           </SectionCard>

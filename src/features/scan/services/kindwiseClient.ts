@@ -76,7 +76,7 @@ function logKindwiseDebug(label: string, value: unknown) {
 
 export async function identifyRiceIssueFromBase64Images(base64Images: string[]) {
   if (base64Images.length === 0) {
-    throw new KindwiseRequestError('Add at least one image before starting a live scan.');
+    throw new KindwiseRequestError('Add at least one image before starting a scan.');
   }
 
   const proxyConfig = getScanProxyConfig();

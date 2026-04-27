@@ -15,8 +15,8 @@ export function GuideHomeScreen({ navigation }: GuideHomeScreenProps) {
     <ScreenContainer bottomSpacing="comfortable">
       <HeaderBlock
         eyebrow="Guide Module"
-        title="Rice field guide"
-        description="Browse local rice variety, pest, and disease notes with photo-ready references for offline field use."
+        title="Palay field guide"
+        description="Browse palay varieties, pests, and diseases with clear notes and field reference photos."
       />
 
       <View className="gap-4">

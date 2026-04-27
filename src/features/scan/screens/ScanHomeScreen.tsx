@@ -275,30 +275,6 @@ function ScanPhotoTray({
   );
 }
 
-function ScanModeNotice() {
-  const isLive = scanMode === 'live';
-
-  return (
-    <View className={`rounded-[18px] px-4 py-3 ${isLive ? 'bg-earth-50' : 'bg-brand-50'}`}>
-      <View className="flex-row items-start gap-3">
-        <View className="mt-0.5 h-8 w-8 items-center justify-center rounded-full bg-white">
-          <Ionicons color="#2d6033" name={isLive ? 'cloud-upload-outline' : 'phone-portrait-outline'} size={17} />
-        </View>
-        <View className="flex-1">
-          <Text className="text-sm font-semibold text-ink-900">
-            {isLive ? 'Live scan mode' : 'Offline mock mode'}
-          </Text>
-          <Text className="mt-1 text-sm leading-5 text-ink-700">
-            {isLive
-              ? 'Clear rice images are sent for live analysis and use API credits.'
-              : 'This build uses local mock results while the live scanner is not enabled.'}
-          </Text>
-        </View>
-      </View>
-    </View>
-  );
-}
-
 function LoadingScanCard() {
   const steps = ['Checking photos', 'Matching issue', 'Preparing result'];
 
@@ -312,9 +288,7 @@ function LoadingScanCard() {
           <View className="flex-1">
             <Text className="text-lg font-semibold text-ink-900">Analyzing photos</Text>
             <Text className="mt-1 text-sm leading-5 text-ink-700">
-              {scanMode === 'live'
-                ? 'Checking the rice photos through the configured scan request.'
-                : 'Preparing a local mock scan result for these photos.'}
+              Checking the rice photos and preparing a possible issue result.
             </Text>
           </View>
         </View>
@@ -419,18 +393,16 @@ export function ScanHomeScreen() {
     }
 
     if (cooldownRemaining > 0) {
-      return `Please wait ${cooldownRemaining}s before sending another ${scanMode} scan request.`;
+      return `Please wait ${cooldownRemaining}s before analyzing again.`;
     }
 
     if (scanMode === 'live' && liveScanCount >= LIVE_SCAN_SESSION_CAP) {
-      return 'Live scan limit reached for this session to protect API credits.';
+      return 'Scan limit reached for this session. Please try again later.';
     }
 
     const subject = scanImages.length === 1 ? 'this photo' : 'these photos';
 
-    return scanMode === 'live'
-      ? `Analyze ${subject} using the configured Kindwise API.`
-      : `Analyze ${subject} using local mock scan mode.`;
+    return `Analyze ${subject}.`;
   }, [apiState, confirmedSameProblemSet, cooldownRemaining, liveScanCount, scanImages.length]);
 
   const resetScanAfterPhotoChange = () => {
@@ -655,16 +627,14 @@ export function ScanHomeScreen() {
 
     if (analysisSignature === lastAnalyzedScanSignature) {
       setGuardMessage(
-        scanMode === 'live'
-          ? 'This photo set was already analyzed in this session. Change a photo before sending another live scan.'
-          : 'This photo set was already analyzed. Add, replace, or retake a photo first.',
+        'This photo set was already analyzed. Add, replace, or retake a photo first.',
       );
       return;
     }
 
     if (scanMode === 'live' && liveScanCount >= LIVE_SCAN_SESSION_CAP) {
       setGuardMessage(
-        'Live scan limit reached for this session to protect API credits. Restart the app or switch to mock mode.',
+        'Scan limit reached for this session. Please try again later.',
       );
       return;
     }
@@ -701,7 +671,7 @@ export function ScanHomeScreen() {
           setApiState('idle');
           setGuardMessage(
             gateDecision.reason ??
-              'This image did not pass the live pre-check. Please try another rice photo.',
+              'This image did not pass the pre-check. Please try another rice photo.',
           );
           return;
         }
@@ -761,9 +731,8 @@ export function ScanHomeScreen() {
         await saveScanResult(mappedResult, scanMode);
       } else {
         setGuardMessage(
-          scanMode === 'mock'
-            ? 'Demo result only. Mock scans are not saved to scan history.'
-            : saveDecision.reason ?? 'This scan result was not saved because it did not pass local validation.',
+          saveDecision.reason ??
+            'This scan result was not saved because it did not pass local validation.',
         );
       }
 
@@ -972,8 +941,6 @@ export function ScanHomeScreen() {
                 </View>
               ) : null}
 
-              <ScanModeNotice />
-
               <PrimaryButton
                 disabled={isAnalyzeDisabled}
                 hint={analyzeHint}
@@ -1003,7 +970,6 @@ export function ScanHomeScreen() {
                   </Text>
                 </View>
               </View>
-              <ScanModeNotice />
             </View>
           </SectionCard>
         )}
@@ -1037,7 +1003,7 @@ export function ScanHomeScreen() {
         ) : null}
 
         {result ? (
-          <ScanResultCard mode={scanMode} onOpenDetail={openResultDetail} result={result} />
+          <ScanResultCard onOpenDetail={openResultDetail} result={result} />
         ) : null}
       </View>
     </ScreenContainer>

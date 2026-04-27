@@ -35,10 +35,10 @@ export function ScanDisclaimerScreen() {
         />
 
         <InfoSectionCard
-          body="When live scan mode is enabled, PALAYSCAN may send approved rice photos to the configured Kindwise crop.health service for image-based checking. This service credit belongs in About, but the scan result should still be treated as guide-only."
-          title="Live scan service"
+          body="When online image checking is enabled, PALAYSCAN may send approved rice photos to the configured Kindwise crop.health service for image-based checking. The scan result should still be treated as guide-only."
+          title="Online scan support"
           bullets={[
-            'Use live scan results as a starting point for comparison, not a final diagnosis.',
+            'Use scan results as a starting point for comparison, not a final diagnosis.',
             'Keep photos focused on rice leaves, stems, panicles, or field patches.',
             'Do not upload unrelated personal or sensitive images.',
           ]}

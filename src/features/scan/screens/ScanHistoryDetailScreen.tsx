@@ -11,7 +11,6 @@ import { ScanResultCard } from '../components/ScanResultCard';
 import { deleteScanRecord, getScanRecordById } from '../services/scanStorage';
 import { SavedScanRecord } from '../types';
 import { formatDate, fromIsoDate } from '../../planner/utils/date';
-import { formatScanModeLabel } from '../utils/formatScanText';
 
 type ScanHistoryDetailScreenProps = NativeStackScreenProps<RootStackParamList, 'ScanHistoryDetail'>;
 
@@ -93,9 +92,6 @@ export function ScanHistoryDetailScreen({ navigation, route }: ScanHistoryDetail
             <View className="gap-2">
               <Text className="text-lg font-semibold text-ink-900">Saved scan summary</Text>
               <Text className="text-sm leading-6 text-ink-700">
-                Mode: {formatScanModeLabel(record.mode)}
-              </Text>
-              <Text className="text-sm leading-6 text-ink-700">
                 Saved: {formatDate(fromIsoDate(record.createdAt.slice(0, 10)))}
               </Text>
             </View>
@@ -103,7 +99,6 @@ export function ScanHistoryDetailScreen({ navigation, route }: ScanHistoryDetail
         </SectionCard>
 
         <ScanResultCard
-          mode={record.mode}
           onOpenDetail={record.result.nonPlantWarning ? undefined : handleOpenDetail}
           result={record.result}
         />

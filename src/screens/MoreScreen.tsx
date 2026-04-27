@@ -40,7 +40,7 @@ const moreSections: MoreSection[] = [
     items: [
       {
         title: 'Data Privacy',
-        description: 'Local records, live scan image use, and device storage.',
+        description: 'Local records, scan image use, and device storage.',
         icon: 'shield-checkmark-outline',
         route: 'DataPrivacy',
       },
@@ -83,8 +83,6 @@ const moreSections: MoreSection[] = [
     ],
   },
 ];
-
-const scanMode = process.env.EXPO_PUBLIC_SCAN_MODE === 'live' ? 'live' : 'mock';
 
 function MoreListRow({ item, onPress }: { item: MoreItem; onPress: () => void }) {
   return (
@@ -145,11 +143,6 @@ export function MoreScreen() {
     'calendar',
     'calendars',
   )}`;
-  const scanModeLabel = scanMode === 'live' ? 'Live scan is on' : 'Mock scan is on';
-  const scanModeDescription =
-    scanMode === 'live'
-      ? 'Clear rice photos may be checked online through the configured crop.health service.'
-      : 'This build uses local demo scan output.';
 
   useFocusEffect(
     useCallback(() => {
@@ -220,22 +213,6 @@ export function MoreScreen() {
           <Ionicons color="white" name="chevron-forward" size={24} />
         </View>
       </Pressable>
-
-      <SectionCard tone="muted">
-        <View className="flex-row items-start gap-3">
-          <View className="h-11 w-11 items-center justify-center rounded-full bg-white">
-            <Ionicons
-              color="#2d6033"
-              name={scanMode === 'live' ? 'cloud-upload-outline' : 'phone-portrait-outline'}
-              size={21}
-            />
-          </View>
-          <View className="flex-1">
-            <Text className="text-base font-semibold text-ink-900">{scanModeLabel}</Text>
-            <Text className="mt-1 text-sm leading-6 text-ink-700">{scanModeDescription}</Text>
-          </View>
-        </View>
-      </SectionCard>
 
       <View className="mt-5 gap-4">
         {moreSections.map((section) => (
