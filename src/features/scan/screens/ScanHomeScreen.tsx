@@ -754,6 +754,8 @@ export function ScanHomeScreen() {
         error instanceof ScanPrecheckConfigError ||
         error instanceof ScanPrecheckRequestError
           ? error.message
+          : error instanceof Error && error.message
+            ? error.message
           : t('The image could not be analyzed right now. Please try again.');
 
       setErrorMessage(message);
@@ -1002,9 +1004,7 @@ export function ScanHomeScreen() {
                 {t('Scan could not be completed')}
               </Text>
               <Text className="text-sm leading-6 text-ink-700">
-                {__DEV__
-                  ? errorMessage
-                  : t('The scan could not be completed. Check your connection and image, then try again.')}
+                {errorMessage}
               </Text>
             </View>
           </SectionCard>
