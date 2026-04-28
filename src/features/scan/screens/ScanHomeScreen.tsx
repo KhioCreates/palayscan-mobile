@@ -45,6 +45,7 @@ import {
   ScanResult,
   SelectedScanImage,
 } from '../types';
+import { useAppLanguage } from '../../../localization/appLanguage';
 
 async function requestCameraAccess() {
   const permission = await ImagePicker.requestCameraPermissionsAsync();
@@ -57,8 +58,9 @@ async function requestGalleryAccess() {
 }
 
 const scanMode = process.env.EXPO_PUBLIC_SCAN_MODE === 'live' ? 'live' : 'mock';
+const hasScanProxy = Boolean(process.env.EXPO_PUBLIC_SCAN_PROXY_URL);
 const LIVE_ANALYZE_COOLDOWN_MS = 12000;
-const LIVE_SCAN_SESSION_CAP = 4;
+const LIVE_SCAN_SESSION_CAP = hasScanProxy ? Number.POSITIVE_INFINITY : 5;
 const LIVE_SCAN_GATE_CONFIDENCE_THRESHOLD = 0.7;
 const MAX_SCAN_IMAGES = 5;
 const defaultPhotoFocus: ScanPhotoFocus = 'Leaf';
@@ -164,6 +166,8 @@ function ImageSourceButton({
 }
 
 function PhotoQualityStrip() {
+  const { t } = useAppLanguage();
+
   return (
     <View className="flex-row gap-2">
       {photoChecks.map((check) => (
@@ -173,7 +177,7 @@ function PhotoQualityStrip() {
         >
           <Ionicons color="#2d6033" name="checkmark-circle-outline" size={17} />
           <Text className="mt-1 text-center text-[11px] font-semibold leading-4 text-brand-800">
-            {check}
+            {t(check)}
           </Text>
         </View>
       ))}
@@ -188,9 +192,11 @@ function CropPartSelector({
   value: ScanPhotoFocus;
   onChange: (part: ScanPhotoFocus) => void;
 }) {
+  const { t } = useAppLanguage();
+
   return (
     <View className="gap-2">
-      <Text className="text-sm font-semibold text-ink-900">Photo focus</Text>
+      <Text className="text-sm font-semibold text-ink-900">{t('Photo focus')}</Text>
       <View className="flex-row flex-wrap gap-2">
         {cropPhotoParts.map((part) => {
           const selected = value === part.label;
@@ -231,9 +237,11 @@ function ScanPhotoTray({
   onRemove: (id: string) => void;
   onSelect: (id: string) => void;
 }) {
+  const { t } = useAppLanguage();
+
   return (
     <View className="gap-2">
-      <Text className="text-sm font-semibold text-ink-900">Selected photos</Text>
+      <Text className="text-sm font-semibold text-ink-900">{t('Selected photos')}</Text>
       <View className="flex-row flex-wrap gap-2">
         {images.map((image, index) => {
           const selected = image.id === activeImageId;
@@ -276,6 +284,7 @@ function ScanPhotoTray({
 }
 
 function LoadingScanCard() {
+  const { t } = useAppLanguage();
   const steps = ['Checking photos', 'Matching issue', 'Preparing result'];
 
   return (
@@ -286,9 +295,9 @@ function LoadingScanCard() {
             <ActivityIndicator color="#2d6033" />
           </View>
           <View className="flex-1">
-            <Text className="text-lg font-semibold text-ink-900">Analyzing photos</Text>
+            <Text className="text-lg font-semibold text-ink-900">{t('Analyzing photos')}</Text>
             <Text className="mt-1 text-sm leading-5 text-ink-700">
-              Checking the rice photos and preparing a possible issue result.
+              {t('Checking the rice photos and preparing a possible issue result.')}
             </Text>
           </View>
         </View>
@@ -309,7 +318,7 @@ function LoadingScanCard() {
                   {index + 1}
                 </Text>
               </View>
-              <Text className="text-sm font-medium text-ink-700">{step}</Text>
+              <Text className="text-sm font-medium text-ink-700">{t(step)}</Text>
             </View>
           ))}
         </View>
@@ -319,6 +328,7 @@ function LoadingScanCard() {
 }
 
 export function ScanHomeScreen() {
+  const { t } = useAppLanguage();
   const navigation = useNavigation<NativeStackNavigationProp<ScanNavigatorParamList>>();
   const [scanImages, setScanImages] = useState<SelectedScanImage[]>([]);
   const [activeImageId, setActiveImageId] = useState<string | null>(null);
@@ -381,29 +391,29 @@ export function ScanHomeScreen() {
 
   const analyzeHint = useMemo(() => {
     if (scanImages.length === 0) {
-      return 'Add at least one rice photo before analyzing.';
+      return t('Add at least one rice photo before analyzing.');
     }
 
     if (scanImages.length > 1 && !confirmedSameProblemSet) {
-      return 'Confirm that the selected photos show the same rice problem before analyzing.';
+      return t('Confirm that the selected photos show the same rice problem before analyzing.');
     }
 
     if (apiState === 'loading') {
-      return 'Analysis is already in progress. Please wait for it to finish.';
+      return t('Analysis is already in progress. Please wait for it to finish.');
     }
 
     if (cooldownRemaining > 0) {
-      return `Please wait ${cooldownRemaining}s before analyzing again.`;
+      return t('Analyze in {seconds}s', { seconds: cooldownRemaining });
     }
 
     if (scanMode === 'live' && liveScanCount >= LIVE_SCAN_SESSION_CAP) {
-      return 'Scan limit reached for this session. Please try again later.';
+      return t('Scan limit reached for this session. Please try again later.');
     }
 
-    const subject = scanImages.length === 1 ? 'this photo' : 'these photos';
+    const subject = scanImages.length === 1 ? t('this photo') : t('these photos');
 
-    return `Analyze ${subject}.`;
-  }, [apiState, confirmedSameProblemSet, cooldownRemaining, liveScanCount, scanImages.length]);
+    return t('Analyze {subject}.', { subject });
+  }, [apiState, confirmedSameProblemSet, cooldownRemaining, liveScanCount, scanImages.length, scanMode, t]);
 
   const resetScanAfterPhotoChange = () => {
     setResult(null);
@@ -422,8 +432,8 @@ export function ScanHomeScreen() {
     }
 
     Alert.alert(
-      'Photo limit reached',
-      `You can send up to ${MAX_SCAN_IMAGES} photos in one scan.`,
+      t('Photo limit reached'),
+      t('You can send up to {max} photos in one scan.', { max: MAX_SCAN_IMAGES }),
     );
     return false;
   };
@@ -487,8 +497,8 @@ export function ScanHomeScreen() {
 
     if (!granted) {
       Alert.alert(
-        'Camera permission needed',
-        'Please allow camera access so you can capture a rice image for scanning.',
+        t('Camera permission needed'),
+        t('Please allow camera access so you can capture a rice image for scanning.'),
       );
       return;
     }
@@ -519,8 +529,8 @@ export function ScanHomeScreen() {
 
     if (!granted) {
       Alert.alert(
-        'Gallery permission needed',
-        'Please allow photo library access so you can choose a rice image to scan.',
+        t('Gallery permission needed'),
+        t('Please allow photo library access so you can choose a rice image to scan.'),
       );
       return;
     }
@@ -547,8 +557,8 @@ export function ScanHomeScreen() {
 
     if (!granted) {
       Alert.alert(
-        'Camera permission needed',
-        'Please allow camera access so you can capture a rice image for scanning.',
+        t('Camera permission needed'),
+        t('Please allow camera access so you can capture a rice image for scanning.'),
       );
       return;
     }
@@ -579,8 +589,8 @@ export function ScanHomeScreen() {
 
     if (!granted) {
       Alert.alert(
-        'Gallery permission needed',
-        'Please allow photo library access so you can choose a rice image to scan.',
+        t('Gallery permission needed'),
+        t('Please allow photo library access so you can choose a rice image to scan.'),
       );
       return;
     }
@@ -627,14 +637,14 @@ export function ScanHomeScreen() {
 
     if (analysisSignature === lastAnalyzedScanSignature) {
       setGuardMessage(
-        'This photo set was already analyzed. Add, replace, or retake a photo first.',
+        t('This photo set was already analyzed. Add, replace, or retake a photo first.'),
       );
       return;
     }
 
     if (scanMode === 'live' && liveScanCount >= LIVE_SCAN_SESSION_CAP) {
       setGuardMessage(
-        'Scan limit reached for this session. Please try again later.',
+        t('Scan limit reached for this session. Please try again later.'),
       );
       return;
     }
@@ -671,7 +681,7 @@ export function ScanHomeScreen() {
           setApiState('idle');
           setGuardMessage(
             gateDecision.reason ??
-              'This image did not pass the pre-check. Please try another rice photo.',
+              t('This image did not pass the pre-check. Please try another rice photo.'),
           );
           return;
         }
@@ -683,7 +693,7 @@ export function ScanHomeScreen() {
         setApiState('idle');
         setGuardMessage(
           routerPrefilter.reason ??
-            'This photo set was blocked by the local pre-check.',
+            t('This photo set was blocked by the local pre-check.'),
         );
         return;
       }
@@ -732,7 +742,7 @@ export function ScanHomeScreen() {
       } else {
         setGuardMessage(
           saveDecision.reason ??
-            'This scan result was not saved because it did not pass local validation.',
+            t('This scan result was not saved because it did not pass local validation.'),
         );
       }
 
@@ -744,7 +754,7 @@ export function ScanHomeScreen() {
         error instanceof ScanPrecheckConfigError ||
         error instanceof ScanPrecheckRequestError
           ? error.message
-          : 'The image could not be analyzed right now. Please try again.';
+          : t('The image could not be analyzed right now. Please try again.');
 
       setErrorMessage(message);
       setApiState('error');
@@ -770,21 +780,26 @@ export function ScanHomeScreen() {
   return (
     <ScreenContainer bottomSpacing="comfortable">
       <HeaderBlock
-        eyebrow="Scan Module"
-        title="Scan a rice problem"
-        description="Capture or upload rice photos, then review the photo focus before analysis."
+        eyebrow={t('Scan Module')}
+        title={t('Scan a rice problem')}
+        description={t(
+          'Capture or upload rice photos, then review the photo focus before analysis.',
+        )}
       />
 
       <View className="gap-4">
         <SectionCard>
           <View className="gap-4">
             <View className="flex-row items-center justify-between gap-3">
-              <View className="flex-1">
-                <Text className="text-xl font-semibold text-ink-900">Start field scan</Text>
+                <View className="flex-1">
+                <Text className="text-xl font-semibold text-ink-900">{t('Start field scan')}</Text>
                 <Text className="mt-1 text-sm leading-6 text-ink-700">
                   {scanImages.length > 0
-                    ? `${scanImages.length}/${MAX_SCAN_IMAGES} photos ready. Add another angle if needed.`
-                    : 'Use close, bright rice photos for better scan results.'}
+                    ? t('{count}/{max} photos ready. Add another angle if needed.', {
+                        count: scanImages.length,
+                        max: MAX_SCAN_IMAGES,
+                      })
+                    : t('Use close, bright rice photos for better scan results.')}
                 </Text>
               </View>
               <View className="h-12 w-12 items-center justify-center rounded-full bg-brand-50">
@@ -794,17 +809,17 @@ export function ScanHomeScreen() {
 
             <View className="flex-row gap-3">
               <ImageSourceButton
-                description="Open camera"
+                description={t('Open camera')}
                 icon="camera-outline"
                 onPress={handleCameraCapture}
-                title="Capture"
+                title={t('Capture')}
                 tone="primary"
               />
               <ImageSourceButton
-                description="Pick photo"
+                description={t('Pick photo')}
                 icon="cloud-upload-outline"
                 onPress={handleGalleryPick}
-                title="Upload"
+                title={t('Upload')}
                 tone="secondary"
               />
             </View>
@@ -818,9 +833,9 @@ export function ScanHomeScreen() {
             <View className="gap-4">
               <View className="flex-row items-center justify-between gap-3">
                 <View className="flex-1">
-                  <Text className="text-lg font-semibold text-ink-900">Review photos</Text>
+                  <Text className="text-lg font-semibold text-ink-900">{t('Review photos')}</Text>
                   <Text className="mt-1 text-sm leading-6 text-ink-700">
-                    Confirm the rice photos before sending them to analysis.
+                    {t('Confirm the rice photos before sending them to analysis.')}
                   </Text>
                 </View>
                 <View
@@ -833,7 +848,9 @@ export function ScanHomeScreen() {
                       confirmedRiceImage ? 'text-brand-700' : 'text-earth-500'
                     }`}
                   >
-                    {confirmedRiceImage ? 'Ready' : `${scanImages.length}/${MAX_SCAN_IMAGES}`}
+                    {confirmedRiceImage
+                      ? t('Ready')
+                      : t('{count}/{max}', { count: scanImages.length, max: MAX_SCAN_IMAGES })}
                   </Text>
                 </View>
               </View>
@@ -854,7 +871,7 @@ export function ScanHomeScreen() {
                     onPress={handleActiveCameraReplace}
                   >
                     <Ionicons color="#2d6033" name="camera-outline" size={16} />
-                    <Text className="text-xs font-semibold text-brand-800">Retake</Text>
+                    <Text className="text-xs font-semibold text-brand-800">{t('Retake')}</Text>
                   </Pressable>
                   <Pressable
                     accessibilityRole="button"
@@ -862,7 +879,7 @@ export function ScanHomeScreen() {
                     onPress={handleActiveGalleryReplace}
                   >
                     <Ionicons color="#2d6033" name="images-outline" size={16} />
-                    <Text className="text-xs font-semibold text-brand-800">Replace</Text>
+                    <Text className="text-xs font-semibold text-brand-800">{t('Replace')}</Text>
                   </Pressable>
                 </View>
               </View>
@@ -877,12 +894,12 @@ export function ScanHomeScreen() {
               <CropPartSelector onChange={updateActivePhotoFocus} value={activeImage.focus} />
 
               <View className="gap-2">
-                <Text className="text-sm font-semibold text-ink-900">Optional notes</Text>
+                <Text className="text-sm font-semibold text-ink-900">{t('Optional notes')}</Text>
                 <TextInput
                   className="min-h-[96px] rounded-[20px] bg-brand-50 px-4 py-3 text-sm text-ink-900"
                   multiline
                   onChangeText={setNotes}
-                  placeholder="Add short notes for this scan result later if needed."
+                  placeholder={t('Add short notes for this scan result later if needed.')}
                   placeholderTextColor="#627562"
                   textAlignVertical="top"
                   value={notes}
@@ -904,9 +921,9 @@ export function ScanHomeScreen() {
                 >
                   {confirmedRiceImage ? <Ionicons color="white" name="checkmark" size={16} /> : null}
                 </View>
-                <Text className="flex-1 text-sm leading-6 text-ink-700">
-                  I confirm these are clear rice leaf, stem, panicle, or field photos.
-                </Text>
+                  <Text className="flex-1 text-sm leading-6 text-ink-700">
+                    {t('I confirm these are clear rice leaf, stem, panicle, or field photos.')}
+                  </Text>
               </Pressable>
 
               {scanImages.length > 1 ? (
@@ -930,7 +947,7 @@ export function ScanHomeScreen() {
                     ) : null}
                   </View>
                   <Text className="flex-1 text-sm leading-6 text-ink-700">
-                    These photos show the same rice problem from different angles.
+                    {t('These photos show the same rice problem from different angles.')}
                   </Text>
                 </Pressable>
               ) : null}
@@ -945,13 +962,13 @@ export function ScanHomeScreen() {
                 disabled={isAnalyzeDisabled}
                 hint={analyzeHint}
                 icon={<Ionicons color="white" name="sparkles-outline" size={22} />}
-                label={
-                  cooldownRemaining > 0
-                    ? `Analyze in ${cooldownRemaining}s`
+                  label={
+                    cooldownRemaining > 0
+                    ? t('Analyze in {seconds}s', { seconds: cooldownRemaining })
                     : scanImages.length > 1
-                      ? 'Analyze photos'
-                      : 'Analyze image'
-                }
+                      ? t('Analyze photos')
+                      : t('Analyze image')
+                  }
                 onPress={handleAnalyze}
               />
             </View>
@@ -964,9 +981,9 @@ export function ScanHomeScreen() {
                   <Ionicons color="#2d6033" name="leaf-outline" size={22} />
                 </View>
                 <View className="flex-1">
-                  <Text className="text-lg font-semibold text-ink-900">Best photo set</Text>
+                  <Text className="text-lg font-semibold text-ink-900">{t('Best photo set')}</Text>
                   <Text className="mt-1 text-sm leading-6 text-ink-700">
-                    Aim at the affected leaf, stem, panicle, or field patch.
+                    {t('Aim at the affected leaf, stem, panicle, or field patch.')}
                   </Text>
                 </View>
               </View>
@@ -981,11 +998,13 @@ export function ScanHomeScreen() {
         {apiState === 'error' && errorMessage ? (
           <SectionCard tone="muted">
             <View className="gap-2">
-              <Text className="text-lg font-semibold text-ink-900">Scan could not be completed</Text>
+              <Text className="text-lg font-semibold text-ink-900">
+                {t('Scan could not be completed')}
+              </Text>
               <Text className="text-sm leading-6 text-ink-700">
                 {__DEV__
                   ? errorMessage
-                  : 'The scan could not be completed. Check your connection and image, then try again.'}
+                  : t('The scan could not be completed. Check your connection and image, then try again.')}
               </Text>
             </View>
           </SectionCard>
@@ -994,9 +1013,11 @@ export function ScanHomeScreen() {
         {apiState === 'empty' ? (
           <SectionCard tone="muted">
             <View className="gap-2">
-              <Text className="text-lg font-semibold text-ink-900">No usable matches found</Text>
+              <Text className="text-lg font-semibold text-ink-900">{t('No usable matches found')}</Text>
               <Text className="text-sm leading-6 text-ink-700">
-                The scan finished, but there were not enough usable matches to show a result. Try a clearer image.
+                {t(
+                  'The scan finished, but there were not enough usable matches to show a result. Try a clearer image.',
+                )}
               </Text>
             </View>
           </SectionCard>

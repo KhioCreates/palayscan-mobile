@@ -6,6 +6,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { HeaderBlock } from '../../../components/ui/HeaderBlock';
 import { ScreenContainer } from '../../../components/ui/ScreenContainer';
 import { SectionCard } from '../../../components/ui/SectionCard';
+import { useAppLanguage } from '../../../localization/appLanguage';
 import { GuideEntryVisual } from '../components/GuideEntryVisual';
 import { GuideImageViewer } from '../components/GuideImageViewer';
 import { GuideStackHeader } from '../components/GuideStackHeader';
@@ -18,12 +19,14 @@ type GuideAnchorKey = 'signs' | 'action' | 'prevent';
 type GuideAnchorOffsets = Partial<Record<GuideAnchorKey, number>>;
 
 function DetailList({ items }: { items: string[] }) {
+  const { t } = useAppLanguage();
+
   return (
     <View className="gap-2">
       {items.map((item) => (
         <View key={item} className="flex-row gap-3">
           <Text className="pt-0.5 text-brand-700">-</Text>
-          <Text className="flex-1 text-sm leading-6 text-ink-700">{item}</Text>
+          <Text className="flex-1 text-sm leading-6 text-ink-700">{t(item)}</Text>
         </View>
       ))}
     </View>
@@ -31,6 +34,8 @@ function DetailList({ items }: { items: string[] }) {
 }
 
 function DetailChecklist({ items }: { items: string[] }) {
+  const { t } = useAppLanguage();
+
   return (
     <View className="gap-2">
       {items.map((item) => (
@@ -38,7 +43,7 @@ function DetailChecklist({ items }: { items: string[] }) {
           <View className="mt-0.5 h-5 w-5 items-center justify-center rounded-full bg-brand-100">
             <Ionicons color="#2d6033" name="checkmark" size={13} />
           </View>
-          <Text className="flex-1 text-sm leading-6 text-ink-700">{item}</Text>
+          <Text className="flex-1 text-sm leading-6 text-ink-700">{t(item)}</Text>
         </View>
       ))}
     </View>
@@ -72,6 +77,7 @@ function SectionChips({
 }: {
   onSelectSection: (section: GuideAnchorKey) => void;
 }) {
+  const { t } = useAppLanguage();
   const chips = [
     { key: 'signs', label: 'What to see', icon: 'eye-outline' },
     { key: 'action', label: 'What to do', icon: 'construct-outline' },
@@ -82,7 +88,7 @@ function SectionChips({
     <View className="flex-row gap-2">
       {chips.map((chip) => (
         <Pressable
-          accessibilityLabel={`Jump to ${chip.label}`}
+          accessibilityLabel={t('Jump to {label}', { label: t(chip.label) })}
           accessibilityRole="button"
           className="min-h-16 flex-1 items-center justify-center rounded-[16px] bg-brand-50 px-2 py-3 active:bg-brand-100"
           key={chip.label}
@@ -90,7 +96,7 @@ function SectionChips({
         >
           <Ionicons color="#2d6033" name={chip.icon} size={17} />
           <Text className="mt-1 text-center text-[11px] font-semibold text-brand-800">
-            {chip.label}
+            {t(chip.label)}
           </Text>
         </Pressable>
       ))}
@@ -99,6 +105,7 @@ function SectionChips({
 }
 
 function VarietyDetail({ entry, onOpenImage }: { entry: RiceVariety; onOpenImage: () => void }) {
+  const { t } = useAppLanguage();
   const plantingChecks = [
     'Confirm that certified or reliable seed is available in your area.',
     'Match the days to harvest with your water supply, season, and target harvest date.',
@@ -110,7 +117,7 @@ function VarietyDetail({ entry, onOpenImage }: { entry: RiceVariety; onOpenImage
       <SectionCard>
         <View className="gap-3">
           <GuideEntryVisual
-            badgeLabel="Palay variety"
+            badgeLabel={t('Palay variety')}
             compactPlaceholder
             category={entry.category}
             imageAlt={entry.imageAlt}
@@ -126,32 +133,32 @@ function VarietyDetail({ entry, onOpenImage }: { entry: RiceVariety; onOpenImage
             visualHint={entry.recommendedEnvironment}
           />
           <Text className="text-xs leading-5 text-ink-700">
-            Reference palay photo only. Use the facts below for this variety.
+            {t('Reference palay photo only. Use the facts below for this variety.')}
           </Text>
         </View>
       </SectionCard>
 
       <SectionCard>
         <View className="gap-3">
-          <Text className="text-lg font-semibold text-ink-900">Quick facts</Text>
+          <Text className="text-lg font-semibold text-ink-900">{t('Quick facts')}</Text>
           <Text className="text-sm leading-6 text-ink-700">
-            Compare these before choosing seed for your field.
+            {t('Compare these before choosing seed for your field.')}
           </Text>
           <View className="flex-row flex-wrap gap-3">
             <VarietyMetricTile
               icon="time-outline"
-              label="Days to harvest"
+              label={t('Days to harvest')}
               value={entry.maturityDays}
             />
             <VarietyMetricTile
               icon="stats-chart-outline"
-              label="Possible yield"
+              label={t('Possible yield')}
               value={entry.yieldPotential}
             />
-            <VarietyMetricTile icon="ellipse-outline" label="Grain" value={entry.grainType} />
+            <VarietyMetricTile icon="ellipse-outline" label={t('Grain')} value={entry.grainType} />
             <VarietyMetricTile
               icon="map-outline"
-              label="Best field"
+              label={t('Best field')}
               value={entry.recommendedEnvironment}
             />
           </View>
@@ -165,26 +172,26 @@ function VarietyDetail({ entry, onOpenImage }: { entry: RiceVariety; onOpenImage
               <Ionicons color="#2d6033" name="reader-outline" size={20} />
             </View>
             <View className="flex-1">
-              <Text className="text-lg font-semibold text-ink-900">What this means</Text>
+              <Text className="text-lg font-semibold text-ink-900">{t('What this means')}</Text>
               <Text className="mt-1 text-sm leading-5 text-ink-700">
-                Plain guide note for this variety.
+                {t('Plain guide note for this variety.')}
               </Text>
             </View>
           </View>
-          <Text className="text-sm leading-6 text-ink-700">{entry.shortDescription}</Text>
+          <Text className="text-sm leading-6 text-ink-700">{t(entry.shortDescription)}</Text>
         </View>
       </SectionCard>
 
       <SectionCard>
         <View className="gap-3">
-          <Text className="text-lg font-semibold text-ink-900">Why farmers check it</Text>
+          <Text className="text-lg font-semibold text-ink-900">{t('Why farmers check it')}</Text>
           <DetailList items={entry.notableCharacteristics} />
         </View>
       </SectionCard>
 
       <SectionCard>
         <View className="gap-3">
-          <Text className="text-lg font-semibold text-ink-900">Check before planting</Text>
+          <Text className="text-lg font-semibold text-ink-900">{t('Check before planting')}</Text>
           <DetailChecklist items={plantingChecks} />
         </View>
       </SectionCard>
@@ -205,13 +212,14 @@ function GuideInfoDetail({
   onSectionLayout: (section: GuideAnchorKey, offsetY: number) => void;
   onSelectSection: (section: GuideAnchorKey) => void;
 }) {
+  const { t } = useAppLanguage();
   const visualSigns = [...entry.identification.slice(0, 2), ...entry.symptoms.slice(0, 2)];
 
   return (
     <View className="gap-4" onLayout={(event) => onContentLayout(event.nativeEvent.layout.y)}>
       <SectionCard>
         <GuideEntryVisual
-          badgeLabel={entry.category === 'pest' ? 'Pest photo' : 'Disease photo'}
+          badgeLabel={entry.category === 'pest' ? t('Pest photo') : t('Disease photo')}
           compactPlaceholder
           category={entry.category}
           imageAlt={entry.imageAlt}
@@ -224,17 +232,17 @@ function GuideInfoDetail({
           size="detail"
           tertiaryDetail={visualSigns[1]}
           title={entry.name}
-          visualHint="Tap the image to zoom, then compare with the field signs below."
+          visualHint={t('Tap the image to zoom, then compare with the field signs below.')}
         />
         <Text className="mt-3 text-xs leading-5 text-ink-700">
-          Use the photo as a visual guide only. Check the actual plant signs in your field.
+          {t('Use the photo as a visual guide only. Check the actual plant signs in your field.')}
         </Text>
       </SectionCard>
 
       {entry.scientificName ? (
         <SectionCard tone="muted">
           <View className="gap-2">
-            <Text className="text-lg font-semibold text-ink-900">Scientific Name</Text>
+            <Text className="text-lg font-semibold text-ink-900">{t('Scientific Name')}</Text>
             <Text className="text-sm leading-6 text-ink-700">{entry.scientificName}</Text>
           </View>
         </SectionCard>
@@ -242,9 +250,9 @@ function GuideInfoDetail({
 
       <SectionCard>
         <View className="gap-3">
-          <Text className="text-lg font-semibold text-ink-900">Jump to what you need</Text>
+          <Text className="text-lg font-semibold text-ink-900">{t('Jump to what you need')}</Text>
           <Text className="text-sm leading-6 text-ink-700">
-            Go straight to signs, field action, or prevention.
+            {t('Go straight to signs, field action, or prevention.')}
           </Text>
           <SectionChips onSelectSection={onSelectSection} />
         </View>
@@ -258,9 +266,9 @@ function GuideInfoDetail({
                 <Ionicons color="#2d6033" name="eye-outline" size={21} />
               </View>
               <View className="flex-1">
-                <Text className="text-lg font-semibold text-ink-900">What you may see</Text>
+                <Text className="text-lg font-semibold text-ink-900">{t('What you may see')}</Text>
                 <Text className="mt-1 text-sm leading-6 text-ink-700">
-                  Compare these first with the leaves, stem, panicle, or field patch.
+                  {t('Compare these first with the leaves, stem, panicle, or field patch.')}
                 </Text>
               </View>
             </View>
@@ -271,14 +279,14 @@ function GuideInfoDetail({
 
       <SectionCard>
         <View className="gap-3">
-          <Text className="text-lg font-semibold text-ink-900">Where to look</Text>
+          <Text className="text-lg font-semibold text-ink-900">{t('Where to look')}</Text>
           <DetailList items={entry.identification} />
         </View>
       </SectionCard>
 
       <SectionCard>
         <View className="gap-3">
-          <Text className="text-lg font-semibold text-ink-900">Damage or signs</Text>
+          <Text className="text-lg font-semibold text-ink-900">{t('Damage or signs')}</Text>
           <DetailList items={entry.symptoms} />
         </View>
       </SectionCard>
@@ -286,7 +294,7 @@ function GuideInfoDetail({
       <View onLayout={(event) => onSectionLayout('action', event.nativeEvent.layout.y)}>
         <SectionCard>
           <View className="gap-3">
-            <Text className="text-lg font-semibold text-ink-900">What to do</Text>
+            <Text className="text-lg font-semibold text-ink-900">{t('What to do')}</Text>
             <DetailList items={entry.treatment} />
           </View>
         </SectionCard>
@@ -295,7 +303,7 @@ function GuideInfoDetail({
       <View onLayout={(event) => onSectionLayout('prevent', event.nativeEvent.layout.y)}>
         <SectionCard>
           <View className="gap-3">
-            <Text className="text-lg font-semibold text-ink-900">How to avoid it</Text>
+            <Text className="text-lg font-semibold text-ink-900">{t('How to avoid it')}</Text>
             <DetailList items={entry.prevention} />
           </View>
         </SectionCard>
@@ -305,6 +313,7 @@ function GuideInfoDetail({
 }
 
 export function GuideDetailViewScreen({ navigation, route }: GuideDetailViewScreenProps) {
+  const { t } = useAppLanguage();
   const { categoryKey, entryId } = route.params;
   const entry = getGuideEntryById(categoryKey, entryId);
   const scrollRef = useRef<ScrollView | null>(null);
@@ -331,11 +340,11 @@ export function GuideDetailViewScreen({ navigation, route }: GuideDetailViewScre
   if (!entry) {
     return (
       <ScreenContainer bottomSpacing="comfortable">
-        <GuideStackHeader onBack={() => navigation.goBack()} title="Guide" />
+        <GuideStackHeader onBack={() => navigation.goBack()} title={t('Guide')} />
         <HeaderBlock
-          eyebrow="Guide"
-          title="Entry not found"
-          description="This local guide entry could not be found."
+          eyebrow={t('Guide')}
+          title={t('Entry not found')}
+          description={t('This local guide entry could not be found.')}
         />
       </ScreenContainer>
     );
@@ -344,13 +353,13 @@ export function GuideDetailViewScreen({ navigation, route }: GuideDetailViewScre
   return (
     <ScreenContainer bottomSpacing="comfortable" scrollRef={scrollRef}>
       <GuideStackHeader
-        backLabel="Back to list"
+        backLabel={t('Back to list')}
         onBack={() => navigation.goBack()}
         title={entry.name}
       />
       <HeaderBlock
         eyebrow={
-          entry.category === 'variety' ? 'Palay Variety' : entry.category === 'pest' ? 'Pest' : 'Disease'
+          entry.category === 'variety' ? t('Palay Variety') : entry.category === 'pest' ? t('Pest') : t('Disease')
         }
         title={entry.name}
         description={entry.shortDescription}
@@ -371,8 +380,8 @@ export function GuideDetailViewScreen({ navigation, route }: GuideDetailViewScre
       <GuideImageViewer
         caption={
           entry.category === 'variety'
-            ? 'Reference palay photo only. Use the guide facts for this variety.'
-            : 'Compare with actual field signs before making farm decisions.'
+            ? t('Reference palay photo only. Use the guide facts for this variety.')
+            : t('Compare with actual field signs before making farm decisions.')
         }
         imageAlt={entry.imageAlt}
         imageSource={entry.imageSource}

@@ -16,6 +16,7 @@ import {
 } from '../types';
 import { toDiagnosisTitleCase } from '../utils/formatScanText';
 import { findGuideEntryForPrediction } from '../utils/scanGuideMatch';
+import { useAppLanguage, type Translator } from '../../../localization/appLanguage';
 
 type ScanResultDetailScreenProps = {
   navigation: {
@@ -60,12 +61,10 @@ function shortenText(value: string | undefined, maxLength = 180) {
   return `${value.slice(0, maxLength).trim()}...`;
 }
 
-function DetailList({ items }: { items: string[] }) {
+function DetailList({ items, t }: { items: string[]; t: Translator }) {
   if (items.length === 0) {
     return (
-      <Text className="text-sm leading-6 text-ink-700">
-        No detail text is available for this match yet.
-      </Text>
+      <Text className="text-sm leading-6 text-ink-700">{t('No detail text is available for this match yet.')}</Text>
     );
   }
 
@@ -98,18 +97,18 @@ function DetailPill({
   );
 }
 
-function NextStepCard({ confidence }: { confidence: number }) {
+function NextStepCard({ confidence, t }: { confidence: number; t: Translator }) {
   const nextSteps =
     confidence >= 0.8
       ? [
-          'Compare the photo with the field signs below.',
-          'Check nearby plants to see if the same signs are spreading.',
-          'Ask a local agri technician before using chemical control.',
+          t('Compare the photo with the field signs below.'),
+          t('Check nearby plants to see if the same signs are spreading.'),
+          t('Ask a local agri technician before using chemical control.'),
         ]
       : [
-          'Retake a clearer close photo if the field signs do not match.',
-          'Compare manually with the Guide before deciding what to do.',
-          'Ask a local agri technician when the problem is spreading fast.',
+          t('Retake a clearer close photo if the field signs do not match.'),
+          t('Compare manually with the Guide before deciding what to do.'),
+          t('Ask a local agri technician when the problem is spreading fast.'),
         ];
 
   return (
@@ -120,19 +119,19 @@ function NextStepCard({ confidence }: { confidence: number }) {
             <Ionicons color="#2d6033" name="footsteps-outline" size={21} />
           </View>
           <View className="flex-1">
-            <Text className="text-lg font-semibold text-ink-900">Next steps</Text>
+            <Text className="text-lg font-semibold text-ink-900">{t('Next steps')}</Text>
             <Text className="mt-1 text-sm leading-5 text-ink-700">
-              Use the scan as a guide, then check the field.
+              {t('Use the scan as a guide, then check the field.')}
             </Text>
           </View>
         </View>
-        <DetailList items={nextSteps} />
+        <DetailList items={nextSteps} t={t} />
       </View>
     </SectionCard>
   );
 }
 
-function ScanPhotoStrip({ photos }: { photos: ScanPhotoEvidence[] }) {
+function ScanPhotoStrip({ photos, t }: { photos: ScanPhotoEvidence[]; t: Translator }) {
   if (photos.length === 0) {
     return null;
   }
@@ -140,7 +139,7 @@ function ScanPhotoStrip({ photos }: { photos: ScanPhotoEvidence[] }) {
   return (
     <SectionCard>
       <View className="gap-3">
-        <Text className="text-lg font-semibold text-ink-900">Photos used for scan</Text>
+        <Text className="text-lg font-semibold text-ink-900">{t('Photos used for scan')}</Text>
         <View className="flex-row flex-wrap gap-2">
           {photos.map((photo, index) => (
             <View className="w-[96px] rounded-[16px] border border-brand-100 bg-brand-50 p-1.5" key={`${photo.imageUri}-${index}`}>
@@ -164,10 +163,12 @@ function PredictionPicker({
   predictions,
   selectedIndex,
   onSelect,
+  t,
 }: {
   predictions: ScanPrediction[];
   selectedIndex: number;
   onSelect: (index: number) => void;
+  t: Translator;
 }) {
   if (predictions.length <= 1) {
     return null;
@@ -176,9 +177,9 @@ function PredictionPicker({
   return (
     <SectionCard>
       <View className="gap-3">
-        <Text className="text-lg font-semibold text-ink-900">Other possible matches</Text>
+        <Text className="text-lg font-semibold text-ink-900">{t('Other possible matches')}</Text>
         <Text className="text-sm leading-6 text-ink-700">
-          Tap another match if the field signs look closer to it.
+          {t('Tap another match if the field signs look closer to it.')}
         </Text>
         <View className="gap-2">
           {predictions.map((prediction, index) => {
@@ -250,6 +251,7 @@ function ReferenceImage({
 }
 
 export function ScanResultDetailScreen({ navigation, route }: ScanResultDetailScreenProps) {
+  const { t } = useAppLanguage();
   const { result } = route.params;
   const [selectedIndex, setSelectedIndex] = useState(route.params.initialPredictionIndex ?? 0);
   const prediction = result.predictions[selectedIndex] ?? result.predictions[0];
@@ -274,11 +276,11 @@ export function ScanResultDetailScreen({ navigation, route }: ScanResultDetailSc
   if (!prediction) {
     return (
       <ScreenContainer bottomSpacing="comfortable">
-        <GuideStackHeader onBack={() => navigation.goBack()} title="Scan result" />
+        <GuideStackHeader onBack={() => navigation.goBack()} title={t('Scan result')} />
         <HeaderBlock
-          eyebrow="Scan Detail"
-          title="No match details"
-          description="This scan result did not include a usable diagnosis match."
+          eyebrow={t('Scan Detail')}
+          title={t('No match details')}
+          description={t('This scan result did not include a usable diagnosis match.')}
         />
       </ScreenContainer>
     );
@@ -287,12 +289,12 @@ export function ScanResultDetailScreen({ navigation, route }: ScanResultDetailSc
   return (
     <ScreenContainer bottomSpacing="comfortable">
       <GuideStackHeader
-        backLabel="Back to scan"
+        backLabel={t('Back to scan')}
         onBack={() => navigation.goBack()}
         title={toDiagnosisTitleCase(prediction.name)}
       />
       <HeaderBlock
-        eyebrow="Possible Scan Issue"
+        eyebrow={t('Possible Scan Issue')}
         title={toDiagnosisTitleCase(prediction.name)}
         description={headerDescription}
       />
@@ -307,30 +309,34 @@ export function ScanResultDetailScreen({ navigation, route }: ScanResultDetailSc
             />
 
             <View className="flex-row gap-2">
-              <DetailPill label="Confidence" value={formatConfidence(prediction.confidence)} />
-              <DetailPill label="Issue type" value={toDiagnosisTitleCase(typeLabel)} />
-              <DetailPill label="Review" value={getConfidenceStatus(prediction.confidence)} />
+              <DetailPill label={t('Confidence')} value={formatConfidence(prediction.confidence)} />
+              <DetailPill label={t('Issue type')} value={toDiagnosisTitleCase(typeLabel)} />
+              <DetailPill label={t('Review')} value={getConfidenceStatus(prediction.confidence)} />
             </View>
 
             <View className="gap-1">
               <Text className="text-sm text-ink-700">
-                Scanned: {formatDate(fromIsoDate(result.scannedAt.slice(0, 10)))}
+                {t('Scanned')}: {formatDate(fromIsoDate(result.scannedAt.slice(0, 10)))}
               </Text>
               {scientificName ? (
-                <Text className="text-sm text-ink-700">Scientific Name: {scientificName}</Text>
+                <Text className="text-sm text-ink-700">
+                  {t('Scientific Name')}: {scientificName}
+                </Text>
               ) : null}
             </View>
           </View>
         </SectionCard>
 
-        <NextStepCard confidence={prediction.confidence} />
+        <NextStepCard confidence={prediction.confidence} t={t} />
 
-        <ScanPhotoStrip photos={result.scanPhotos ?? []} />
+        <ScanPhotoStrip photos={result.scanPhotos ?? []} t={t} />
 
         {description ? (
           <SectionCard>
             <View className="gap-3">
-              <Text className="text-lg font-semibold text-ink-900">About this possible issue</Text>
+              <Text className="text-lg font-semibold text-ink-900">
+                {t('About this possible issue')}
+              </Text>
               <Text className="text-sm leading-6 text-ink-700">{description}</Text>
             </View>
           </SectionCard>
@@ -342,33 +348,31 @@ export function ScanResultDetailScreen({ navigation, route }: ScanResultDetailSc
               <View className="h-10 w-10 items-center justify-center rounded-2xl bg-white">
                 <Ionicons color="#2d6033" name="eye-outline" size={21} />
               </View>
-              <Text className="flex-1 text-lg font-semibold text-ink-900">
-                What you may see
-              </Text>
+              <Text className="flex-1 text-lg font-semibold text-ink-900">{t('What you may see')}</Text>
             </View>
-            <DetailList items={identification.length > 0 ? identification : symptoms} />
+            <DetailList items={identification.length > 0 ? identification : symptoms} t={t} />
           </View>
         </SectionCard>
 
         <SectionCard>
           <View className="gap-3">
-            <Text className="text-lg font-semibold text-ink-900">Damage or signs</Text>
-            <DetailList items={symptoms} />
+            <Text className="text-lg font-semibold text-ink-900">{t('Damage or signs')}</Text>
+            <DetailList items={symptoms} t={t} />
           </View>
         </SectionCard>
 
         <SectionCard>
           <View className="gap-3">
-            <Text className="text-lg font-semibold text-ink-900">What to do next</Text>
-            <DetailList items={treatment} />
+            <Text className="text-lg font-semibold text-ink-900">{t('What to do next')}</Text>
+            <DetailList items={treatment} t={t} />
           </View>
         </SectionCard>
 
         {prevention.length > 0 ? (
           <SectionCard>
             <View className="gap-3">
-              <Text className="text-lg font-semibold text-ink-900">How to avoid it</Text>
-              <DetailList items={prevention} />
+              <Text className="text-lg font-semibold text-ink-900">{t('How to avoid it')}</Text>
+              <DetailList items={prevention} t={t} />
             </View>
           </SectionCard>
         ) : null}
@@ -380,34 +384,34 @@ export function ScanResultDetailScreen({ navigation, route }: ScanResultDetailSc
         details?.gbifId ? (
           <SectionCard tone="muted">
             <View className="gap-2">
-              <Text className="text-lg font-semibold text-ink-900">Reference details</Text>
+              <Text className="text-lg font-semibold text-ink-900">{t('Reference details')}</Text>
               {details.severity ? (
                 <Text className="text-sm leading-6 text-ink-700">
-                  <Text className="font-semibold text-ink-900">Severity: </Text>
+                  <Text className="font-semibold text-ink-900">{t('Severity')}: </Text>
                   {details.severity}
                 </Text>
               ) : null}
               {details.spreading ? (
                 <Text className="text-sm leading-6 text-ink-700">
-                  <Text className="font-semibold text-ink-900">Spreading: </Text>
+                  <Text className="font-semibold text-ink-900">{t('Spreading')}: </Text>
                   {details.spreading}
                 </Text>
               ) : null}
               {details.taxonomy?.length ? (
                 <Text className="text-sm leading-6 text-ink-700">
-                  <Text className="font-semibold text-ink-900">Taxonomy: </Text>
+                  <Text className="font-semibold text-ink-900">{t('Taxonomy')}: </Text>
                   {details.taxonomy.join(' > ')}
                 </Text>
               ) : null}
               {details.eppoCode ? (
                 <Text className="text-sm leading-6 text-ink-700">
-                  <Text className="font-semibold text-ink-900">EPPO: </Text>
+                  <Text className="font-semibold text-ink-900">{t('EPPO')}: </Text>
                   {details.eppoCode}
                 </Text>
               ) : null}
               {details.gbifId ? (
                 <Text className="text-sm leading-6 text-ink-700">
-                  <Text className="font-semibold text-ink-900">GBIF: </Text>
+                  <Text className="font-semibold text-ink-900">{t('GBIF')}: </Text>
                   {details.gbifId}
                 </Text>
               ) : null}
@@ -419,6 +423,7 @@ export function ScanResultDetailScreen({ navigation, route }: ScanResultDetailSc
           onSelect={setSelectedIndex}
           predictions={result.predictions}
           selectedIndex={selectedIndex}
+          t={t}
         />
       </View>
     </ScreenContainer>

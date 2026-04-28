@@ -8,10 +8,12 @@ import { GuideStackHeader } from '../components/GuideStackHeader';
 import { getGuideCategory, getGuideEntries } from '../data';
 import { GuideListItem } from '../components/GuideListItem';
 import { GuideStackParamList } from '../navigation/GuideNavigator';
+import { useAppLanguage } from '../../../localization/appLanguage';
 
 type GuideListScreenProps = NativeStackScreenProps<GuideStackParamList, 'GuideList'>;
 
 export function GuideListScreen({ navigation, route }: GuideListScreenProps) {
+  const { t } = useAppLanguage();
   const { categoryKey } = route.params;
   const category = getGuideCategory(categoryKey);
   const entries = getGuideEntries(categoryKey);
@@ -35,11 +37,11 @@ export function GuideListScreen({ navigation, route }: GuideListScreenProps) {
   if (!category) {
     return (
       <ScreenContainer bottomSpacing="comfortable">
-        <GuideStackHeader onBack={() => navigation.goBack()} title="Guide" />
+        <GuideStackHeader onBack={() => navigation.goBack()} title={t('Guide')} />
         <HeaderBlock
-          eyebrow="Guide"
-          title="Section not found"
-          description="This guide section could not be loaded from local data."
+          eyebrow={t('Guide')}
+          title={t('Section not found')}
+          description={t('This guide section could not be loaded from local data.')}
         />
       </ScreenContainer>
     );
@@ -48,41 +50,41 @@ export function GuideListScreen({ navigation, route }: GuideListScreenProps) {
   return (
     <ScreenContainer bottomSpacing="comfortable">
       <GuideStackHeader
-        backLabel="Back to Guide"
+        backLabel={t('Back to Guide')}
         onBack={() => navigation.goBack()}
-        title={category.title}
+        title={t(category.title)}
       />
       <HeaderBlock
-        eyebrow={category.eyebrow}
-        title={category.title}
-        description={category.description}
+        eyebrow={t(category.eyebrow)}
+        title={t(category.title)}
+        description={t(category.description)}
       />
 
       <View className="mb-4 rounded-full bg-brand-100/70 px-4 py-3">
         <Text className="text-sm font-medium text-ink-700">
           {isVarietyList
-            ? `${entries.length} palay varieties saved in this guide`
-            : `${entries.length} guide topics saved in this section`}
+            ? t('{count} palay varieties saved in this guide', { count: entries.length })
+            : t('{count} guide topics saved in this section', { count: entries.length })}
         </Text>
       </View>
 
       <View className="mb-5 rounded-[24px] border border-brand-100 bg-white px-4 py-3 shadow-soft">
         <Text className="mb-2 text-xs font-semibold uppercase tracking-[1.2px] text-brand-700">
-          Search
+          {t('Search')}
         </Text>
         <TextInput
           autoCapitalize="words"
           autoCorrect={false}
           className="rounded-full bg-brand-50 px-4 py-3 text-sm text-ink-800"
           onChangeText={setSearchQuery}
-          placeholder={`Search ${category.title.toLowerCase()}`}
+          placeholder={t('Search {category}', { category: category.title.toLowerCase() })}
           placeholderTextColor="#708272"
           value={searchQuery}
         />
         <Text className="mt-3 text-xs leading-5 text-ink-700">
           {isVarietyList
-            ? 'Search by variety name, for example Rc 222.'
-            : 'Search by name or visible field sign.'}
+            ? t('Search by variety name, for example Rc 222.')
+            : t('Search by name or visible field sign.')}
         </Text>
       </View>
 
@@ -108,9 +110,11 @@ export function GuideListScreen({ navigation, route }: GuideListScreenProps) {
           ))
         ) : (
           <View className="rounded-[24px] bg-brand-50 px-5 py-5">
-            <Text className="text-base font-semibold text-ink-900">No matching entries found</Text>
+            <Text className="text-base font-semibold text-ink-900">
+              {t('No matching entries found')}
+            </Text>
             <Text className="mt-2 text-sm leading-6 text-ink-700">
-              Try another keyword or clear the search to see the full offline guide list.
+              {t('Try another keyword or clear the search to see the full offline guide list.')}
             </Text>
           </View>
         )}

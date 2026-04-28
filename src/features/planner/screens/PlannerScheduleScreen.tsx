@@ -4,6 +4,7 @@ import { Text, View } from 'react-native';
 
 import { ScreenContainer } from '../../../components/ui/ScreenContainer';
 import { SectionCard } from '../../../components/ui/SectionCard';
+import { useAppLanguage } from '../../../localization/appLanguage';
 import { PlannerCalendarSummary } from '../components/PlannerCalendarSummary';
 import { plantingMethodOptions } from '../data/plannerRules';
 import { PlannerActivityCard } from '../components/PlannerActivityCard';
@@ -24,6 +25,7 @@ export function PlannerScheduleScreen({
   navigation,
   route,
 }: PlannerScheduleScreenProps) {
+  const { t } = useAppLanguage();
   const [schedule, setSchedule] = useState(route.params.schedule);
   const { recordId } = route.params;
   const methodMeta = plantingMethodOptions.find((option) => option.id === schedule.method);
@@ -65,9 +67,9 @@ export function PlannerScheduleScreen({
   return (
     <ScreenContainer bottomSpacing="roomy" topSpacing="comfortable">
       <PlannerStackHeader
-        backLabel="Back to Planner"
+        backLabel={t('Back to Planner')}
         onBack={() => navigation.goBack()}
-        title="Estimated Crop Calendar"
+        title={t('Estimated Crop Calendar')}
       />
 
       <PlannerWorkDashboard
@@ -81,17 +83,23 @@ export function PlannerScheduleScreen({
         <View className="gap-4">
           <View>
             <Text className="text-sm font-semibold uppercase tracking-[2px] text-brand-700">
-              Crop Calendar
+              {t('Crop Calendar')}
             </Text>
             <Text className="mt-2 text-3xl font-bold text-ink-900">
-              {methodMeta ? `${methodMeta.title} Calendar` : 'Rice Crop Calendar'}
+              {methodMeta
+                ? t('{method} Calendar', { method: t(methodMeta.title) })
+                : t('Rice Crop Calendar')}
             </Text>
             <Text className="mt-2 text-sm leading-6 text-ink-700">
-              Planting date: {formatDate(fromIsoDate(schedule.plantingDate))}
+              {t('Planting date: {date}', {
+                date: formatDate(fromIsoDate(schedule.plantingDate)),
+              })}
             </Text>
             {schedule.cropDurationLabel ? (
               <Text className="text-sm leading-6 text-ink-700">
-                Variety duration: {schedule.cropDurationLabel}
+                {t('Variety duration: {duration}', {
+                  duration: t(schedule.cropDurationLabel),
+                })}
               </Text>
             ) : null}
           </View>
@@ -114,10 +122,9 @@ export function PlannerScheduleScreen({
 
       <SectionCard tone="muted">
         <View className="gap-2">
-          <Text className="text-lg font-semibold text-ink-900">Field task checklist</Text>
+          <Text className="text-lg font-semibold text-ink-900">{t('Field task checklist')}</Text>
           <Text className="text-sm leading-6 text-ink-700">
-            Mark work as done when finished. Saved calendars keep this progress locally for offline
-            review.
+            {t('Mark work as done when finished. Saved calendars keep this progress locally for offline review.')}
           </Text>
         </View>
       </SectionCard>

@@ -1,6 +1,7 @@
 import { Image, Pressable, Text, View } from 'react-native';
 
 import { SectionCard } from '../../../components/ui/SectionCard';
+import { useAppLanguage } from '../../../localization/appLanguage';
 import { toDiagnosisTitleCase } from '../utils/formatScanText';
 
 type ScanHistoryCardProps = {
@@ -18,6 +19,8 @@ export function ScanHistoryCard({
   scannedAtLabel,
   onPress,
 }: ScanHistoryCardProps) {
+  const { t } = useAppLanguage();
+
   return (
     <Pressable accessibilityRole="button" className="active:opacity-90" onPress={onPress}>
       <SectionCard>
@@ -31,13 +34,19 @@ export function ScanHistoryCard({
           <View className="flex-1 gap-2">
             <View className="flex-row items-center justify-between gap-3">
               <Text className="flex-1 text-base font-semibold text-ink-900">
-                {toDiagnosisTitleCase(title)}
+                {toDiagnosisTitleCase(t(title))}
               </Text>
             </View>
 
-            <Text className="text-sm text-ink-700">Confidence: {confidenceLabel}</Text>
-            <Text className="text-sm text-ink-700">Scanned: {scannedAtLabel}</Text>
-            <Text className="text-sm font-semibold text-brand-700">Tap card to view details</Text>
+            <Text className="text-sm text-ink-700">
+              {t('Confidence: {confidence}', { confidence: confidenceLabel })}
+            </Text>
+            <Text className="text-sm text-ink-700">
+              {t('Scanned: {date}', { date: scannedAtLabel })}
+            </Text>
+            <Text className="text-sm font-semibold text-brand-700">
+              {t('Tap card to view details')}
+            </Text>
           </View>
         </View>
       </SectionCard>

@@ -15,6 +15,7 @@ import { SavedScanRecord } from '../features/scan/types';
 import { fromIsoDate, formatDate } from '../features/planner/utils/date';
 import { SavedPlannerRecord } from '../features/planner/types';
 import { RootStackParamList } from '../navigation/RootNavigator';
+import { useAppLanguage } from '../localization/appLanguage';
 
 type HistoryScreenProps = NativeStackScreenProps<RootStackParamList, 'History'>;
 type HistoryTab = 'scans' | 'calendars';
@@ -49,6 +50,7 @@ function HistoryTabButton({
 }
 
 export function HistoryScreen({ navigation }: HistoryScreenProps) {
+  const { t } = useAppLanguage();
   const [scanHistory, setScanHistory] = useState<SavedScanRecord[]>([]);
   const [plannerHistory, setPlannerHistory] = useState<SavedPlannerRecord[]>([]);
   const [activeTab, setActiveTab] = useState<HistoryTab>('scans');
@@ -77,10 +79,10 @@ export function HistoryScreen({ navigation }: HistoryScreenProps) {
       return;
     }
 
-    Alert.alert('Clear scan history', 'Remove all saved scan records from this device?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(t('Clear scan history'), t('Remove all saved scan records from this device?'), [
+      { text: t('Cancel'), style: 'cancel' },
       {
-        text: 'Clear all',
+        text: t('Clear all'),
         style: 'destructive',
         onPress: async () => {
           await clearScanHistory();
@@ -93,9 +95,9 @@ export function HistoryScreen({ navigation }: HistoryScreenProps) {
   return (
     <ScreenContainer bottomSpacing="comfortable">
       <HeaderBlock
-        eyebrow="History Module"
-        title="Review your saved records"
-        description="Review saved scan and planner records stored locally on this device."
+        eyebrow={t('History Module')}
+        title={t('Review your saved records')}
+        description={t('Review saved scan and planner records stored locally on this device.')}
       />
 
       <View className="gap-4">
@@ -105,12 +107,12 @@ export function HistoryScreen({ navigation }: HistoryScreenProps) {
         >
           <HistoryTabButton
             active={activeTab === 'scans'}
-            label={`Scans (${scanHistory.length})`}
+            label={t('Scans ({count})', { count: scanHistory.length })}
             onPress={() => setActiveTab('scans')}
           />
           <HistoryTabButton
             active={activeTab === 'calendars'}
-            label={`Calendars (${plannerHistory.length})`}
+            label={t('Calendars ({count})', { count: plannerHistory.length })}
             onPress={() => setActiveTab('calendars')}
           />
         </View>
@@ -119,14 +121,14 @@ export function HistoryScreen({ navigation }: HistoryScreenProps) {
           <>
             <SectionCard>
               <View className="gap-3">
-                <Text className="text-lg font-semibold text-ink-900">Scan History</Text>
+                <Text className="text-lg font-semibold text-ink-900">{t('Scan History')}</Text>
                 <Text className="text-sm leading-6 text-ink-700">
-                  Saved image checks, top result, confidence scores, and optional farmer notes.
+                  {t('Saved image checks, top result, confidence scores, and optional farmer notes.')}
                 </Text>
                 {scanHistory.length > 0 ? (
                   <PrimaryButton
-                    hint="Remove all saved scan records from local history."
-                    label="Clear scan history"
+                    hint={t('Remove all saved scan records from local history.')}
+                    label={t('Clear scan history')}
                     onPress={handleClearScanHistory}
                   />
                 ) : null}
@@ -136,10 +138,10 @@ export function HistoryScreen({ navigation }: HistoryScreenProps) {
             {scanHistory.length === 0 ? (
               <SectionCard tone="muted">
                 <Text className="text-base font-semibold text-ink-900">
-                  No saved scan history yet
+                  {t('No saved scan history yet')}
                 </Text>
                 <Text className="mt-2 text-sm leading-6 text-ink-700">
-                  Complete a scan and saved results will appear here automatically.
+                  {t('Complete a scan and saved results will appear here automatically.')}
                 </Text>
               </SectionCard>
             ) : (
@@ -150,7 +152,7 @@ export function HistoryScreen({ navigation }: HistoryScreenProps) {
                   imageUri={record.imageUri}
                   onPress={() => navigation.navigate('ScanHistoryDetail', { recordId: record.id })}
                   scannedAtLabel={formatDate(fromIsoDate(record.scannedAt.slice(0, 10)))}
-                  title={record.nonPlantWarning ? 'Non-Plant Image' : record.topResultName}
+                  title={record.nonPlantWarning ? t('Non-Plant Image') : record.topResultName}
                 />
               ))
             )}
@@ -158,19 +160,19 @@ export function HistoryScreen({ navigation }: HistoryScreenProps) {
         ) : (
           <>
             <SectionCard>
-              <Text className="text-lg font-semibold text-ink-900">Planner History</Text>
+              <Text className="text-lg font-semibold text-ink-900">{t('Planner History')}</Text>
               <Text className="mt-2 text-sm leading-6 text-ink-700">
-                Saved local crop calendars are listed here for offline review.
+                {t('Saved local crop calendars are listed here for offline review.')}
               </Text>
             </SectionCard>
 
             {plannerHistory.length === 0 ? (
               <SectionCard tone="muted">
                 <Text className="text-base font-semibold text-ink-900">
-                  No saved planner history yet
+                  {t('No saved planner history yet')}
                 </Text>
                 <Text className="mt-2 text-sm leading-6 text-ink-700">
-                  Generate a crop calendar and it will be saved locally here automatically.
+                  {t('Generate a crop calendar and it will be saved locally here automatically.')}
                 </Text>
               </SectionCard>
             ) : (

@@ -7,16 +7,21 @@ import { guideCategoryMeta, guideData } from '../data';
 import { GuideCategoryCard } from '../components/GuideCategoryCard';
 import { GuideCollectionKey } from '../types';
 import { GuideStackParamList } from '../navigation/GuideNavigator';
+import { useAppLanguage } from '../../../localization/appLanguage';
 
 type GuideHomeScreenProps = NativeStackScreenProps<GuideStackParamList, 'GuideHome'>;
 
 export function GuideHomeScreen({ navigation }: GuideHomeScreenProps) {
+  const { t } = useAppLanguage();
+
   return (
     <ScreenContainer bottomSpacing="comfortable">
       <HeaderBlock
-        eyebrow="Guide Module"
-        title="Palay field guide"
-        description="Browse palay varieties, pests, and diseases with clear notes and field reference photos."
+        eyebrow={t('Guide Module')}
+        title={t('Palay field guide')}
+        description={t(
+          'Browse palay varieties, pests, and diseases with clear notes and field reference photos.',
+        )}
       />
 
       <View className="gap-4">
@@ -25,13 +30,13 @@ export function GuideHomeScreen({ navigation }: GuideHomeScreenProps) {
             key={section.key}
             category={section.category}
             count={guideData[section.key].length}
-            description={section.description}
+            description={t(section.description)}
             onPress={() =>
               navigation.navigate('GuideList', {
                 categoryKey: section.key as GuideCollectionKey,
               })
             }
-            title={section.title}
+            title={t(section.title)}
           />
         ))}
       </View>

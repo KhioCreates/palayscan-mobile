@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image, ImageSourcePropType, Pressable, View, Text } from 'react-native';
 
+import { useAppLanguage } from '../../../localization/appLanguage';
 import { GuideCategory } from '../types';
 
 type GuideEntryVisualProps = {
@@ -65,6 +66,7 @@ export function GuideEntryVisual({
   onOpenImage,
   showZoomHint = false,
 }: GuideEntryVisualProps) {
+  const { t } = useAppLanguage();
   const config = visualConfig[category];
   const isDetail = size === 'detail';
   const shouldUseCompactPlaceholder = isDetail && compactPlaceholder;
@@ -86,7 +88,7 @@ export function GuideEntryVisual({
         {showZoomHint ? (
           <View className="absolute bottom-3 right-3 flex-row items-center gap-1.5 rounded-full bg-ink-900/80 px-3 py-2">
             <Ionicons color="#ffffff" name="expand-outline" size={14} />
-            <Text className="text-xs font-semibold text-white">Tap to zoom</Text>
+            <Text className="text-xs font-semibold text-white">{t('Tap to zoom')}</Text>
           </View>
         ) : null}
       </>
@@ -100,8 +102,8 @@ export function GuideEntryVisual({
       >
         {onOpenImage ? (
           <Pressable
-            accessibilityHint="Opens this guide image in a larger viewer"
-            accessibilityLabel={`Open ${title} image`}
+            accessibilityHint={t('Opens this guide image in a larger viewer')}
+            accessibilityLabel={t('Open {title} image', { title })}
             accessibilityRole="imagebutton"
             className="h-full w-full active:opacity-90"
             onPress={onOpenImage}
@@ -145,11 +147,11 @@ export function GuideEntryVisual({
               </View>
               <View className="flex-1">
                 <Text className="text-sm font-semibold uppercase tracking-[1.1px] text-brand-700">
-                  {resolvedBadge}
+                  {t(resolvedBadge)}
                 </Text>
-                <Text className="mt-1 text-lg font-semibold text-ink-900">{config.label}</Text>
+                <Text className="mt-1 text-lg font-semibold text-ink-900">{t(config.label)}</Text>
                 <Text className="mt-1 text-sm leading-5 text-ink-700">
-                  {visualHint ?? config.helper}
+                  {t(visualHint ?? config.helper)}
                 </Text>
               </View>
             </View>
@@ -170,9 +172,9 @@ export function GuideEntryVisual({
               <Ionicons color="#2d6033" name={config.icon} size={28} />
             </View>
             <View>
-              <Text className="text-base font-semibold text-ink-900">{config.label}</Text>
+              <Text className="text-base font-semibold text-ink-900">{t(config.label)}</Text>
               <Text className="mt-1 text-sm leading-5 text-ink-700">
-                {visualHint ?? config.helper}
+                {t(visualHint ?? config.helper)}
               </Text>
             </View>
           </View>
@@ -187,7 +189,7 @@ export function GuideEntryVisual({
               <View className="h-1.5 w-1/2 rounded-full bg-brand-100" />
             </View>
             <Text className="mt-2 text-center text-[10px] font-semibold uppercase leading-4 tracking-[0.8px] text-brand-800">
-              {resolvedBadge}
+              {t(resolvedBadge)}
             </Text>
           </>
         )}

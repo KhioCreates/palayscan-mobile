@@ -3,6 +3,7 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useAppLanguage } from '../localization/appLanguage';
 import { RootTabParamList } from './RootNavigator';
 
 const tabIcons: Record<keyof RootTabParamList, keyof typeof Ionicons.glyphMap> = {
@@ -13,16 +14,9 @@ const tabIcons: Record<keyof RootTabParamList, keyof typeof Ionicons.glyphMap> =
   More: 'grid-outline',
 };
 
-const tabLabels: Record<keyof RootTabParamList, string> = {
-  Home: 'Home',
-  Guide: 'Guide',
-  Scan: 'Scan',
-  Planner: 'Planner',
-  More: 'More',
-};
-
 export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
+  const { t } = useAppLanguage();
 
   return (
     <View
@@ -43,7 +37,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
         <View className="flex-row items-end justify-between">
           {state.routes.map((route, index) => {
             const isFocused = state.index === index;
-            const label = tabLabels[route.name as keyof RootTabParamList];
+            const label = t(route.name as keyof RootTabParamList);
             const iconName = tabIcons[route.name as keyof RootTabParamList];
             const isScan = route.name === 'Scan';
 

@@ -1,3 +1,5 @@
+import { getScanClientId } from './scanClientIdentity';
+
 const kindwiseConfig = {
   apiUrl: process.env.EXPO_PUBLIC_KINDWISE_API_URL,
   apiKey: process.env.EXPO_PUBLIC_KINDWISE_API_KEY,
@@ -82,10 +84,13 @@ export async function identifyRiceIssueFromBase64Images(base64Images: string[]) 
   const proxyConfig = getScanProxyConfig();
 
   if (proxyConfig) {
+    const clientId = await getScanClientId();
+
     logKindwiseDebug('proxy request url', proxyConfig.apiUrl);
     logKindwiseDebug('proxy key present', Boolean(proxyConfig.apiKey));
     logKindwiseDebug('proxy request body summary', {
       details: cropHealthDetails,
+      clientId,
       imagesCount: base64Images.length,
       imageBase64Lengths: base64Images.map((image) => image.length),
     });
@@ -97,6 +102,7 @@ export async function identifyRiceIssueFromBase64Images(base64Images: string[]) 
         ...(proxyConfig.apiKey ? { Authorization: `Bearer ${proxyConfig.apiKey}` } : {}),
       },
       body: JSON.stringify({
+        clientId,
         details: cropHealthDetails,
         images: base64Images,
         language: 'en',

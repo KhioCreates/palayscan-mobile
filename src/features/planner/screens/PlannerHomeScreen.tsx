@@ -11,6 +11,7 @@ import { HeaderBlock } from '../../../components/ui/HeaderBlock';
 import { PrimaryButton } from '../../../components/ui/PrimaryButton';
 import { ScreenContainer } from '../../../components/ui/ScreenContainer';
 import { SectionCard } from '../../../components/ui/SectionCard';
+import { useAppLanguage } from '../../../localization/appLanguage';
 import {
   cropDurationOptions,
   DEFAULT_CROP_DURATION_DAYS,
@@ -29,6 +30,7 @@ import { CropDurationOption, PlantingMethod, SavedPlannerRecord } from '../types
 type PlannerHomeScreenProps = NativeStackScreenProps<PlannerNavigatorParamList, 'PlannerHome'>;
 
 export function PlannerHomeScreen({ navigation }: PlannerHomeScreenProps) {
+  const { t } = useAppLanguage();
   const [selectedMethod, setSelectedMethod] = useState<PlantingMethod>('transplanting');
   const [selectedDurationOption, setSelectedDurationOption] =
     useState<CropDurationOption>('medium');
@@ -126,9 +128,9 @@ export function PlannerHomeScreen({ navigation }: PlannerHomeScreenProps) {
   return (
     <ScreenContainer bottomSpacing="comfortable">
       <HeaderBlock
-        eyebrow="Planner Module"
-        title="Plan the next field work"
-        description="Build a rice crop calendar, check upcoming work, and keep saved activities ready for offline field review."
+        eyebrow={t('Planner Module')}
+        title={t('Plan the next field work')}
+        description={t('Build a rice crop calendar, check upcoming work, and keep saved activities ready for offline field review.')}
       />
 
       <View className="gap-4">
@@ -139,13 +141,13 @@ export function PlannerHomeScreen({ navigation }: PlannerHomeScreenProps) {
               cropDurationDays={latestRecord.cropDurationDays}
               cropDurationLabel={latestRecord.cropDurationLabel}
               plantingDate={latestRecord.plantingDate}
-              title="Latest saved plan"
+              title={t('Latest saved plan')}
             />
 
             <PrimaryButton
-              hint="Open the latest saved crop calendar and update task status."
+              hint={t('Open the latest saved crop calendar and update task status.')}
               icon={<Ionicons color="white" name="arrow-forward-outline" size={22} />}
-              label="Open latest calendar"
+              label={t('Open latest calendar')}
               onPress={handleOpenLatestSchedule}
             />
           </View>
@@ -158,9 +160,9 @@ export function PlannerHomeScreen({ navigation }: PlannerHomeScreenProps) {
                 <Ionicons color="#2d6033" name="options-outline" size={22} />
               </View>
               <View className="flex-1">
-                <Text className="text-lg font-semibold text-ink-900">Crop plan setup</Text>
+                <Text className="text-lg font-semibold text-ink-900">{t('Crop plan setup')}</Text>
                 <Text className="mt-1 text-sm leading-6 text-ink-700">
-                  Start with the planting method used in the field.
+                  {t('Start with the planting method used in the field.')}
                 </Text>
               </View>
             </View>
@@ -185,9 +187,9 @@ export function PlannerHomeScreen({ navigation }: PlannerHomeScreenProps) {
                 <Ionicons color="#2d6033" name="calendar-outline" size={22} />
               </View>
               <View className="flex-1">
-                <Text className="text-lg font-semibold text-ink-900">Planting date</Text>
+                <Text className="text-lg font-semibold text-ink-900">{t('Planting date')}</Text>
                 <Text className="mt-1 text-sm leading-6 text-ink-700">
-                  This date becomes day 0 for the task timeline.
+                  {t('This date becomes day 0 for the task timeline.')}
                 </Text>
               </View>
             </View>
@@ -199,7 +201,7 @@ export function PlannerHomeScreen({ navigation }: PlannerHomeScreenProps) {
               <View className="flex-1 pr-3">
                 <Text className="text-base font-semibold text-ink-900">{selectedDateLabel}</Text>
                 <Text className="mt-1 text-sm text-ink-700">
-                  Tap to change the planting date used for the schedule.
+                  {t('Tap to change the planting date used for the schedule.')}
                 </Text>
               </View>
               <Ionicons color="#2d6033" name="calendar-outline" size={22} />
@@ -223,9 +225,9 @@ export function PlannerHomeScreen({ navigation }: PlannerHomeScreenProps) {
                 <Ionicons color="#2d6033" name="time-outline" size={22} />
               </View>
               <View className="flex-1">
-                <Text className="text-lg font-semibold text-ink-900">Rice variety duration</Text>
+                <Text className="text-lg font-semibold text-ink-900">{t('Rice variety duration')}</Text>
                 <Text className="mt-1 text-sm leading-6 text-ink-700">
-                  Adjust harvest timing based on the variety days to maturity.
+                  {t('Adjust harvest timing based on the variety days to maturity.')}
                 </Text>
               </View>
             </View>
@@ -248,12 +250,12 @@ export function PlannerHomeScreen({ navigation }: PlannerHomeScreenProps) {
                         selected ? 'text-white' : 'text-brand-800'
                       }`}
                     >
-                      {option.title}
+                      {t(option.title)}
                     </Text>
                     <Text
                       className={`mt-1 text-xs ${selected ? 'text-white/90' : 'text-ink-700'}`}
                     >
-                      {option.days} days
+                      {t('{days} days', { days: option.days })}
                     </Text>
                   </Pressable>
                 );
@@ -273,21 +275,21 @@ export function PlannerHomeScreen({ navigation }: PlannerHomeScreenProps) {
                     selectedDurationOption === 'custom' ? 'text-white' : 'text-brand-800'
                   }`}
                 >
-                  Custom
+                  {t('Custom')}
                 </Text>
                 <Text
                   className={`mt-1 text-xs ${
                     selectedDurationOption === 'custom' ? 'text-white/90' : 'text-ink-700'
                   }`}
                 >
-                  {selectedDurationDays} days
+                  {t('{days} days', { days: selectedDurationDays })}
                 </Text>
               </Pressable>
             </View>
 
             {selectedDurationOption === 'custom' ? (
               <View className="rounded-[20px] bg-brand-50 p-4">
-                <Text className="text-sm font-semibold text-ink-900">Custom maturity days</Text>
+                <Text className="text-sm font-semibold text-ink-900">{t('Custom maturity days')}</Text>
                 <TextInput
                   className="mt-3 rounded-[16px] bg-white px-4 py-3 text-base font-semibold text-ink-900"
                   keyboardType="number-pad"
@@ -298,8 +300,10 @@ export function PlannerHomeScreen({ navigation }: PlannerHomeScreenProps) {
                   value={customDurationText}
                 />
                 <Text className="mt-2 text-xs leading-5 text-ink-700">
-                  Use {MIN_CROP_DURATION_DAYS}-{MAX_CROP_DURATION_DAYS} days. Harvest will move
-                  with this value.
+                  {t('Use {min}-{max} days. Harvest will move with this value.', {
+                    min: MIN_CROP_DURATION_DAYS,
+                    max: MAX_CROP_DURATION_DAYS,
+                  })}
                 </Text>
               </View>
             ) : null}
@@ -313,25 +317,24 @@ export function PlannerHomeScreen({ navigation }: PlannerHomeScreenProps) {
                 <Ionicons color="#2d6033" name="checkmark-done-outline" size={22} />
               </View>
               <View className="flex-1">
-                <Text className="text-lg font-semibold text-ink-900">Work plan included</Text>
+                <Text className="text-lg font-semibold text-ink-900">{t('Work plan included')}</Text>
                 <Text className="mt-1 text-sm leading-6 text-ink-700">
-                  Land prep, seed prep, planting, fertilizer, water checks, scouting, and harvest.
+                  {t('Land prep, seed prep, planting, fertilizer, water checks, scouting, and harvest.')}
                 </Text>
               </View>
             </View>
             <View className="rounded-[20px] bg-white/75 p-4">
               <Text className="text-sm leading-6 text-ink-700">
-                Dates are estimates. You can open the saved calendar later, mark tasks done, and
-                adjust activity dates from planner history.
+                {t('Dates are estimates. You can open the saved calendar later, mark tasks done, and adjust activity dates from planner history.')}
               </Text>
             </View>
           </View>
         </SectionCard>
 
         <PrimaryButton
-          hint="Generate and save an estimated local crop calendar."
+          hint={t('Generate and save an estimated local crop calendar.')}
           icon={<Ionicons color="white" name="calendar-number-outline" size={22} />}
-          label="Generate calendar"
+          label={t('Generate calendar')}
           onPress={handleGenerateSchedule}
         />
       </View>

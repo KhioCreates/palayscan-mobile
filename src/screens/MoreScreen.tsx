@@ -1,4 +1,4 @@
-import { ComponentProps, useCallback, useState } from 'react';
+import { ComponentProps, useCallback, useEffect, useState } from 'react';
 
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -9,7 +9,9 @@ import { HeaderBlock } from '../components/ui/HeaderBlock';
 import { ScreenContainer } from '../components/ui/ScreenContainer';
 import { SectionCard } from '../components/ui/SectionCard';
 import { getPlannerHistory } from '../features/planner/services/plannerStorage';
+import { getScanClientId } from '../features/scan/services/scanClientIdentity';
 import { getScanHistory } from '../features/scan/services/scanStorage';
+import { useAppLanguage, type AppLanguage } from '../localization/appLanguage';
 import { RootStackParamList } from '../navigation/RootNavigator';
 
 type MoreRouteName =
@@ -85,6 +87,8 @@ const moreSections: MoreSection[] = [
 ];
 
 function MoreListRow({ item, onPress }: { item: MoreItem; onPress: () => void }) {
+  const { t } = useAppLanguage();
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -95,8 +99,8 @@ function MoreListRow({ item, onPress }: { item: MoreItem; onPress: () => void })
         <Ionicons color="#2d6033" name={item.icon} size={21} />
       </View>
       <View className="flex-1">
-        <Text className="text-base font-semibold text-ink-900">{item.title}</Text>
-        <Text className="mt-1 text-xs leading-5 text-ink-700">{item.description}</Text>
+        <Text className="text-base font-semibold text-ink-900">{t(item.title)}</Text>
+        <Text className="mt-1 text-xs leading-5 text-ink-700">{t(item.description)}</Text>
       </View>
       <Ionicons color="#2d6033" name="chevron-forward" size={19} />
     </Pressable>
@@ -114,14 +118,16 @@ function MoreSectionGroup({
   section: MoreSection;
   onNavigate: (route: MoreRouteName) => void;
 }) {
+  const { t } = useAppLanguage();
+
   return (
     <SectionCard>
       <View className="gap-3">
         <View>
           <Text className="text-sm font-semibold uppercase tracking-[2px] text-brand-700">
-            {section.title}
+            {t(section.title)}
           </Text>
-          <Text className="mt-2 text-sm leading-6 text-ink-700">{section.description}</Text>
+          <Text className="mt-2 text-sm leading-6 text-ink-700">{t(section.description)}</Text>
         </View>
 
         {section.items.map((item) => (
@@ -132,8 +138,97 @@ function MoreSectionGroup({
   );
 }
 
+function LanguageCard() {
+  const { language, setLanguage, t } = useAppLanguage();
+
+  const options: Array<{ code: AppLanguage; label: string }> = [
+    { code: 'en', label: t('English') },
+    { code: 'fil', label: t('Filipino') },
+  ];
+
+  return (
+    <SectionCard tone="muted">
+      <View className="gap-3">
+        <View className="flex-row items-start gap-3">
+          <View className="h-11 w-11 items-center justify-center rounded-full bg-white">
+            <Ionicons color="#2d6033" name="language-outline" size={21} />
+          </View>
+          <View className="flex-1">
+            <Text className="text-base font-semibold text-ink-900">{t('Language / Wika')}</Text>
+            <Text className="mt-1 text-sm leading-6 text-ink-700">
+              {t('Choose your app language.')}
+            </Text>
+          </View>
+        </View>
+
+        <View className="flex-row rounded-[18px] bg-white p-1">
+          {options.map((option) => {
+            const selected = language === option.code;
+
+            return (
+              <Pressable
+                accessibilityRole="button"
+                className={`flex-1 items-center rounded-[14px] px-3 py-3 ${
+                  selected ? 'bg-brand-600' : 'bg-transparent'
+                }`}
+                key={option.code}
+                onPress={() => setLanguage(option.code)}
+              >
+                <Text className={`text-sm font-semibold ${selected ? 'text-white' : 'text-ink-700'}`}>
+                  {option.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+    </SectionCard>
+  );
+}
+
+function DeviceCodeCard() {
+  const { t } = useAppLanguage();
+  const [deviceCode, setDeviceCode] = useState('');
+
+  useEffect(() => {
+    let active = true;
+
+    getScanClientId().then((clientId) => {
+      if (active) {
+        setDeviceCode(clientId);
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  return (
+    <SectionCard>
+      <View className="flex-row items-start gap-3">
+        <View className="h-11 w-11 items-center justify-center rounded-full bg-brand-50">
+          <Ionicons color="#2d6033" name="key-outline" size={21} />
+        </View>
+        <View className="flex-1">
+          <Text className="text-base font-semibold text-ink-900">{t('Device code')}</Text>
+          <Text className="mt-1 text-sm leading-6 text-ink-700">
+            {t('Use this code when requesting more scans.')}
+          </Text>
+          <View className="mt-3 rounded-[16px] bg-brand-50 px-4 py-3">
+            <Text selectable className="text-sm font-semibold text-brand-800">
+              {deviceCode || t('Loading code')}
+            </Text>
+          </View>
+        </View>
+      </View>
+    </SectionCard>
+  );
+}
+
 export function MoreScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { t } = useAppLanguage();
   const [scanRecordCount, setScanRecordCount] = useState(0);
   const [plannerRecordCount, setPlannerRecordCount] = useState(0);
   const totalRecordCount = scanRecordCount + plannerRecordCount;
@@ -189,9 +284,9 @@ export function MoreScreen() {
   return (
     <ScreenContainer bottomSpacing="roomy">
       <HeaderBlock
-        eyebrow="More"
-        title="Records and Help"
-        description="Find saved scans, crop calendars, privacy notes, and app references."
+        eyebrow={t('More')}
+        title={t('Records and Help')}
+        description={t('Find saved scans, crop calendars, privacy notes, and app references.')}
       />
 
       <Pressable
@@ -205,7 +300,7 @@ export function MoreScreen() {
           </View>
           <View className="flex-1">
             <Text className="text-xs font-semibold uppercase tracking-[2px] text-white/80">
-              Saved Records
+              {t('Saved Records')}
             </Text>
             <Text className="mt-2 text-2xl font-semibold text-white">{savedRecordLabel}</Text>
             <Text className="mt-2 text-sm leading-6 text-white/85">{savedRecordSummary}</Text>
@@ -213,6 +308,14 @@ export function MoreScreen() {
           <Ionicons color="white" name="chevron-forward" size={24} />
         </View>
       </Pressable>
+
+      <View className="mt-5">
+        <LanguageCard />
+      </View>
+
+      <View className="mt-5">
+        <DeviceCodeCard />
+      </View>
 
       <View className="mt-5 gap-4">
         {moreSections.map((section) => (

@@ -1,4 +1,4 @@
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { NavigationContainer, useNavigation, type NavigatorScreenParams } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -8,7 +8,7 @@ import { DataPrivacyScreen } from '../screens/DataPrivacyScreen';
 import { PlannerDisclaimerScreen } from '../screens/PlannerDisclaimerScreen';
 import { ReferencesScreen } from '../screens/ReferencesScreen';
 import { ScanDisclaimerScreen } from '../screens/ScanDisclaimerScreen';
-import { GuideNavigator } from '../features/guide/navigation/GuideNavigator';
+import { GuideNavigator, type GuideStackParamList } from '../features/guide/navigation/GuideNavigator';
 import { PlannerNavigator } from '../features/planner/navigation/PlannerNavigator';
 import { PlannerHistoryDetailScreen } from '../features/planner/screens/PlannerHistoryDetailScreen';
 import { ScanHistoryDetailScreen } from '../features/scan/screens/ScanHistoryDetailScreen';
@@ -18,11 +18,12 @@ import { ScanMode, ScanResult } from '../features/scan/types';
 import { HistoryScreen } from '../screens/HistoryScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { MoreScreen } from '../screens/MoreScreen';
+import { useAppLanguage } from '../localization/appLanguage';
 import { CustomTabBar } from './CustomTabBar';
 
 export type RootTabParamList = {
   Home: undefined;
-  Guide: undefined;
+  Guide: NavigatorScreenParams<GuideStackParamList> | undefined;
   Scan: undefined;
   Planner: undefined;
   More: undefined;
@@ -60,8 +61,14 @@ function MainTabs() {
       tabBar={(props) => <CustomTabBar {...props} />}
     >
       <Tab.Screen name="Home">
-        {() => (
+        {({ navigation }) => (
           <HomeScreen
+            openGuideSection={(categoryKey) =>
+              navigation.navigate('Guide', {
+                screen: 'GuideList',
+                params: { categoryKey },
+              })
+            }
             openPlannerRecord={(recordId) =>
               rootNavigation.navigate('PlannerHistoryDetail', { recordId })
             }
@@ -77,6 +84,8 @@ function MainTabs() {
 }
 
 export function RootNavigator() {
+  const { t } = useAppLanguage();
+
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -98,63 +107,63 @@ export function RootNavigator() {
           component={HistoryScreen}
           name="History"
           options={{
-            title: 'History',
+            title: t('History'),
           }}
         />
         <Stack.Screen
           component={AboutScreen}
           name="About"
           options={{
-            title: 'About PALAYSCAN',
+            title: t('About PALAYSCAN'),
           }}
         />
         <Stack.Screen
           component={DataPrivacyScreen}
           name="DataPrivacy"
           options={{
-            title: 'Data Privacy',
+            title: t('Data Privacy'),
           }}
         />
         <Stack.Screen
           component={ScanDisclaimerScreen}
           name="ScanDisclaimer"
           options={{
-            title: 'Scan Disclaimer',
+            title: t('Scan Disclaimer'),
           }}
         />
         <Stack.Screen
           component={PlannerDisclaimerScreen}
           name="PlannerDisclaimer"
           options={{
-            title: 'Planner Disclaimer',
+            title: t('Planner Disclaimer'),
           }}
         />
         <Stack.Screen
           component={ReferencesScreen}
           name="References"
           options={{
-            title: 'References and Basis',
+            title: t('Reference Sources'),
           }}
         />
         <Stack.Screen
           component={ScanHistoryDetailScreen}
           name="ScanHistoryDetail"
           options={{
-            title: 'Scan History Detail',
+            title: t('Scan History Detail'),
           }}
         />
         <Stack.Screen
           component={ScanResultDetailScreen}
           name="ScanResultDetail"
           options={{
-            title: 'Scan Result Detail',
+            title: t('Scan Result Detail'),
           }}
         />
         <Stack.Screen
           component={PlannerHistoryDetailScreen}
           name="PlannerHistoryDetail"
           options={{
-            title: 'Planner History Detail',
+            title: t('Planner History Detail'),
           }}
         />
       </Stack.Navigator>

@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "palayscan-scan-proxy",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-04-28",
+  "kv_namespaces": [
+    {
+      "binding": "PALAYSCAN_SCAN_KV",
+      "id": "replace_with_cloudflare_kv_namespace_id"
+    }
+  ],
+  "vars": {
+    "KINDWISE_API_URL": "https://crop.kindwise.com/api/v1",
+    "SCAN_BETA_STATUS": "open",
+    "SCAN_DEFAULT_QUOTA": "5",
+    "SCAN_MAX_IMAGES": "5",
+    "SCAN_MAX_IMAGE_BYTES": "5242880"
+  }
+}

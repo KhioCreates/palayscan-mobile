@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import { HeaderBlock } from '../components/ui/HeaderBlock';
 import { ScreenContainer } from '../components/ui/ScreenContainer';
 import { SectionCard } from '../components/ui/SectionCard';
+import { useAppLanguage } from '../localization/appLanguage';
 
 const plannerCards = [
   'Choose planting method: Lipat-Tanim or Sabog-Tanim',
@@ -12,18 +13,20 @@ const plannerCards = [
 ];
 
 export function PlannerScreen() {
+  const { t } = useAppLanguage();
+
   return (
     <ScreenContainer>
       <HeaderBlock
-        eyebrow="Planner Module"
-        title="Set up your rice activity timeline"
-        description="This foundation screen marks where the local planning workflow will live."
+        eyebrow={t('Planner Module')}
+        title={t('Set up your rice activity timeline')}
+        description={t('Create a local rice activity schedule from planting to harvest.')}
       />
 
       <View className="gap-4">
         {plannerCards.map((item) => (
           <SectionCard key={item}>
-            <Text className="text-base leading-7 text-ink-700">{item}</Text>
+            <Text className="text-base leading-7 text-ink-700">{t(item)}</Text>
           </SectionCard>
         ))}
       </View>

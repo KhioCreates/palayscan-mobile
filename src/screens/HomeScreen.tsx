@@ -1,15 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useMemo, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 
 import { ScreenContainer } from '../components/ui/ScreenContainer';
 import { SectionCard } from '../components/ui/SectionCard';
 import { getPlannerHistory } from '../features/planner/services/plannerStorage';
 import { PlannedActivity, SavedPlannerRecord } from '../features/planner/types';
 import { formatDate, fromIsoDate } from '../features/planner/utils/date';
+import { GuideCollectionKey } from '../features/guide/types';
+import { useAppLanguage, type Translator } from '../localization/appLanguage';
 
 type HomeScreenProps = {
+  openGuideSection: (categoryKey: GuideCollectionKey) => void;
   openPlannerRecord: (recordId: string) => void;
 };
 
@@ -39,10 +42,16 @@ type UpcomingActivitySummary = {
 };
 
 const guideStats = [
-  { label: 'Palay varieties', value: '15' },
-  { label: 'Pests', value: '15' },
-  { label: 'Diseases', value: '15' },
-];
+  { categoryKey: 'varieties', labelKey: 'Palay varieties', value: '15' },
+  { categoryKey: 'pests', labelKey: 'Pests', value: '15' },
+  { categoryKey: 'diseases', labelKey: 'Diseases', value: '15' },
+] satisfies Array<{
+  categoryKey: GuideCollectionKey;
+  labelKey: string;
+  value: string;
+}>;
+
+const palayscanLogo = require('../../assets/brand/palayscan-logo.png');
 
 const dayInMs = 1000 * 60 * 60 * 24;
 
@@ -56,12 +65,20 @@ function getDaysBetween(firstDate: Date, secondDate: Date) {
   return Math.round((normalizeDate(firstDate).getTime() - normalizeDate(secondDate).getTime()) / dayInMs);
 }
 
-function getPlannerDashboardItem(records: SavedPlannerRecord[]): PlannerDashboardItem {
+function getRelativeDayLabel(daysAway: number, t: Translator) {
+  if (daysAway === 0) {
+    return t('Today');
+  }
+
+  return daysAway === 1 ? t('Tomorrow') : t('In {days} days', { days: daysAway });
+}
+
+function getPlannerDashboardItem(records: SavedPlannerRecord[], t: Translator): PlannerDashboardItem {
   if (records.length === 0) {
     return {
-      statusLabel: 'Not set',
-      title: 'No crop calendar yet',
-      description: 'Create one in Planner to see your next farm activity here.',
+      statusLabel: t('Not set'),
+      title: t('No crop calendar yet'),
+      description: t('Create one in Planner to see your next farm activity here.'),
     };
   }
 
@@ -83,9 +100,9 @@ function getPlannerDashboardItem(records: SavedPlannerRecord[]): PlannerDashboar
     return {
       activity: activeActivity.activity,
       recordId: activeActivity.record.id,
-      recordTitle: activeActivity.record.title,
-      statusLabel: 'Today',
-      title: activeActivity.activity.title,
+      recordTitle: t(activeActivity.record.title),
+      statusLabel: t('Today'),
+      title: t(activeActivity.activity.title),
       description: activeActivity.activity.windowLabel,
     };
   }
@@ -100,9 +117,9 @@ function getPlannerDashboardItem(records: SavedPlannerRecord[]): PlannerDashboar
     return {
       activity: nextActivity.activity,
       recordId: nextActivity.record.id,
-      recordTitle: nextActivity.record.title,
-      statusLabel: daysAway === 1 ? 'Tomorrow' : `In ${daysAway} days`,
-      title: nextActivity.activity.title,
+      recordTitle: t(nextActivity.record.title),
+      statusLabel: getRelativeDayLabel(daysAway, t),
+      title: t(nextActivity.activity.title),
       description: nextActivity.activity.windowLabel,
     };
   }
@@ -111,10 +128,12 @@ function getPlannerDashboardItem(records: SavedPlannerRecord[]): PlannerDashboar
 
   return {
     recordId: latestRecord.id,
-    recordTitle: latestRecord.title,
-    statusLabel: 'Complete',
-    title: 'Crop calendar completed',
-    description: `Last planting date: ${formatDate(fromIsoDate(latestRecord.plantingDate))}`,
+    recordTitle: t(latestRecord.title),
+    statusLabel: t('Complete'),
+    title: t('Crop calendar completed'),
+    description: t('Last planting date: {date}', {
+      date: formatDate(fromIsoDate(latestRecord.plantingDate)),
+    }),
   };
 }
 
@@ -134,7 +153,11 @@ function getPlannerDashboardSummary(records: SavedPlannerRecord[]): PlannerDashb
   };
 }
 
-function getUpcomingActivityItems(records: SavedPlannerRecord[], limit = 3): UpcomingActivitySummary[] {
+function getUpcomingActivityItems(
+  records: SavedPlannerRecord[],
+  t: Translator,
+  limit = 3,
+): UpcomingActivitySummary[] {
   const today = normalizeDate(new Date());
 
   return records
@@ -150,10 +173,10 @@ function getUpcomingActivityItems(records: SavedPlannerRecord[], limit = 3): Upc
           recordId: record.id,
           startDate,
           endDate,
-          statusLabel: activeToday ? 'Today' : daysAway === 1 ? 'Tomorrow' : `In ${daysAway} days`,
-          title: activity.title,
+          statusLabel: activeToday ? t('Today') : getRelativeDayLabel(daysAway, t),
+          title: t(activity.title),
           windowLabel: activity.windowLabel,
-          recordTitle: record.title,
+          recordTitle: t(record.title),
         };
       }),
     )
@@ -162,7 +185,8 @@ function getUpcomingActivityItems(records: SavedPlannerRecord[], limit = 3): Upc
     .slice(0, limit);
 }
 
-export function HomeScreen({ openPlannerRecord }: HomeScreenProps) {
+export function HomeScreen({ openGuideSection, openPlannerRecord }: HomeScreenProps) {
+  const { t } = useAppLanguage();
   const [plannerRecords, setPlannerRecords] = useState<SavedPlannerRecord[]>([]);
   const [selectedPlannerInsight, setSelectedPlannerInsight] = useState<PlannerInsight>('activities');
   const [selectedPlannerRecordId, setSelectedPlannerRecordId] = useState<string | null>(null);
@@ -197,16 +221,16 @@ export function HomeScreen({ openPlannerRecord }: HomeScreenProps) {
     [plannerRecords, selectedPlannerRecord],
   );
   const plannerDashboardItem = useMemo(
-    () => getPlannerDashboardItem(focusedPlannerRecords),
-    [focusedPlannerRecords],
+    () => getPlannerDashboardItem(focusedPlannerRecords, t),
+    [focusedPlannerRecords, t],
   );
   const plannerDashboardSummary = useMemo(
     () => getPlannerDashboardSummary(focusedPlannerRecords),
     [focusedPlannerRecords],
   );
   const upcomingActivityItems = useMemo(
-    () => getUpcomingActivityItems(focusedPlannerRecords),
-    [focusedPlannerRecords],
+    () => getUpcomingActivityItems(focusedPlannerRecords, t),
+    [focusedPlannerRecords, t],
   );
   const recentCalendars = useMemo(() => plannerRecords.slice(0, 3), [plannerRecords]);
 
@@ -220,39 +244,49 @@ export function HomeScreen({ openPlannerRecord }: HomeScreenProps) {
           <View className="absolute -bottom-6 -left-20 -right-14 h-28 rounded-t-[100px] border-t border-white/10 bg-brand-500/20" />
           <View className="absolute bottom-8 -left-10 -right-24 h-20 rounded-t-[80px] border-t border-earth-300/20 bg-earth-300/10" />
           <View className="absolute bottom-24 right-8 h-16 w-16 rounded-full bg-earth-300/10" />
-          <View className="absolute right-5 top-5 h-12 w-12 items-center justify-center rounded-full bg-white/10">
-            <Ionicons color="rgba(255,255,255,0.72)" name="leaf-outline" size={22} />
-          </View>
 
-          <View className="relative z-10 max-w-[315px] gap-4">
-            <View className="flex-row items-center gap-3">
-              <View className="h-14 w-14 items-center justify-center rounded-[22px] border border-white/15 bg-white/15">
-                <Ionicons color="white" name="scan-outline" size={26} />
+          <View className="relative z-10 items-center gap-4">
+            <View className="items-center gap-3">
+              <View className="h-20 w-20 items-center justify-center">
+                <Image
+                  accessibilityIgnoresInvertColors
+                  accessibilityLabel="PALAYSCAN logo"
+                  className="h-20 w-20"
+                  resizeMode="contain"
+                  source={palayscanLogo}
+                />
               </View>
-              <View className="flex-1">
-                <Text className="text-[30px] font-bold leading-9 tracking-[1px] text-white">
+              <View className="items-center">
+                <Text className="text-center text-[32px] font-bold leading-10 tracking-[1px] text-white">
                   PALAYSCAN
                 </Text>
-                <Text className="mt-1 text-sm font-semibold uppercase tracking-[1.8px] text-white opacity-90">
-                  Scan. Guide. Plan.
+                <Text className="mt-1 text-center text-sm font-semibold uppercase tracking-[1.8px] text-white opacity-90">
+                  {t('Scan. Guide. Plan.')}
                 </Text>
               </View>
             </View>
-
-            <Text className="text-base leading-6 text-white opacity-90">
-              Rice support for field checking and estimated farm activities.
-            </Text>
           </View>
 
           <View className="relative z-10 mt-5 flex-row gap-3">
             {guideStats.map((stat) => (
-              <View
-                className="flex-1 rounded-[20px] border border-white/10 bg-white/15 px-3 py-3"
-                key={stat.label}
+              <Pressable
+                accessibilityHint={t('Opens this guide section')}
+                accessibilityLabel={t('Open {section} guide section', {
+                  section: t(stat.labelKey),
+                })}
+                accessibilityRole="button"
+                className="min-h-[76px] flex-1 rounded-[20px] border border-white/10 bg-white/15 px-3 py-3 active:bg-white/20"
+                key={stat.labelKey}
+                onPress={() => openGuideSection(stat.categoryKey)}
               >
-                <Text className="text-xl font-bold text-white">{stat.value}</Text>
-                <Text className="mt-1 text-xs leading-4 text-white opacity-90">{stat.label}</Text>
-              </View>
+                <View className="flex-row items-start justify-between gap-2">
+                  <Text className="text-xl font-bold text-white">{stat.value}</Text>
+                  <Ionicons color="rgba(255,255,255,0.82)" name="chevron-forward" size={15} />
+                </View>
+                <Text className="mt-1 text-xs leading-4 text-white opacity-90">
+                  {t(stat.labelKey)}
+                </Text>
+              </Pressable>
             ))}
           </View>
         </View>
@@ -266,7 +300,7 @@ export function HomeScreen({ openPlannerRecord }: HomeScreenProps) {
                   </View>
                   <View className="flex-1">
                     <Text className="text-xs font-semibold uppercase tracking-[1.5px] text-brand-700">
-                      Planner reminder
+                      {t('Planner reminder')}
                     </Text>
                     <Text className="mt-1 text-xl font-bold text-ink-900">
                       {plannerDashboardItem.title}
@@ -300,8 +334,8 @@ export function HomeScreen({ openPlannerRecord }: HomeScreenProps) {
                       </Text>
                       <Text className="mt-1 text-xs leading-5 text-ink-700">
                         {selectedPlannerRecord
-                          ? 'Focused calendar. Tap to open full details.'
-                          : 'Tap to open this saved crop calendar.'}
+                          ? t('Focused calendar. Tap to open full details.')
+                          : t('Tap to open this saved crop calendar.')}
                       </Text>
                     </View>
                     {selectedPlannerRecord ? (
@@ -313,7 +347,9 @@ export function HomeScreen({ openPlannerRecord }: HomeScreenProps) {
                           setSelectedPlannerRecordId(null);
                         }}
                       >
-                        <Text className="text-[11px] font-semibold text-brand-700">Show all</Text>
+                        <Text className="text-[11px] font-semibold text-brand-700">
+                          {t('Show all')}
+                        </Text>
                       </Pressable>
                     ) : null}
                   </View>
@@ -340,7 +376,7 @@ export function HomeScreen({ openPlannerRecord }: HomeScreenProps) {
                       selectedPlannerInsight === 'calendars' ? 'text-white/90' : 'text-ink-700'
                     }`}
                   >
-                    Saved calendars
+                    {t('Saved calendars')}
                   </Text>
                 </Pressable>
                 <Pressable
@@ -362,7 +398,7 @@ export function HomeScreen({ openPlannerRecord }: HomeScreenProps) {
                       selectedPlannerInsight === 'activities' ? 'text-white/90' : 'text-ink-700'
                     }`}
                   >
-                    {selectedPlannerRecord ? 'Focused activities' : 'Upcoming activities'}
+                    {selectedPlannerRecord ? t('Focused activities') : t('Upcoming activities')}
                   </Text>
                 </Pressable>
               </View>
@@ -371,18 +407,23 @@ export function HomeScreen({ openPlannerRecord }: HomeScreenProps) {
                 {selectedPlannerInsight === 'activities' ? (
                   <View className="gap-3">
                     <View className="flex-row items-center justify-between gap-3">
-                      <Text className="text-sm font-semibold text-ink-900">Next activities</Text>
+                      <Text className="text-sm font-semibold text-ink-900">
+                        {t('Next activities')}
+                      </Text>
                       {plannerDashboardSummary.upcomingCount > 0 ? (
                         <Text className="text-[11px] font-semibold text-brand-700">
-                          Showing {upcomingActivityItems.length} of{' '}
-                          {plannerDashboardSummary.upcomingCount}
+                          {t('Showing {shown} of {total}', {
+                            shown: upcomingActivityItems.length,
+                            total: plannerDashboardSummary.upcomingCount,
+                          })}
                         </Text>
                       ) : null}
                     </View>
                     {selectedPlannerRecord ? (
                       <Text className="text-xs leading-5 text-ink-700">
-                        Focused on {selectedPlannerRecord.title}. Use Show all to return to every
-                        saved calendar.
+                        {t('Focused on {title}. Use Show all to return to every saved calendar.', {
+                          title: t(selectedPlannerRecord.title),
+                        })}
                       </Text>
                     ) : null}
                     {upcomingActivityItems.length > 0 ? (
@@ -414,17 +455,22 @@ export function HomeScreen({ openPlannerRecord }: HomeScreenProps) {
                       ))
                     ) : (
                       <Text className="text-sm leading-6 text-ink-700">
-                        No upcoming planner activities yet.
+                        {t('No upcoming planner activities yet.')}
                       </Text>
                     )}
                   </View>
                 ) : (
                   <View className="gap-3">
                     <View className="flex-row items-center justify-between gap-3">
-                      <Text className="text-sm font-semibold text-ink-900">Recent calendars</Text>
+                      <Text className="text-sm font-semibold text-ink-900">
+                        {t('Recent calendars')}
+                      </Text>
                       {plannerRecords.length > 0 ? (
                         <Text className="text-[11px] font-semibold text-brand-700">
-                          Showing {recentCalendars.length} of {plannerRecords.length}
+                          {t('Showing {shown} of {total}', {
+                            shown: recentCalendars.length,
+                            total: plannerRecords.length,
+                          })}
                         </Text>
                       ) : null}
                     </View>
@@ -447,14 +493,18 @@ export function HomeScreen({ openPlannerRecord }: HomeScreenProps) {
                             <View className="flex-row items-center justify-between gap-3">
                               <View className="flex-1">
                                 <Text className="text-sm font-semibold text-ink-900">
-                                  {record.title}
+                                  {t(record.title)}
                                 </Text>
                                 <Text className="mt-1 text-xs leading-5 text-ink-700">
-                                  Planting date: {formatDate(fromIsoDate(record.plantingDate))}
+                                  {t('Planting date: {date}', {
+                                    date: formatDate(fromIsoDate(record.plantingDate)),
+                                  })}
                                 </Text>
                                 <Text className="mt-1 text-xs leading-5 text-brand-700">
-                                  {record.activityCount} activities -{' '}
-                                  {isFocused ? 'Focused on Home' : 'Tap to focus'}
+                                  {t('{count} activities - {status}', {
+                                    count: record.activityCount,
+                                    status: isFocused ? t('Focused on Home') : t('Tap to focus'),
+                                  })}
                                 </Text>
                               </View>
                               <Ionicons
@@ -468,7 +518,7 @@ export function HomeScreen({ openPlannerRecord }: HomeScreenProps) {
                       })
                     ) : (
                       <Text className="text-sm leading-6 text-ink-700">
-                        No saved crop calendars yet.
+                        {t('No saved crop calendars yet.')}
                       </Text>
                     )}
                   </View>
@@ -478,9 +528,9 @@ export function HomeScreen({ openPlannerRecord }: HomeScreenProps) {
                   <Text className="text-xs font-semibold text-brand-700">
                     {plannerRecords.length > 0
                       ? selectedPlannerInsight === 'calendars'
-                        ? 'Tap a calendar to focus Home. Open details from the focused card.'
-                        : 'Tap an activity to open its saved calendar details.'
-                      : 'Use the Planner tab to create your first crop calendar.'}
+                        ? t('Tap a calendar to focus Home. Open details from the focused card.')
+                        : t('Tap an activity to open its saved calendar details.')
+                      : t('Use the Planner tab to create your first crop calendar.')}
                   </Text>
                 </View>
               </View>
@@ -493,9 +543,11 @@ export function HomeScreen({ openPlannerRecord }: HomeScreenProps) {
               <Ionicons color="#2d6033" name="shield-checkmark-outline" size={21} />
             </View>
             <View className="flex-1">
-              <Text className="text-base font-semibold text-ink-900">Local-first records</Text>
+              <Text className="text-base font-semibold text-ink-900">
+                {t('Local-first records')}
+              </Text>
               <Text className="mt-1 text-sm leading-5 text-ink-700">
-                Guide, planner history, and saved scan records are organized for offline review.
+                {t('Guide, planner history, and saved scan records are organized for offline review.')}
               </Text>
             </View>
           </View>

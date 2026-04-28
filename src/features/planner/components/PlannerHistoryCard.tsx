@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Pressable, Text, View } from 'react-native';
 
 import { SectionCard } from '../../../components/ui/SectionCard';
+import { useAppLanguage } from '../../../localization/appLanguage';
 
 type PlannerHistoryCardProps = {
   title: string;
@@ -18,22 +19,32 @@ export function PlannerHistoryCard({
   activityCount,
   onPress,
 }: PlannerHistoryCardProps) {
+  const { t } = useAppLanguage();
+
   return (
     <Pressable accessibilityRole="button" className="active:opacity-90" onPress={onPress}>
       <SectionCard>
         <View className="gap-3">
           <View className="flex-row items-center justify-between gap-3">
-            <Text className="flex-1 text-lg font-semibold text-ink-900">{title}</Text>
+            <Text className="flex-1 text-lg font-semibold text-ink-900">{t(title)}</Text>
             <View className="rounded-full bg-brand-50 px-3 py-1">
-              <Text className="text-xs font-semibold text-brand-700">{activityCount} activities</Text>
+              <Text className="text-xs font-semibold text-brand-700">
+                {t('{count} activities', { count: activityCount })}
+              </Text>
             </View>
           </View>
 
-          <Text className="text-sm leading-6 text-ink-700">Planting date: {plantingDateLabel}</Text>
-          <Text className="text-sm leading-6 text-ink-700">Saved locally: {savedAtLabel}</Text>
+          <Text className="text-sm leading-6 text-ink-700">
+            {t('Planting date: {date}', { date: plantingDateLabel })}
+          </Text>
+          <Text className="text-sm leading-6 text-ink-700">
+            {t('Saved locally: {date}', { date: savedAtLabel })}
+          </Text>
 
           <View className="flex-row items-center justify-between">
-            <Text className="text-sm font-semibold text-brand-700">Tap card to view calendar</Text>
+            <Text className="text-sm font-semibold text-brand-700">
+              {t('Tap card to view calendar')}
+            </Text>
             <Ionicons color="#2d6033" name="chevron-forward" size={18} />
           </View>
         </View>

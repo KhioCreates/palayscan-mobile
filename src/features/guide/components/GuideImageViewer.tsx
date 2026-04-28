@@ -13,6 +13,8 @@ import {
   View,
 } from 'react-native';
 
+import { useAppLanguage } from '../../../localization/appLanguage';
+
 type GuideImageViewerProps = {
   visible: boolean;
   imageSource?: ImageSourcePropType;
@@ -32,6 +34,7 @@ export function GuideImageViewer({
   caption,
   onClose,
 }: GuideImageViewerProps) {
+  const { t } = useAppLanguage();
   const { height, width } = useWindowDimensions();
   const [zoomIndex, setZoomIndex] = useState(0);
 
@@ -78,7 +81,7 @@ export function GuideImageViewer({
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.header}>
             <Pressable
-              accessibilityLabel="Close image viewer"
+              accessibilityLabel={t('Close image viewer')}
               accessibilityRole="button"
               onPress={onClose}
               style={({ pressed }) => [styles.closeButton, pressed ? styles.pressed : null]}
@@ -89,7 +92,7 @@ export function GuideImageViewer({
               <Text numberOfLines={1} style={styles.title}>
                 {title}
               </Text>
-              <Text style={styles.helper}>Use + or - to zoom. Drag when zoomed.</Text>
+              <Text style={styles.helper}>{t('Use + or - to zoom. Drag when zoomed.')}</Text>
             </View>
           </View>
 
@@ -119,7 +122,7 @@ export function GuideImageViewer({
               >
                 <Image
                   accessibilityIgnoresInvertColors
-                  accessibilityLabel={imageAlt ?? `${title} guide image`}
+                  accessibilityLabel={imageAlt ?? t('{title} guide image', { title })}
                   resizeMode={zoom === 1 ? 'cover' : 'contain'}
                   source={imageSource}
                   style={[
@@ -144,7 +147,7 @@ export function GuideImageViewer({
 
                 return (
                   <Pressable
-                    accessibilityLabel={`Set zoom to ${zoomStep} times`}
+                    accessibilityLabel={t('Set zoom to {zoom} times', { zoom: zoomStep })}
                     accessibilityRole="button"
                     key={zoomStep}
                     onPress={() => setZoomIndex(index)}
@@ -160,7 +163,7 @@ export function GuideImageViewer({
 
             <View style={styles.controlRow}>
               <Pressable
-                accessibilityLabel="Zoom out"
+                accessibilityLabel={t('Zoom out')}
                 accessibilityRole="button"
                 disabled={zoomIndex === 0}
                 onPress={handleZoomOut}
@@ -172,17 +175,17 @@ export function GuideImageViewer({
               </Pressable>
 
               <Pressable
-                accessibilityLabel="Reset image zoom"
+                accessibilityLabel={t('Reset image zoom')}
                 accessibilityRole="button"
                 onPress={() => setZoomIndex(0)}
                 style={({ pressed }) => [styles.zoomPercentButton, pressed ? styles.pressed : null]}
               >
                 <Text style={styles.zoomPercentText}>{Math.round(zoom * 100)}%</Text>
-                <Text style={styles.resetText}>Reset</Text>
+                <Text style={styles.resetText}>{t('Reset')}</Text>
               </Pressable>
 
               <Pressable
-                accessibilityLabel="Zoom in"
+                accessibilityLabel={t('Zoom in')}
                 accessibilityRole="button"
                 disabled={zoomIndex === zoomSteps.length - 1}
                 onPress={handleZoomIn}

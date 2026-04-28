@@ -5,22 +5,23 @@ import { SectionCard } from '../../../components/ui/SectionCard';
 import { formatDate, fromIsoDate } from '../../planner/utils/date';
 import { ScanPrediction, ScanResult } from '../types';
 import { toDiagnosisTitleCase } from '../utils/formatScanText';
+import { useAppLanguage, type Translator } from '../../../localization/appLanguage';
 
 function formatConfidence(value: number) {
   return `${Math.round(value * 100)}%`;
 }
 
-function getResultSummary(result: ScanResult) {
+function getResultSummary(result: ScanResult, t: Translator) {
   if (result.category === 'healthy') {
     return {
-      title: 'Plant appears healthy',
-      subtitle: 'No major disease detected',
+      title: t('Plant appears healthy'),
+      subtitle: t('No major disease detected'),
     };
   }
 
   return {
     title: toDiagnosisTitleCase(result.topResultName),
-    subtitle: `Type: ${toDiagnosisTitleCase(result.category)}`,
+    subtitle: t('Type: {type}', { type: toDiagnosisTitleCase(result.category) }),
   };
 }
 
@@ -41,11 +42,11 @@ function shouldShowConfidenceHelper(result: ScanResult) {
   return (result.predictions[0]?.confidence ?? 0) < 0.75;
 }
 
-function getConfidenceMeta(value: number) {
+function getConfidenceMeta(value: number, t: Translator) {
   if (value >= 0.8) {
     return {
-      label: 'Strong match',
-      helper: 'The photo match is strong. Still compare actual field signs before acting.',
+      label: t('Strong match'),
+      helper: t('The photo match is strong. Still compare actual field signs before acting.'),
       badgeClassName: 'bg-brand-100',
       textClassName: 'text-brand-700',
       fillColor: '#2d6033',
@@ -55,8 +56,8 @@ function getConfidenceMeta(value: number) {
 
   if (value >= 0.55) {
     return {
-      label: 'Check closely',
-      helper: 'The result may help, but the field signs should be checked carefully.',
+      label: t('Check closely'),
+      helper: t('The result may help, but the field signs should be checked carefully.'),
       badgeClassName: 'bg-earth-50',
       textClassName: 'text-earth-500',
       fillColor: '#c48a2c',
@@ -65,8 +66,8 @@ function getConfidenceMeta(value: number) {
   }
 
   return {
-    label: 'Unclear match',
-    helper: 'Retake a clearer photo or compare manually with the Guide.',
+    label: t('Unclear match'),
+    helper: t('Retake a clearer photo or compare manually with the Guide.'),
     badgeClassName: 'bg-earth-50',
     textClassName: 'text-earth-500',
     fillColor: '#9b5d2f',
@@ -139,9 +140,10 @@ export function ScanResultCard({
   onOpenDetail?: (predictionIndex: number) => void;
   result: ScanResult;
 }) {
-  const summary = getResultSummary(result);
+  const { t } = useAppLanguage();
+  const summary = getResultSummary(result, t);
   const topConfidence = result.predictions[0]?.confidence ?? 0;
-  const confidenceMeta = getConfidenceMeta(topConfidence);
+  const confidenceMeta = getConfidenceMeta(topConfidence, t);
   const topProgressWidth: DimensionValue = `${Math.round(topConfidence * 100)}%`;
 
   return (
@@ -149,9 +151,9 @@ export function ScanResultCard({
       <View className="gap-4">
         <View className="flex-row items-center justify-between gap-3">
           <View className="flex-1">
-            <Text className="text-lg font-semibold text-ink-900">Scan result</Text>
+            <Text className="text-lg font-semibold text-ink-900">{t('Scan result')}</Text>
             <Text className="mt-1 text-sm leading-5 text-ink-700">
-              Review the possible issue and compare the field signs.
+              {t('Review the possible issue and compare the field signs.')}
             </Text>
           </View>
           <View className="h-12 w-12 items-center justify-center rounded-full bg-brand-50">
@@ -161,7 +163,9 @@ export function ScanResultCard({
 
         {result.nonPlantWarning ? (
           <View className="rounded-[18px] bg-earth-50 px-4 py-3">
-            <Text className="text-sm font-semibold text-ink-900">Non-plant image detected</Text>
+            <Text className="text-sm font-semibold text-ink-900">
+              {t('Non-plant image detected')}
+            </Text>
             <Text className="mt-1 text-sm leading-6 text-ink-700">{result.nonPlantWarning}</Text>
           </View>
         ) : null}
@@ -175,7 +179,7 @@ export function ScanResultCard({
             <View className="flex-row items-start justify-between gap-3">
               <View className="flex-1">
                 <Text className="text-xs font-semibold uppercase tracking-[1.2px] text-ink-600">
-                  Possible issue
+                  {t('Possible issue')}
                 </Text>
                 <Text className="mt-1 text-xl font-semibold text-ink-900">{summary.title}</Text>
                 <Text className="mt-1 text-sm text-ink-700">{summary.subtitle}</Text>
@@ -206,24 +210,26 @@ export function ScanResultCard({
             <View className="gap-1.5">
               {result.category !== 'healthy' && result.cropLabel ? (
                 <Text className="text-sm text-ink-700">
-                  Crop: {toDiagnosisTitleCase(result.cropLabel)}
+                  {t('Crop')}: {toDiagnosisTitleCase(result.cropLabel)}
                   {result.cropScientificName ? ` (${result.cropScientificName})` : ''}
                 </Text>
               ) : null}
               <Text className="text-sm text-ink-700">
-                Scanned: {formatDate(fromIsoDate(result.scannedAt.slice(0, 10)))}
+                {t('Scanned')}: {formatDate(fromIsoDate(result.scannedAt.slice(0, 10)))}
               </Text>
               {result.scanPhotos?.length ? (
                 <Text className="text-sm text-ink-700">
-                  Photo focus: {formatScanPhotoSummary(result.scanPhotos)}
+                  {t('Photo focus')}: {formatScanPhotoSummary(result.scanPhotos)}
                 </Text>
               ) : null}
               {result.notes ? (
-                <Text className="text-sm text-ink-700">Notes: {result.notes}</Text>
+                <Text className="text-sm text-ink-700">
+                  {t('Notes')}: {result.notes}
+                </Text>
               ) : null}
               {onOpenDetail ? (
                 <Text className="text-sm font-semibold text-brand-700">
-                  Tap to check signs and next steps
+                  {t('Tap to check signs and next steps')}
                 </Text>
               ) : null}
             </View>
@@ -232,7 +238,7 @@ export function ScanResultCard({
 
         {!result.nonPlantWarning && result.riceMismatchWarning ? (
           <View className="rounded-[18px] bg-earth-50 px-4 py-3">
-            <Text className="text-sm font-semibold text-ink-900">Rice check warning</Text>
+            <Text className="text-sm font-semibold text-ink-900">{t('Rice check warning')}</Text>
             <Text className="mt-1 text-sm leading-6 text-ink-700">{result.riceMismatchWarning}</Text>
           </View>
         ) : null}
@@ -247,7 +253,7 @@ export function ScanResultCard({
 
         {!result.nonPlantWarning && result.predictions.length > 0 ? (
           <View className="gap-3">
-            <Text className="text-sm font-semibold text-ink-900">Other possible matches</Text>
+            <Text className="text-sm font-semibold text-ink-900">{t('Other possible matches')}</Text>
             {result.predictions.map((prediction, index) => (
               <PredictionRow
                 index={index}

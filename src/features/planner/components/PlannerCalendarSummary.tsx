@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { SectionCard } from '../../../components/ui/SectionCard';
+import { useAppLanguage } from '../../../localization/appLanguage';
 import { PlannedActivity } from '../types';
 import {
   addDays,
@@ -46,6 +47,7 @@ export function PlannerCalendarSummary({
   onSelectDate,
   onSelectDateActivityIds,
 }: PlannerCalendarSummaryProps) {
+  const { t } = useAppLanguage();
   const [visibleMonth, setVisibleMonth] = useState(() => startOfMonth(fromIsoDate(initialFocusDate)));
   const [selectedDateIso, setSelectedDateIso] = useState(initialFocusDate);
 
@@ -90,9 +92,9 @@ export function PlannerCalendarSummary({
       <View className="gap-4">
         <View className="flex-row items-center justify-between">
           <View>
-            <Text className="text-lg font-semibold text-ink-900">Calendar Summary</Text>
+            <Text className="text-lg font-semibold text-ink-900">{t('Calendar Summary')}</Text>
             <Text className="mt-1 text-sm leading-6 text-ink-700">
-              View the estimated crop timeline by month and tap a date to see planned activities.
+              {t('View the estimated crop timeline by month and tap a date to see planned activities.')}
             </Text>
           </View>
         </View>
@@ -122,7 +124,7 @@ export function PlannerCalendarSummary({
             {weekdayLabels.map((label) => (
               <View key={label} className="flex-1 items-center py-1">
                 <Text className="text-xs font-semibold uppercase tracking-[1px] text-ink-600">
-                  {label}
+                  {t(label)}
                 </Text>
               </View>
             ))}
@@ -228,7 +230,7 @@ export function PlannerCalendarSummary({
             return (
               <View className="flex-row items-center gap-2 rounded-full bg-white px-3 py-2" key={activityType}>
                 <View className={`h-2.5 w-2.5 rounded-full ${activityStyle.accentClassName}`} />
-                <Text className="text-xs font-semibold text-ink-700">{activityStyle.label}</Text>
+                <Text className="text-xs font-semibold text-ink-700">{t(activityStyle.label)}</Text>
               </View>
             );
           })}
@@ -236,11 +238,13 @@ export function PlannerCalendarSummary({
 
         <View className="rounded-[20px] bg-brand-50/45 px-4 py-4">
           <Text className="text-sm font-semibold text-ink-900">
-            Activities on {formatDate(selectedDate)}
+            {t('Activities on {date}', { date: formatDate(selectedDate) })}
           </Text>
           {selectedDateActivities.length > 1 ? (
             <Text className="mt-1 text-xs leading-5 text-ink-700">
-              {selectedDateActivities.length} activities are scheduled on this date.
+              {t('{count} activities are scheduled on this date.', {
+                count: selectedDateActivities.length,
+              })}
             </Text>
           ) : null}
 
@@ -263,7 +267,7 @@ export function PlannerCalendarSummary({
                         isSelectedActivity ? 'text-brand-800' : 'text-ink-900'
                       }`}
                     >
-                      {activity.title}
+                      {t(activity.title)}
                     </Text>
                     <Text
                       className={`mt-1 text-xs ${
@@ -278,7 +282,7 @@ export function PlannerCalendarSummary({
             </View>
           ) : (
             <Text className="mt-2 text-sm leading-6 text-ink-700">
-              No scheduled activity falls on this date in the current crop calendar view.
+              {t('No scheduled activity falls on this date in the current crop calendar view.')}
             </Text>
           )}
         </View>

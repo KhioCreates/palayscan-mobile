@@ -36,6 +36,19 @@ export type PlannerTimelineSummary = {
   description: string;
 };
 
+type PlannerTranslator = (key: string, values?: Record<string, string | number>) => string;
+
+const defaultPlannerTranslator: PlannerTranslator = (key, values) => {
+  if (!values) {
+    return key;
+  }
+
+  return key.replace(/\{(\w+)\}/g, (_match, token: string) => {
+    const value = values[token];
+    return value === undefined ? `{${token}}` : String(value);
+  });
+};
+
 export const plannerActivityDisplay: Record<PlannerActivityType, PlannerActivityDisplay> = {
   'land-preparation': {
     label: 'Land',
@@ -108,6 +121,7 @@ export const plannerActivityTypeOrder: PlannerActivityType[] = [
 
 export function getPlannerStages(
   cropDurationDays = DEFAULT_CROP_DURATION_DAYS,
+  t: PlannerTranslator = defaultPlannerTranslator,
 ): PlannerStage[] {
   const harvestStartDay = Math.max(76, cropDurationDays - 21);
   const panicleEndDay = Math.max(75, harvestStartDay - 1);
@@ -115,36 +129,36 @@ export function getPlannerStages(
   return [
     {
       id: 'prepare',
-      title: 'Prepare',
-      subtitle: 'Land and seed',
+      title: t('Prepare'),
+      subtitle: t('Land and seed'),
       startDay: -14,
       endDay: -1,
     },
     {
       id: 'plant',
-      title: 'Plant',
-      subtitle: 'Day 0',
+      title: t('Plant'),
+      subtitle: t('Day 0'),
       startDay: 0,
       endDay: 7,
     },
     {
       id: 'tillering',
-      title: 'Tillering',
-      subtitle: 'Scout and feed',
+      title: t('Tillering'),
+      subtitle: t('Scout and feed'),
       startDay: 8,
       endDay: 35,
     },
     {
       id: 'panicle',
-      title: 'Panicle',
-      subtitle: 'Water and monitor',
+      title: t('Panicle'),
+      subtitle: t('Water and monitor'),
       startDay: 36,
       endDay: panicleEndDay,
     },
     {
       id: 'harvest',
-      title: 'Harvest',
-      subtitle: 'Ripening',
+      title: t('Harvest'),
+      subtitle: t('Ripening'),
       startDay: harvestStartDay,
       endDay: cropDurationDays + 10,
     },
@@ -165,9 +179,10 @@ export function getActivePlannerStage(
   plantingDate: string,
   today = new Date(),
   cropDurationDays = DEFAULT_CROP_DURATION_DAYS,
+  t: PlannerTranslator = defaultPlannerTranslator,
 ) {
   const cropDay = getCropDay(plantingDate, today);
-  const stages = getPlannerStages(cropDurationDays);
+  const stages = getPlannerStages(cropDurationDays, t);
   const firstStage = stages[0];
   const finalStage = stages[stages.length - 1];
 
@@ -185,52 +200,53 @@ export function getPlannerTimelineSummary(
   plantingDate: string,
   cropDurationDays = DEFAULT_CROP_DURATION_DAYS,
   today = new Date(),
+  t: PlannerTranslator = defaultPlannerTranslator,
 ): PlannerTimelineSummary {
   const cropDay = getCropDay(plantingDate, today);
   const daysBeforePlanting = Math.abs(cropDay);
-  const activeStage = getActivePlannerStage(plantingDate, today, cropDurationDays);
+  const activeStage = getActivePlannerStage(plantingDate, today, cropDurationDays, t);
   const landPrepDate = formatDate(addDays(fromIsoDate(plantingDate), -14));
 
   if (cropDay < -14) {
     return {
-      headline: `Planting in ${daysBeforePlanting} days`,
-      stageTitle: 'Planning',
-      badgeLabel: `${daysBeforePlanting} days left`,
-      description: `Land preparation starts around ${landPrepDate}.`,
+      headline: t('Planting in {days} days', { days: daysBeforePlanting }),
+      stageTitle: t('Planning'),
+      badgeLabel: t('{days} days left', { days: daysBeforePlanting }),
+      description: t('Land preparation starts around {date}.', { date: landPrepDate }),
     };
   }
 
   if (cropDay < 0) {
     return {
-      headline: `${daysBeforePlanting} days before planting`,
-      stageTitle: 'Prepare',
-      badgeLabel: `Day ${cropDay}`,
-      description: 'Land and seed preparation window.',
+      headline: t('{days} days before planting', { days: daysBeforePlanting }),
+      stageTitle: t('Prepare'),
+      badgeLabel: t('Day {day}', { day: cropDay }),
+      description: t('Land and seed preparation window.'),
     };
   }
 
   if (cropDay === 0) {
     return {
-      headline: 'Day 0 - Planting',
-      stageTitle: 'Plant',
-      badgeLabel: 'Day 0',
-      description: 'Planting date starts the crop calendar.',
+      headline: t('Day 0 - Planting'),
+      stageTitle: t('Plant'),
+      badgeLabel: t('Day 0'),
+      description: t('Planting date starts the crop calendar.'),
     };
   }
 
   if (cropDay > cropDurationDays + 10) {
     return {
-      headline: 'Calendar completed',
-      stageTitle: 'Harvest',
-      badgeLabel: `Day ${cropDay}`,
-      description: 'Review harvest records and start a new plan when needed.',
+      headline: t('Calendar completed'),
+      stageTitle: t('Harvest'),
+      badgeLabel: t('Day {day}', { day: cropDay }),
+      description: t('Review harvest records and start a new plan when needed.'),
     };
   }
 
   return {
-    headline: `Day ${cropDay} - ${activeStage.title}`,
+    headline: t('Day {day} - {stage}', { day: cropDay, stage: activeStage.title }),
     stageTitle: activeStage.title,
-    badgeLabel: `Day ${cropDay}`,
+    badgeLabel: t('Day {day}', { day: cropDay }),
     description: activeStage.subtitle,
   };
 }

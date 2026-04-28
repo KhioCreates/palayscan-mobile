@@ -12,7 +12,7 @@ export function ScanScreen() {
       <HeaderBlock
         eyebrow="Scan Module"
         title="Capture or upload a rice image"
-        description="This placeholder prepares the camera and gallery flow for the next phase."
+        description="Take or upload clear palay photos for checking."
       />
 
       <View className="gap-4">
@@ -30,9 +30,9 @@ export function ScanScreen() {
 
       <View className="mt-5 gap-4">
         <SectionCard>
-          <Text className="text-lg font-semibold text-ink-900">Coming next</Text>
+          <Text className="text-lg font-semibold text-ink-900">Photo guide</Text>
           <Text className="mt-2 text-sm leading-6 text-ink-700">
-            API connection, top 3 prediction cards, confidence display, and local scan history.
+            Use clear photos of rice leaves, stems, panicles, or field patches.
           </Text>
         </SectionCard>
       </View>

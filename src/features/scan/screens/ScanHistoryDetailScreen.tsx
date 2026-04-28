@@ -6,6 +6,7 @@ import { Alert, Image, Text, View } from 'react-native';
 import { PrimaryButton } from '../../../components/ui/PrimaryButton';
 import { ScreenContainer } from '../../../components/ui/ScreenContainer';
 import { SectionCard } from '../../../components/ui/SectionCard';
+import { useAppLanguage } from '../../../localization/appLanguage';
 import { RootStackParamList } from '../../../navigation/RootNavigator';
 import { ScanResultCard } from '../components/ScanResultCard';
 import { deleteScanRecord, getScanRecordById } from '../services/scanStorage';
@@ -15,6 +16,7 @@ import { formatDate, fromIsoDate } from '../../planner/utils/date';
 type ScanHistoryDetailScreenProps = NativeStackScreenProps<RootStackParamList, 'ScanHistoryDetail'>;
 
 export function ScanHistoryDetailScreen({ navigation, route }: ScanHistoryDetailScreenProps) {
+  const { t } = useAppLanguage();
   const [record, setRecord] = useState<SavedScanRecord | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -39,10 +41,10 @@ export function ScanHistoryDetailScreen({ navigation, route }: ScanHistoryDetail
       return;
     }
 
-    Alert.alert('Delete scan record', 'Remove this saved scan result from local history?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(t('Delete scan record'), t('Remove this saved scan result from local history?'), [
+      { text: t('Cancel'), style: 'cancel' },
       {
-        text: 'Delete',
+        text: t('Delete'),
         style: 'destructive',
         onPress: async () => {
           setIsDeleting(true);
@@ -69,9 +71,9 @@ export function ScanHistoryDetailScreen({ navigation, route }: ScanHistoryDetail
     return (
       <ScreenContainer bottomSpacing="comfortable">
         <SectionCard tone="muted">
-          <Text className="text-lg font-semibold text-ink-900">Scan record not found</Text>
+          <Text className="text-lg font-semibold text-ink-900">{t('Scan record not found')}</Text>
           <Text className="mt-2 text-sm leading-6 text-ink-700">
-            This saved scan could not be loaded from local history.
+            {t('This saved scan could not be loaded from local history.')}
           </Text>
         </SectionCard>
       </ScreenContainer>
@@ -90,9 +92,11 @@ export function ScanHistoryDetailScreen({ navigation, route }: ScanHistoryDetail
             />
 
             <View className="gap-2">
-              <Text className="text-lg font-semibold text-ink-900">Saved scan summary</Text>
+              <Text className="text-lg font-semibold text-ink-900">{t('Saved scan summary')}</Text>
               <Text className="text-sm leading-6 text-ink-700">
-                Saved: {formatDate(fromIsoDate(record.createdAt.slice(0, 10)))}
+                {t('Saved: {date}', {
+                  date: formatDate(fromIsoDate(record.createdAt.slice(0, 10))),
+                })}
               </Text>
             </View>
           </View>
@@ -105,8 +109,8 @@ export function ScanHistoryDetailScreen({ navigation, route }: ScanHistoryDetail
 
         <PrimaryButton
           disabled={isDeleting}
-          label={isDeleting ? 'Deleting...' : 'Delete this scan'}
-          hint="Remove this saved scan from local history."
+          label={isDeleting ? t('Deleting...') : t('Delete this scan')}
+          hint={t('Remove this saved scan from local history.')}
           onPress={handleDelete}
         />
       </View>

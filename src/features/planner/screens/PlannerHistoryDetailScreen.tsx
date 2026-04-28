@@ -10,6 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { PrimaryButton } from '../../../components/ui/PrimaryButton';
 import { ScreenContainer } from '../../../components/ui/ScreenContainer';
 import { SectionCard } from '../../../components/ui/SectionCard';
+import { useAppLanguage } from '../../../localization/appLanguage';
 import { RootStackParamList } from '../../../navigation/RootNavigator';
 import { plantingMethodOptions } from '../data/plannerRules';
 import { PlannerActivityCard } from '../components/PlannerActivityCard';
@@ -30,6 +31,7 @@ export function PlannerHistoryDetailScreen({
   navigation,
   route,
 }: PlannerHistoryDetailScreenProps) {
+  const { t } = useAppLanguage();
   const [record, setRecord] = useState<SavedPlannerRecord | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
@@ -127,7 +129,7 @@ export function PlannerHistoryDetailScreen({
 
       await updatePlannerRecord(updatedRecord);
       setRecord(updatedRecord);
-      Alert.alert('Activity updated', 'This saved crop calendar activity was updated locally.');
+      Alert.alert(t('Activity updated'), t('This saved crop calendar activity was updated locally.'));
     } finally {
       setIsSavingEdit(false);
     }
@@ -161,10 +163,10 @@ export function PlannerHistoryDetailScreen({
       return;
     }
 
-    Alert.alert('Delete planner record', 'Remove this saved planner schedule from local history?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(t('Delete planner record'), t('Remove this saved planner schedule from local history?'), [
+      { text: t('Cancel'), style: 'cancel' },
       {
-        text: 'Delete',
+        text: t('Delete'),
         style: 'destructive',
         onPress: async () => {
           setIsDeleting(true);
@@ -179,9 +181,11 @@ export function PlannerHistoryDetailScreen({
     return (
       <ScreenContainer bottomSpacing="comfortable" topSpacing="comfortable">
         <SectionCard tone="muted">
-          <Text className="text-lg font-semibold text-ink-900">Planner record not found</Text>
+          <Text className="text-lg font-semibold text-ink-900">
+            {t('Planner record not found')}
+          </Text>
           <Text className="mt-2 text-sm leading-6 text-ink-700">
-            This saved planner schedule could not be loaded from local history.
+            {t('This saved planner schedule could not be loaded from local history.')}
           </Text>
         </SectionCard>
       </ScreenContainer>
@@ -198,28 +202,38 @@ export function PlannerHistoryDetailScreen({
           cropDurationDays={record.cropDurationDays}
           cropDurationLabel={record.cropDurationLabel}
           plantingDate={record.plantingDate}
-          title="Saved planner progress"
+          title={t('Saved planner progress')}
         />
 
         <SectionCard>
           <View className="gap-4">
             <View className="gap-2">
               <Text className="text-sm font-semibold uppercase tracking-[2px] text-brand-700">
-                Saved Crop Calendar
+                {t('Saved Crop Calendar')}
               </Text>
-              <Text className="text-2xl font-semibold text-ink-900">{record.title}</Text>
+              <Text className="text-2xl font-semibold text-ink-900">{t(record.title)}</Text>
               <Text className="text-sm leading-6 text-ink-700">
-                Method: {methodMeta ? `${methodMeta.title} (${methodMeta.subtitle})` : record.title}
+                {t('Method: {method}', {
+                  method: methodMeta
+                    ? `${t(methodMeta.title)} (${t(methodMeta.subtitle)})`
+                    : t(record.title),
+                })}
               </Text>
               <Text className="text-sm leading-6 text-ink-700">
-                Planting date: {formatDate(fromIsoDate(record.plantingDate))}
+                {t('Planting date: {date}', {
+                  date: formatDate(fromIsoDate(record.plantingDate)),
+                })}
               </Text>
               <Text className="text-sm leading-6 text-ink-700">
-                Saved: {formatDate(fromIsoDate(record.createdAt.slice(0, 10)))}
+                {t('Saved: {date}', {
+                  date: formatDate(fromIsoDate(record.createdAt.slice(0, 10))),
+                })}
               </Text>
               {record.cropDurationLabel ? (
                 <Text className="text-sm leading-6 text-ink-700">
-                  Variety duration: {record.cropDurationLabel}
+                  {t('Variety duration: {duration}', {
+                    duration: t(record.cropDurationLabel),
+                  })}
                 </Text>
               ) : null}
             </View>
@@ -242,20 +256,21 @@ export function PlannerHistoryDetailScreen({
 
         <SectionCard tone="muted">
           <View className="gap-3">
-            <Text className="text-lg font-semibold text-ink-900">Edit selected activity</Text>
+            <Text className="text-lg font-semibold text-ink-900">
+              {t('Edit selected activity')}
+            </Text>
             {selectedActivity ? (
               <>
                 <Text className="text-sm leading-6 text-ink-700">
-                  Update the date or notes for this saved activity. Changes stay on this device and
-                  refresh the crop calendar below.
+                  {t('Update the date or notes for this saved activity. Changes stay on this device and refresh the crop calendar below.')}
                 </Text>
 
                 <View className="gap-2 rounded-[18px] bg-white p-4">
                   <Text className="text-base font-semibold text-ink-900">
-                    {selectedActivity.title}
+                    {t(selectedActivity.title)}
                   </Text>
                   <Text className="text-sm leading-6 text-ink-700">
-                    Current window: {selectedActivity.windowLabel}
+                    {t('Current window: {window}', { window: selectedActivity.windowLabel })}
                   </Text>
                 </View>
 
@@ -269,7 +284,7 @@ export function PlannerHistoryDetailScreen({
                       {formatDate(editorDate)}
                     </Text>
                     <Text className="mt-1 text-sm text-ink-700">
-                      Tap to adjust this activity date. Multi-day windows move together.
+                      {t('Tap to adjust this activity date. Multi-day windows move together.')}
                     </Text>
                   </View>
                   <Ionicons color="#2d6033" name="calendar-outline" size={22} />
@@ -285,12 +300,12 @@ export function PlannerHistoryDetailScreen({
                 ) : null}
 
                 <View className="rounded-[20px] bg-white p-4">
-                  <Text className="text-sm font-semibold text-ink-900">Activity notes</Text>
+                  <Text className="text-sm font-semibold text-ink-900">{t('Activity notes')}</Text>
                   <TextInput
                     className="mt-3 min-h-[120px] rounded-[16px] bg-brand-50 px-4 py-3 text-sm leading-6 text-ink-900"
                     multiline
                     onChangeText={setEditorNotesText}
-                    placeholder="Add one note per line for this saved activity."
+                    placeholder={t('Add one note per line for this saved activity.')}
                     placeholderTextColor="#6e7f73"
                     textAlignVertical="top"
                     value={editorNotesText}
@@ -299,15 +314,14 @@ export function PlannerHistoryDetailScreen({
 
                 <PrimaryButton
                   disabled={isSavingEdit}
-                  hint="Save this date and note update to local planner history."
-                  label={isSavingEdit ? 'Saving changes...' : 'Save activity changes'}
+                  hint={t('Save this date and note update to local planner history.')}
+                  label={isSavingEdit ? t('Saving changes...') : t('Save activity changes')}
                   onPress={handleSaveActivityEdit}
                 />
               </>
             ) : (
               <Text className="text-sm leading-6 text-ink-700">
-                Tap an activity from the calendar or the list below to edit its saved date and
-                notes.
+                {t('Tap an activity from the calendar or the list below to edit its saved date and notes.')}
               </Text>
             )}
           </View>
@@ -336,8 +350,8 @@ export function PlannerHistoryDetailScreen({
 
         <PrimaryButton
           disabled={isDeleting}
-          hint="Remove this saved planner record from local history."
-          label={isDeleting ? 'Deleting...' : 'Delete this planner record'}
+          hint={t('Remove this saved planner record from local history.')}
+          label={isDeleting ? t('Deleting...') : t('Delete this planner record')}
           onPress={handleDelete}
         />
       </View>
